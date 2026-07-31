@@ -46,6 +46,8 @@ const envSchema = z
     TURNSTILE_SECRET_KEY: optional,
     CF_ANALYTICS_TOKEN: optional,
     SENTRY_DSN: optional,
+    PPTMASTER_API_URL: optional,
+    PPTMASTER_INTERNAL_API_KEY: optional,
   })
   .superRefine((env, ctx) => {
     // OAuth: half a pair is always a misconfiguration.

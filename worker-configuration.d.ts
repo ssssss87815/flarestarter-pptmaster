@@ -26,6 +26,8 @@ interface __BaseEnv_Env {
 	CF_ANALYTICS_TOKEN?: "";
 	SENTRY_DSN?: "";
 	RESEND_AUDIENCE_ID?: "";
+	PPTMASTER_API_URL?: "";
+	PPTMASTER_INTERNAL_API_KEY?: "";
 }
 declare namespace Cloudflare {
 	interface GlobalProps {
