@@ -59,6 +59,15 @@ export async function createPptMasterProject(userId: string, input: { name: stri
   }, userId)
 }
 
+export async function uploadPptMasterMarkdown(userId: string, projectId: string, filename: string, markdown: string): Promise<PptMasterProject & { imported_sources?: string[] }> {
+  const body = new FormData()
+  body.append('file', new Blob([markdown], { type: 'text/markdown; charset=utf-8' }), filename.endsWith('.md') ? filename : `${filename}.md`)
+  return request(`/api/projects/${encodeURIComponent(projectId)}/sources`, z.object({ ...projectSchema.shape, imported_sources: z.array(z.string()).optional() }), {
+    method: 'POST',
+    body,
+  }, userId)
+}
+
 export async function listPptMasterProjects(userId: string): Promise<PptMasterProject[]> {
   const result = await request('/api/projects', z.union([z.array(projectSchema), z.object({ projects: z.array(projectSchema) })]), undefined, userId)
   return Array.isArray(result) ? result : result.projects
