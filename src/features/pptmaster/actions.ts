@@ -2,7 +2,7 @@ import { createServerFn } from '@tanstack/react-start'
 import { z } from 'zod'
 
 import { requireUser } from '@/features/auth/middleware'
-import { createPptMasterProject, getPptMasterHealth, getPptMasterProgress, listPptMasterProjects, lockPptMasterConfirmations, startPptMasterGeneration, uploadPptMasterMarkdown } from './client'
+import { createPptMasterProject, approvePptMasterExport, approvePptMasterOutline, getPptMasterHealth, getPptMasterProgress, getPptMasterSpec, listPptMasterProjects, lockPptMasterConfirmations, pptMasterDownloadUrl, startPptMasterGeneration, uploadPptMasterMarkdown } from './client'
 
 export const getPptMasterProjects = createServerFn({ method: 'GET' }).handler(async () => {
   const user = await requireUser()
@@ -47,6 +47,34 @@ export const startPptMasterGenerationAction = createServerFn({ method: 'POST' })
   .handler(async ({ data }) => {
     const user = await requireUser()
     return startPptMasterGeneration(user.id, data.projectId)
+  })
+
+export const getPptMasterSpecAction = createServerFn({ method: 'GET' })
+  .validator(z.object({ projectId: z.string().min(1) }))
+  .handler(async ({ data }) => {
+    const user = await requireUser()
+    return getPptMasterSpec(user.id, data.projectId)
+  })
+
+export const approvePptMasterOutlineAction = createServerFn({ method: 'POST' })
+  .validator(z.object({ projectId: z.string().min(1) }))
+  .handler(async ({ data }) => {
+    const user = await requireUser()
+    return approvePptMasterOutline(user.id, data.projectId)
+  })
+
+export const approvePptMasterExportAction = createServerFn({ method: 'POST' })
+  .validator(z.object({ projectId: z.string().min(1) }))
+  .handler(async ({ data }) => {
+    const user = await requireUser()
+    return approvePptMasterExport(user.id, data.projectId)
+  })
+
+export const getPptMasterDownloadUrlAction = createServerFn({ method: 'GET' })
+  .validator(z.object({ projectId: z.string().min(1) }))
+  .handler(async ({ data }) => {
+    const user = await requireUser()
+    return { url: pptMasterDownloadUrl(data.projectId), userId: user.id }
   })
 
 export const getPptMasterHealthStatus = createServerFn({ method: 'GET' }).handler(async () => {

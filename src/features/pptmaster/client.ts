@@ -20,8 +20,17 @@ const progressSchema = projectSchema.extend({
   sources: z.array(z.string()).optional(),
 })
 
+const specSchema = z.object({
+  project_id: z.string(),
+  status: z.string(),
+  refine_spec: z.boolean().optional(),
+  design_spec: z.string(),
+  spec_lock: z.string(),
+})
+
 export type PptMasterProject = z.infer<typeof projectSchema>
 export type PptMasterProgress = z.infer<typeof progressSchema>
+export type PptMasterSpec = z.infer<typeof specSchema>
 
 function baseUrl(): string {
   const value = env.PPTMASTER_API_URL?.trim()
@@ -88,8 +97,26 @@ export async function lockPptMasterConfirmations(userId: string, projectId: stri
 
 export async function startPptMasterGeneration(userId: string, projectId: string): Promise<PptMasterProgress> {
   return request(`/api/projects/${encodeURIComponent(projectId)}/generate`, progressSchema, {
-    method: 'POST',
-    headers: { 'content-type': 'application/json' },
-    body: JSON.stringify({}),
+    method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({}),
   }, userId)
+}
+
+export async function getPptMasterSpec(userId: string, projectId: string): Promise<PptMasterSpec> {
+  return request(`/api/projects/${encodeURIComponent(projectId)}/spec`, specSchema, undefined, userId)
+}
+
+export async function approvePptMasterOutline(userId: string, projectId: string): Promise<PptMasterProgress> {
+  return request(`/api/projects/${encodeURIComponent(projectId)}/approve-outline`, progressSchema, {
+    method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({}),
+  }, userId)
+}
+
+export async function approvePptMasterExport(userId: string, projectId: string): Promise<PptMasterProgress> {
+  return request(`/api/projects/${encodeURIComponent(projectId)}/approve-export`, progressSchema, {
+    method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({}),
+  }, userId)
+}
+
+export function pptMasterDownloadUrl(projectId: string): string {
+  return `${baseUrl()}/api/projects/${encodeURIComponent(projectId)}/download`
 }
