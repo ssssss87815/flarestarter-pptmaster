@@ -17,6 +17,7 @@ const progressSchema = projectSchema.extend({
   expected_pages: z.number().optional(),
   export_count: z.number().optional(),
   exports: z.array(z.string()).optional(),
+  sources: z.array(z.string()).optional(),
 })
 
 export type PptMasterProject = z.infer<typeof projectSchema>
