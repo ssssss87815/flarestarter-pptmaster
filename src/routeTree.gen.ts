@@ -44,6 +44,7 @@ import { Route as Char123LocaleChar125authForgotPasswordRouteImport } from './ro
 import { Route as ApiWebhooksStripeRouteImport } from './routes/api/webhooks/stripe'
 import { Route as ApiAvatarsSplatRouteImport } from './routes/api/avatars/$'
 import { Route as ApiAuthSplatRouteImport } from './routes/api/auth/$'
+import { Route as Char123LocaleChar125AppProjectsProjectIdRouteImport } from './routes/{-$locale}/app/projects/$projectId'
 
 const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
   id: '/sitemap.xml',
@@ -243,6 +244,12 @@ const ApiAuthSplatRoute = ApiAuthSplatRouteImport.update({
   path: '/api/auth/$',
   getParentRoute: () => rootRouteImport,
 } as any)
+const Char123LocaleChar125AppProjectsProjectIdRoute =
+  Char123LocaleChar125AppProjectsProjectIdRouteImport.update({
+    id: '/app/projects/$projectId',
+    path: '/app/projects/$projectId',
+    getParentRoute: () => Char123LocaleChar125RouteRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/{-$locale}': typeof Char123LocaleChar125RouteRouteWithChildren
@@ -280,6 +287,7 @@ export interface FileRoutesByFullPath {
   '/{-$locale}/app/pro': typeof Char123LocaleChar125AppProRoute
   '/{-$locale}/admin/': typeof Char123LocaleChar125AdminIndexRoute
   '/{-$locale}/app/': typeof Char123LocaleChar125AppIndexRoute
+  '/{-$locale}/app/projects/$projectId': typeof Char123LocaleChar125AppProjectsProjectIdRoute
 }
 export interface FileRoutesByTo {
   '/llms-full.txt': typeof LlmsFullDottxtRoute
@@ -315,6 +323,7 @@ export interface FileRoutesByTo {
   '/{-$locale}/app/pro': typeof Char123LocaleChar125AppProRoute
   '/{-$locale}/admin': typeof Char123LocaleChar125AdminIndexRoute
   '/{-$locale}/app': typeof Char123LocaleChar125AppIndexRoute
+  '/{-$locale}/app/projects/$projectId': typeof Char123LocaleChar125AppProjectsProjectIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -353,6 +362,7 @@ export interface FileRoutesById {
   '/{-$locale}/app/pro': typeof Char123LocaleChar125AppProRoute
   '/{-$locale}/admin/': typeof Char123LocaleChar125AdminIndexRoute
   '/{-$locale}/app/': typeof Char123LocaleChar125AppIndexRoute
+  '/{-$locale}/app/projects/$projectId': typeof Char123LocaleChar125AppProjectsProjectIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -392,6 +402,7 @@ export interface FileRouteTypes {
     | '/{-$locale}/app/pro'
     | '/{-$locale}/admin/'
     | '/{-$locale}/app/'
+    | '/{-$locale}/app/projects/$projectId'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/llms-full.txt'
@@ -427,6 +438,7 @@ export interface FileRouteTypes {
     | '/{-$locale}/app/pro'
     | '/{-$locale}/admin'
     | '/{-$locale}/app'
+    | '/{-$locale}/app/projects/$projectId'
   id:
     | '__root__'
     | '/{-$locale}'
@@ -464,6 +476,7 @@ export interface FileRouteTypes {
     | '/{-$locale}/app/pro'
     | '/{-$locale}/admin/'
     | '/{-$locale}/app/'
+    | '/{-$locale}/app/projects/$projectId'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -729,6 +742,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiAuthSplatRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/{-$locale}/app/projects/$projectId': {
+      id: '/{-$locale}/app/projects/$projectId'
+      path: '/app/projects/$projectId'
+      fullPath: '/{-$locale}/app/projects/$projectId'
+      preLoaderRoute: typeof Char123LocaleChar125AppProjectsProjectIdRouteImport
+      parentRoute: typeof Char123LocaleChar125RouteRoute
+    }
   }
 }
 
@@ -775,6 +795,7 @@ interface Char123LocaleChar125RouteRouteChildren {
   Char123LocaleChar125AppFeedbackRoute: typeof Char123LocaleChar125AppFeedbackRoute
   Char123LocaleChar125AppProRoute: typeof Char123LocaleChar125AppProRoute
   Char123LocaleChar125AppIndexRoute: typeof Char123LocaleChar125AppIndexRoute
+  Char123LocaleChar125AppProjectsProjectIdRoute: typeof Char123LocaleChar125AppProjectsProjectIdRoute
 }
 
 const Char123LocaleChar125RouteRouteChildren: Char123LocaleChar125RouteRouteChildren =
@@ -801,6 +822,8 @@ const Char123LocaleChar125RouteRouteChildren: Char123LocaleChar125RouteRouteChil
     Char123LocaleChar125AppFeedbackRoute: Char123LocaleChar125AppFeedbackRoute,
     Char123LocaleChar125AppProRoute: Char123LocaleChar125AppProRoute,
     Char123LocaleChar125AppIndexRoute: Char123LocaleChar125AppIndexRoute,
+    Char123LocaleChar125AppProjectsProjectIdRoute:
+      Char123LocaleChar125AppProjectsProjectIdRoute,
   }
 
 const Char123LocaleChar125RouteRouteWithChildren =
