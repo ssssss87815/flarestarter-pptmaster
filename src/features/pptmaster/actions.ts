@@ -1,7 +1,8 @@
 import { createServerFn } from '@tanstack/react-start'
+import { z } from 'zod'
 
 import { requireUser } from '@/features/auth/middleware'
-import { getPptMasterHealth, listPptMasterProjects } from './client'
+import { createPptMasterProject, getPptMasterHealth, listPptMasterProjects } from './client'
 
 export const getPptMasterProjects = createServerFn({ method: 'GET' }).handler(async () => {
   const user = await requireUser()
@@ -12,6 +13,13 @@ export const getPptMasterProjects = createServerFn({ method: 'GET' }).handler(as
     return []
   }
 })
+
+export const createPptMasterProjectAction = createServerFn({ method: 'POST' })
+  .validator(z.object({ name: z.string().trim().min(1), topic: z.string().trim().optional() }))
+  .handler(async ({ data }) => {
+    const user = await requireUser()
+    return createPptMasterProject(user.id, data)
+  })
 
 export const getPptMasterHealthStatus = createServerFn({ method: 'GET' }).handler(async () => {
   try {

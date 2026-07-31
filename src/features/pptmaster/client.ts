@@ -51,6 +51,14 @@ export async function getPptMasterHealth(): Promise<{ status: string; disk_state
   return request('/healthz', z.object({ status: z.string(), disk_state: z.string().optional() }))
 }
 
+export async function createPptMasterProject(userId: string, input: { name: string; topic?: string }): Promise<PptMasterProject> {
+  return request('/api/projects', projectSchema, {
+    method: 'POST',
+    headers: { 'content-type': 'application/json' },
+    body: JSON.stringify(input),
+  }, userId)
+}
+
 export async function listPptMasterProjects(userId: string): Promise<PptMasterProject[]> {
   const result = await request('/api/projects', z.union([z.array(projectSchema), z.object({ projects: z.array(projectSchema) })]), undefined, userId)
   return Array.isArray(result) ? result : result.projects
