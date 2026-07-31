@@ -73,6 +73,22 @@ export async function listPptMasterProjects(userId: string): Promise<PptMasterPr
   return Array.isArray(result) ? result : result.projects
 }
 
-export async function getPptMasterProgress(projectId: string): Promise<PptMasterProgress> {
-  return request(`/api/projects/${encodeURIComponent(projectId)}/progress`, progressSchema)
+export async function getPptMasterProgress(userId: string, projectId: string): Promise<PptMasterProgress> {
+  return request(`/api/projects/${encodeURIComponent(projectId)}/progress`, progressSchema, undefined, userId)
+}
+
+export async function lockPptMasterConfirmations(userId: string, projectId: string, input: Record<string, unknown>): Promise<PptMasterProgress> {
+  return request(`/api/projects/${encodeURIComponent(projectId)}/confirmations`, progressSchema, {
+    method: 'POST',
+    headers: { 'content-type': 'application/json' },
+    body: JSON.stringify(input),
+  }, userId)
+}
+
+export async function startPptMasterGeneration(userId: string, projectId: string): Promise<PptMasterProgress> {
+  return request(`/api/projects/${encodeURIComponent(projectId)}/generate`, progressSchema, {
+    method: 'POST',
+    headers: { 'content-type': 'application/json' },
+    body: JSON.stringify({}),
+  }, userId)
 }

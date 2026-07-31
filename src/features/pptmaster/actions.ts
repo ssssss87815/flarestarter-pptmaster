@@ -2,7 +2,7 @@ import { createServerFn } from '@tanstack/react-start'
 import { z } from 'zod'
 
 import { requireUser } from '@/features/auth/middleware'
-import { createPptMasterProject, getPptMasterHealth, listPptMasterProjects, uploadPptMasterMarkdown } from './client'
+import { createPptMasterProject, getPptMasterHealth, getPptMasterProgress, listPptMasterProjects, lockPptMasterConfirmations, startPptMasterGeneration, uploadPptMasterMarkdown } from './client'
 
 export const getPptMasterProjects = createServerFn({ method: 'GET' }).handler(async () => {
   const user = await requireUser()
@@ -26,6 +26,27 @@ export const uploadPptMasterMarkdownAction = createServerFn({ method: 'POST' })
   .handler(async ({ data }) => {
     const user = await requireUser()
     return uploadPptMasterMarkdown(user.id, data.projectId, data.filename, data.markdown)
+  })
+
+export const getPptMasterProgressAction = createServerFn({ method: 'GET' })
+  .validator(z.object({ projectId: z.string().min(1) }))
+  .handler(async ({ data }) => {
+    const user = await requireUser()
+    return getPptMasterProgress(user.id, data.projectId)
+  })
+
+export const lockPptMasterConfirmationsAction = createServerFn({ method: 'POST' })
+  .validator(z.object({ projectId: z.string().min(1), confirmations: z.record(z.string(), z.unknown()) }))
+  .handler(async ({ data }) => {
+    const user = await requireUser()
+    return lockPptMasterConfirmations(user.id, data.projectId, data.confirmations)
+  })
+
+export const startPptMasterGenerationAction = createServerFn({ method: 'POST' })
+  .validator(z.object({ projectId: z.string().min(1) }))
+  .handler(async ({ data }) => {
+    const user = await requireUser()
+    return startPptMasterGeneration(user.id, data.projectId)
   })
 
 export const getPptMasterHealthStatus = createServerFn({ method: 'GET' }).handler(async () => {
