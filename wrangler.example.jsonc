@@ -127,8 +127,8 @@
 			"d1_databases": [
 				{
 					"binding": "DB",
-					"database_name": "flarestarter-db-staging",
-					"database_id": "00000000-0000-0000-0000-000000000000",
+					"database_name": "flarestarter-pptmaster-db-staging",
+					"database_id": "51349207-ba5a-4d58-8f14-1c89d53bc744",
 					"migrations_dir": "drizzle"
 				}
 			],
@@ -136,15 +136,16 @@
 			"r2_buckets": [
 				{
 					"binding": "BUCKET",
-					"bucket_name": "flarestarter-files-staging"
+					"bucket_name": "flarestarter-pptmaster-files-staging"
 				}
 			],
 			"kv_namespaces": [
 				{
 					"binding": "CACHE",
-					"id": "00000000000000000000000000000000"
+					"id": "5efe0215aa9b4cd09eda469d33b18daf"
 				}
-			]
+			],
+			"vars": {}
 		},
 		"production": {
 			"name": "flarestarter-pptmaster-production",
@@ -156,8 +157,8 @@
 			"d1_databases": [
 				{
 					"binding": "DB",
-					"database_name": "flarestarter-db-prod",
-					"database_id": "00000000-0000-0000-0000-000000000000",
+					"database_name": "flarestarter-pptmaster-db-production",
+					"database_id": "0070b6ae-fd87-4a13-acb8-6077e7676357",
 					"migrations_dir": "drizzle"
 				}
 			],
@@ -165,15 +166,16 @@
 			"r2_buckets": [
 				{
 					"binding": "BUCKET",
-					"bucket_name": "flarestarter-files-prod"
+					"bucket_name": "flarestarter-pptmaster-files-production"
 				}
 			],
 			"kv_namespaces": [
 				{
 					"binding": "CACHE",
-					"id": "00000000000000000000000000000000"
+					"id": "7fa6672e09974795b5f41dc670d49a2e"
 				}
-			]
+			],
+			"vars": {}
 		}
 	}
 }
