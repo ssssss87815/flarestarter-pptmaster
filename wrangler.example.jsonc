@@ -16,7 +16,7 @@
  */
 {
 	"$schema": "node_modules/wrangler/config-schema.json",
-	"name": "flarestarter",
+	"name": "flarestarter-pptmaster",
 	"compatibility_date": "2026-05-30",
 	"compatibility_flags": [
 		"nodejs_compat"
@@ -118,7 +118,7 @@
 	 */
 	"env": {
 		"staging": {
-			"name": "flarestarter-staging",
+			"name": "flarestarter-pptmaster-staging",
 			"triggers": {
 				"crons": [
 					"0 3 * * *"
@@ -147,7 +147,7 @@
 			]
 		},
 		"production": {
-			"name": "flarestarter-production",
+			"name": "flarestarter-pptmaster-production",
 			"triggers": {
 				"crons": [
 					"0 3 * * *"
