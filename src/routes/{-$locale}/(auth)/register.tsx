@@ -10,6 +10,7 @@ import { authPageHead } from '@/features/auth/head'
 import { AuthCard, Field } from '@/features/auth/components/auth-card'
 import { SocialButtons } from '@/features/auth/components/social-buttons'
 import { Button } from '@/components/ui/button'
+import { enrollPptMasterBetaAction } from '@/features/pptmaster/actions'
 
 export const Route = createFileRoute('/{-$locale}/(auth)/register')({
   head: ({ params }) => authPageHead(params, 'registerTitle'),
@@ -30,8 +31,8 @@ function Register() {
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+  const [inviteCode, setInviteCode] = useState('')
   const [error, setError] = useState<string | null>(null)
-  const [sent, setSent] = useState(false)
   const [busy, setBusy] = useState(false)
 
   async function submit(e: React.FormEvent) {
@@ -45,22 +46,21 @@ function Register() {
       reset() // tokens are single-use
       return
     }
-    setSent(true)
-  }
-
-  if (sent) {
-    return (
-      <AuthCard title={t('auth.verifyTitle')} subtitle={t('auth.verifySent')}>
-        <Link to="/{-$locale}/verify-email" className="font-semibold text-primary">
-          {t('auth.resendVerification')}
-        </Link>
-      </AuthCard>
-    )
+    try {
+      await enrollPptMasterBetaAction({ data: { inviteCode } })
+    } catch (cause) {
+      setError(cause instanceof Error ? cause.message : 'Beta invite enrollment failed.')
+      return
+    }
+    window.location.assign('/app')
   }
 
   return (
     <AuthCard title={t('auth.registerTitle')} subtitle={t('auth.registerSub')}>
       <form onSubmit={submit} className="grid gap-[15px]">
+        <Field id="inviteCode" label={t('auth.inviteCode')} icon={Lock} value={inviteCode}
+          onChange={(e) => setInviteCode(e.target.value)} required autoComplete="off" placeholder="PPTB-..."
+          hint={t('auth.inviteCodeHint')} />
         <Field id="name" label={t('auth.name')} icon={User} value={name}
           onChange={(e) => setName(e.target.value)} required autoComplete="name" />
         <Field id="email" label={t('auth.email')} type="email" icon={Mail} value={email}

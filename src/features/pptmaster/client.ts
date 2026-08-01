@@ -31,6 +31,7 @@ const specSchema = z.object({
 export type PptMasterProject = z.infer<typeof projectSchema>
 export type PptMasterProgress = z.infer<typeof progressSchema>
 export type PptMasterSpec = z.infer<typeof specSchema>
+export type PptMasterBetaEnrollment = { ok: boolean; user_id: string; plan_id: string }
 
 function baseUrl(): string {
   const value = env.PPTMASTER_API_URL?.trim()
@@ -59,6 +60,14 @@ async function request<T>(path: string, schema: z.ZodType<T>, init?: RequestInit
 
 export async function getPptMasterHealth(): Promise<{ status: string; disk_state?: string }> {
   return request('/healthz', z.object({ status: z.string(), disk_state: z.string().optional() }))
+}
+
+export async function enrollPptMasterBeta(userId: string, inviteCode: string): Promise<PptMasterBetaEnrollment> {
+  return request('/api/internal/beta/enroll', z.object({ ok: z.boolean(), user_id: z.string(), plan_id: z.string() }), {
+    method: 'POST',
+    headers: { 'content-type': 'application/json' },
+    body: JSON.stringify({ invite_code: inviteCode }),
+  }, userId)
 }
 
 export async function createPptMasterProject(userId: string, input: { name: string; topic?: string }): Promise<PptMasterProject> {

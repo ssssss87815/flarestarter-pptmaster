@@ -2,7 +2,7 @@ import { createServerFn } from '@tanstack/react-start'
 import { z } from 'zod'
 
 import { requireUser } from '@/features/auth/middleware'
-import { createPptMasterProject, approvePptMasterExport, approvePptMasterOutline, downloadPptMasterArtifact, getPptMasterHealth, getPptMasterProgress, getPptMasterSpec, listPptMasterProjects, lockPptMasterConfirmations, startPptMasterGeneration, uploadPptMasterMarkdown } from './client'
+import { createPptMasterProject, approvePptMasterExport, approvePptMasterOutline, downloadPptMasterArtifact, enrollPptMasterBeta, getPptMasterHealth, getPptMasterProgress, getPptMasterSpec, listPptMasterProjects, lockPptMasterConfirmations, startPptMasterGeneration, uploadPptMasterMarkdown } from './client'
 
 export const getPptMasterProjects = createServerFn({ method: 'GET' }).handler(async () => {
   const user = await requireUser()
@@ -84,3 +84,10 @@ export const getPptMasterHealthStatus = createServerFn({ method: 'GET' }).handle
     return { status: 'unavailable', detail: error instanceof Error ? error.message : String(error) }
   }
 })
+
+export const enrollPptMasterBetaAction = createServerFn({ method: 'POST' })
+  .validator(z.object({ inviteCode: z.string().trim().min(1) }))
+  .handler(async ({ data }) => {
+    const user = await requireUser()
+    return enrollPptMasterBeta(user.id, data.inviteCode)
+  })

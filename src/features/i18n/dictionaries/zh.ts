@@ -63,7 +63,7 @@ export const zh: Dict = {
   },
   auth: {
     login: '登录', register: '注册', logout: '退出登录',
-    name: '姓名', email: '邮箱', password: '密码', newPassword: '新密码', currentPassword: '当前密码',
+    name: '姓名', email: '邮箱', password: '密码', inviteCode: 'Beta 邀请码', inviteCodeHint: '输入收到的一次性邀请码。', newPassword: '新密码', currentPassword: '当前密码',
     forgotPassword: '忘记密码？', resetPassword: '重置密码',
     haveAccount: '已有账号？', noAccount: '没有账号？',
     continueWith: '使用 {provider} 继续',

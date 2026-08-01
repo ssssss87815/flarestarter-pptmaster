@@ -77,7 +77,7 @@ export const en = {
   },
   auth: {
     login: 'Log in', register: 'Sign up', logout: 'Log out',
-    name: 'Name', email: 'Email', password: 'Password', newPassword: 'New password', currentPassword: 'Current password',
+    name: 'Name', email: 'Email', password: 'Password', inviteCode: 'Beta invite code', inviteCodeHint: 'Enter the one-time code you received.', newPassword: 'New password', currentPassword: 'Current password',
     forgotPassword: 'Forgot password?', resetPassword: 'Reset password',
     haveAccount: 'Already have an account?', noAccount: "Don't have an account?",
     continueWith: 'Continue with {provider}',
