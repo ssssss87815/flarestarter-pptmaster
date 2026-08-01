@@ -76,3 +76,24 @@ description: 了解 FlareStarter 需要配置哪些环境变量以及它们的�
     },
   }}
 />
+
+## PPTMaster 集成
+
+FlareStarter PPTMaster 通过服务端 API 调用独立的 PPTMaster 服务。以下两个变量必须成对配置：只配置其中一个会触发启动校验错误。
+
+<TypeTable
+  type={{
+    PPTMASTER_API_URL: {
+      description: '服务端访问 PPTMaster 控制面的 URL；不会下发到浏览器。',
+      type: 'string',
+    },
+    PPTMASTER_INTERNAL_API_KEY: {
+      description: '服务端调用 PPTMaster 的内部 Bearer key；只能配置为服务器端 secret。',
+      type: 'string',
+    },
+  }}
+/>
+
+<Callout type="warn">
+不要使用 `VITE_` 前缀暴露 PPTMaster 配置，也不要把内部 key 写入客户端代码。生产环境请分别使用 Cloudflare secret 配置；PPTMaster 地址和内部 key 缺一不可。
+</Callout>
