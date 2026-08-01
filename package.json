@@ -18,8 +18,8 @@
     "lint": "eslint .",
     "db:generate": "drizzle-kit generate",
     "db:migrate:local": "wrangler d1 migrations apply flarestarter-db --local",
-    "db:migrate:staging": "wrangler d1 migrations apply flarestarter-db-staging --env staging --remote",
-    "db:migrate:prod": "wrangler d1 migrations apply flarestarter-db-prod --env production --remote",
+    "db:migrate:staging": "wrangler d1 migrations apply DB --env staging --remote",
+    "db:migrate:prod": "wrangler d1 migrations apply DB --env production --remote",
     "db:seed:local": "wrangler d1 execute flarestarter-db --local --file=./scripts/seed.sql",
     "db:reset:local": "rm -rf .wrangler/state/v3/d1 && pnpm db:migrate:local && pnpm db:seed:local"
   },
