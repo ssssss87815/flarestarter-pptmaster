@@ -134,7 +134,7 @@
 				"binding": "CACHE",
 				"id": "5efe0215aa9b4cd09eda469d33b18daf"
 			}],
-			"vars": { "PPTMASTER_API_URL": "https://api.labhub.site" }
+			"vars": { "PPTMASTER_API_URL": "https://ppt.labhub.site" }
 		},
 		"production": {
 			"name": "flarestarter-pptmaster-production",
@@ -153,7 +153,7 @@
 				"binding": "CACHE",
 				"id": "7fa6672e09974795b5f41dc670d49a2e"
 			}],
-			"vars": { "PPTMASTER_API_URL": "https://api.labhub.site" }
+			"vars": { "PPTMASTER_API_URL": "https://ppt.labhub.site" }
 		}
 	}
 }
