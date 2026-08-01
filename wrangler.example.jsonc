@@ -119,63 +119,41 @@
 	"env": {
 		"staging": {
 			"name": "flarestarter-pptmaster-staging",
-			"triggers": {
-				"crons": [
-					"0 3 * * *"
-				]
-			},
-			"d1_databases": [
-				{
-					"binding": "DB",
-					"database_name": "flarestarter-pptmaster-db-staging",
-					"database_id": "51349207-ba5a-4d58-8f14-1c89d53bc744",
-					"migrations_dir": "drizzle"
-				}
-			],
-			// 部署前先建桶：`wrangler r2 bucket create flarestarter-files-staging`。
-			"r2_buckets": [
-				{
-					"binding": "BUCKET",
-					"bucket_name": "flarestarter-pptmaster-files-staging"
-				}
-			],
-			"kv_namespaces": [
-				{
-					"binding": "CACHE",
-					"id": "5efe0215aa9b4cd09eda469d33b18daf"
-				}
-			],
-			"vars": {}
+			"triggers": { "crons": ["0 3 * * *"] },
+			"d1_databases": [{
+				"binding": "DB",
+				"database_name": "flarestarter-pptmaster-db-staging",
+				"database_id": "51349207-ba5a-4d58-8f14-1c89d53bc744",
+				"migrations_dir": "drizzle"
+			}],
+			"r2_buckets": [{
+				"binding": "BUCKET",
+				"bucket_name": "flarestarter-pptmaster-files-staging"
+			}],
+			"kv_namespaces": [{
+				"binding": "CACHE",
+				"id": "5efe0215aa9b4cd09eda469d33b18daf"
+			}],
+			"vars": { "PPTMASTER_API_URL": "https://api.labhub.site" }
 		},
 		"production": {
 			"name": "flarestarter-pptmaster-production",
-			"triggers": {
-				"crons": [
-					"0 3 * * *"
-				]
-			},
-			"d1_databases": [
-				{
-					"binding": "DB",
-					"database_name": "flarestarter-pptmaster-db-production",
-					"database_id": "0070b6ae-fd87-4a13-acb8-6077e7676357",
-					"migrations_dir": "drizzle"
-				}
-			],
-			// 部署前先建桶：`wrangler r2 bucket create flarestarter-files-prod`。
-			"r2_buckets": [
-				{
-					"binding": "BUCKET",
-					"bucket_name": "flarestarter-pptmaster-files-production"
-				}
-			],
-			"kv_namespaces": [
-				{
-					"binding": "CACHE",
-					"id": "7fa6672e09974795b5f41dc670d49a2e"
-				}
-			],
-			"vars": {}
+			"triggers": { "crons": ["0 3 * * *"] },
+			"d1_databases": [{
+				"binding": "DB",
+				"database_name": "flarestarter-pptmaster-db-production",
+				"database_id": "0070b6ae-fd87-4a13-acb8-6077e7676357",
+				"migrations_dir": "drizzle"
+			}],
+			"r2_buckets": [{
+				"binding": "BUCKET",
+				"bucket_name": "flarestarter-pptmaster-files-production"
+			}],
+			"kv_namespaces": [{
+				"binding": "CACHE",
+				"id": "7fa6672e09974795b5f41dc670d49a2e"
+			}],
+			"vars": { "PPTMASTER_API_URL": "https://api.labhub.site" }
 		}
 	}
 }
