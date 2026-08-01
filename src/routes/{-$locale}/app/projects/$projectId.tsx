@@ -64,7 +64,7 @@ function ProjectWorkbench() {
   }
   async function confirm() {
     setError(null); setConfirming(true)
-    try { await lockPptMasterConfirmationsAction({ data: { projectId: progress.id, confirmations: { audience: 'General professional audience', mode: 'presentation', language: '中文', tone: 'clear and credible', visual_style: 'modern professional', page_count: Number(pageCount) || 8, canvas: 'ppt169', image_usage: 'optional' } } }); await refresh() }
+    try { await lockPptMasterConfirmationsAction({ data: { projectId: progress.id, confirmations: { audience: 'General professional audience', goal: 'Create a clear and credible presentation', mode: 'presentation', language: '中文', tone: 'clear and credible', visual_style: 'modern professional', page_count: Number(pageCount) || 8, canvas: 'ppt169', image_usage: 'optional' } } }); await refresh() }
     catch (cause) { setError(cause instanceof Error ? cause.message : 'Confirmation failed.') }
     finally { setConfirming(false) }
   }
