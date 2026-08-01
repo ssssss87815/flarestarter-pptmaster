@@ -1,7 +1,7 @@
 import type { Dict } from './en'
 
 export const zh: Dict = {
-  common: { appName: 'FlareStarter', toggleTheme: '切换主题', language: '语言' },
+  common: { appName: 'PPTMaster', toggleTheme: '切换主题', language: '语言' },
   home: {
     title: '在边缘部署你的 SaaS',
     greeting: '你好，{name}！',
@@ -35,10 +35,14 @@ export const zh: Dict = {
     passwordChanged: '密码已成功修改。',
     proDemo: 'Pro 演示',
     navWorkspace: '工作区',
+    advancedWorkbench: '高级工作台', advancedWorkbenchSub: '逐步控制材料、确认、大纲、预览和导出，不会自动开跑。',
+    advancedCreateTitle: '开始一个高级 PPTMaster 项目', advancedCreateBody: '先创建项目壳，再在工作台上传材料并完成确认门禁；不会自动开始生成。',
+    advancedTopicLabel: '主题', advancedTopicPlaceholder: '这份演示文稿要讲清什么？', advancedNameLabel: '项目名称', advancedNamePlaceholder: '可选；不填时由主题生成',
+    advancedCreateButton: '创建高级项目', advancedCreating: '创建中…', advancedTopicRequired: '请填写主题。', advancedCreateFailed: '创建高级项目失败。', backToWorkspace: '返回工作区',
     collapseSidebar: '收起侧边栏', expandSidebar: '展开侧边栏',
     navAccount: '账号',
     userMenuLabel: '用户菜单',
-    welcomeSub: '这是你的 FlareStarter 工作区。',
+    welcomeSub: '这是你的 PPTMaster 工作区。',
     quickActions: '快捷操作',
     openAccount: '账号设置',
     openAccountSub: '资料、密码、危险操作',
@@ -72,7 +76,7 @@ export const zh: Dict = {
     checkEmailReset: '如果该邮箱存在，重置链接已发送。',
     deleteAccount: '删除账号', deleteConfirm: '此操作将永久删除您的账号和数据，是否继续？',
     changePassword: '修改密码',
-    loginTitle: '欢迎回来', loginSub: '登录你的 FlareStarter 工作区',
+    loginTitle: '欢迎回来', loginSub: '登录你的 PPTMaster 工作区',
     registerTitle: '创建你的账号', registerSub: '几分钟即可开始，无需信用卡',
     orContinue: '或使用以下方式',
     forgotTitle: '重置密码', forgotSub: '输入邮箱，我们会发送重置链接',
@@ -128,10 +132,9 @@ export const zh: Dict = {
   marketing: {
     navFeatures: '功能', navPricing: '定价', navDocs: '文档', navChangelog: '更新日志',
     githubStar: '在 GitHub 收藏',
-    heroTitlePre: '克隆即用，今晚就部署到 ', heroTitleHl: 'Cloudflare', heroTitlePost: '',
-    heroSubtitle:
-      '一套 Cloudflare 原生的 SaaS 起步模板。认证、计费与后台管理已全部接好，开箱即用。',
-    heroCtaPrimary: '开始使用', gitClone: 'git clone',
+    heroTitlePre: '把材料变成可编辑的 ', heroTitleHl: 'PPTX', heroTitlePost: '。',
+    heroSubtitle: '从材料上传、八项确认到逐页预览和 Native DrawingML 导出，PPTMaster 让每一步都可控。',
+    heroCtaPrimary: '开始创建 PPT', gitClone: '查看项目',
     builtOn: '// 技术栈',
     featuresKicker: '// 为什么边缘原生',
     feature1Title: '运行于 Workers',

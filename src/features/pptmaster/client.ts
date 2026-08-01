@@ -70,7 +70,7 @@ export async function enrollPptMasterBeta(userId: string, inviteCode: string): P
   }, userId)
 }
 
-export async function createPptMasterProject(userId: string, input: { name: string; topic?: string }): Promise<PptMasterProject> {
+export async function createPptMasterProject(userId: string, input: { name: string; topic?: string; mode?: 'advanced' | 'manual' }): Promise<PptMasterProject> {
   return request('/api/projects', projectSchema, {
     method: 'POST',
     headers: { 'content-type': 'application/json' },

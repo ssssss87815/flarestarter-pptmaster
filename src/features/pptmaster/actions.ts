@@ -15,7 +15,7 @@ export const getPptMasterProjects = createServerFn({ method: 'GET' }).handler(as
 })
 
 export const createPptMasterProjectAction = createServerFn({ method: 'POST' })
-  .validator(z.object({ name: z.string().trim().min(1), topic: z.string().trim().optional() }))
+  .validator(z.object({ name: z.string().trim().min(1), topic: z.string().trim().optional(), mode: z.enum(['advanced', 'manual']).optional() }))
   .handler(async ({ data }) => {
     const user = await requireUser()
     return createPptMasterProject(user.id, data)

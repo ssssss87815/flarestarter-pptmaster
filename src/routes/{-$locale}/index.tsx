@@ -22,11 +22,11 @@ export const Route = createFileRoute('/{-$locale}/')({
       origin,
       locale,
       path: '/',
-      title: 'FlareStarter',
+      title: 'PPTMaster',
       description:
         locale === 'zh'
-          ? 'FlareStarter——Cloudflare 原生的 SaaS 起步模板。克隆即用，部署到 Workers。'
-          : 'FlareStarter — the Cloudflare-native SaaS starter. Clone it and ship on Workers.',
+          ? 'PPTMaster——从材料、确认到可编辑 PPTX 的专业生成工作台。'
+          : 'PPTMaster — a guided workspace for turning source material into editable PPTX.',
     })
     return { meta, links }
   },

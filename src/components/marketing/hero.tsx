@@ -3,7 +3,7 @@ import { ArrowRight, Terminal } from 'lucide-react'
 import { useTranslation } from '@/features/i18n/provider'
 import { buttonVariants } from '@/components/ui/button'
 
-const GITHUB_URL = 'https://github.com/flarestarter/flarestarter'
+const GITHUB_URL = 'https://github.com/ssssss87815/flarestarter-pptmaster'
 
 function TerminalCard() {
   return (
@@ -43,7 +43,7 @@ export function Hero({ loggedIn }: { loggedIn: boolean }) {
   return (
     <section className="grid-bg grid items-center gap-9 px-5 md:px-7 py-14 md:grid-cols-2">
       <div className="flex flex-col gap-[18px]">
-        <span className="kicker">// cloudflare-native saas starter</span>
+        <span className="kicker">// guided editable-pptx workspace</span>
         <h1 className="font-display text-[34px] font-semibold leading-[1.08] tracking-[-1.2px] sm:text-[42px]">
           {t('marketing.heroTitlePre')}
           <span className="text-primary">{t('marketing.heroTitleHl')}</span>

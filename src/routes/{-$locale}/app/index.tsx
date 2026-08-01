@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { createFileRoute, Link, useRouter } from '@tanstack/react-router'
-import { ArrowRight, FileText, Plus, Settings, Sparkles } from 'lucide-react'
+import { ArrowRight, FileText, Plus, Settings, Sparkles, SlidersHorizontal } from 'lucide-react'
 
 import { requireUser } from '@/features/auth/middleware'
 import { getEntitlement } from '@/features/billing/middleware'
@@ -83,6 +83,7 @@ function AppHome() {
 
       <h2 className="mb-3.5 font-mono text-sm uppercase tracking-wide text-fg-3">{t('app.quickActions')}</h2>
       <div className="grid gap-3.5 sm:grid-cols-2">
+        <Link to="/{-$locale}/app/advanced" className="block rounded-[14px] border border-primary/40 bg-primary/5 p-[18px] transition-colors hover:border-primary"><span className="icon-tile"><SlidersHorizontal size={20} /></span><div className="mb-1.5 mt-3.5 flex items-center gap-2"><h3 className="m-0 text-[15px] font-semibold text-foreground">{t('app.advancedWorkbench')}</h3><ArrowRight size={15} className="text-fg-3" /></div><p className="m-0 text-[13px] leading-snug text-fg-3">{t('app.advancedWorkbenchSub')}</p></Link>
         <Link to="/{-$locale}/app/account" className="block rounded-[14px] border border-border bg-card p-[18px] transition-colors hover:border-border-strong"><span className="icon-tile"><Settings size={20} /></span><div className="mb-1.5 mt-3.5 flex items-center gap-2"><h3 className="m-0 text-[15px] font-semibold text-foreground">{t('app.openAccount')}</h3><ArrowRight size={15} className="text-fg-3" /></div><p className="m-0 text-[13px] leading-snug text-fg-3">{t('app.openAccountSub')}</p></Link>
         <Link to="/{-$locale}/app/pro" className="block rounded-[14px] border border-border bg-card p-[18px] transition-colors hover:border-border-strong"><span className="icon-tile"><Sparkles size={20} /></span><div className="mb-1.5 mt-3.5 flex items-center gap-2"><h3 className="m-0 text-[15px] font-semibold text-foreground">{t('app.openPro')}</h3><ArrowRight size={15} className="text-fg-3" /></div><p className="m-0 text-[13px] leading-snug text-fg-3">{t('app.openProSub')}</p></Link>
       </div>

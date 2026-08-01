@@ -12,10 +12,10 @@ export const Route = createRootRoute({
     meta: [
       { charSet: 'utf-8' },
       { name: 'viewport', content: 'width=device-width, initial-scale=1' },
-      { title: 'FlareStarter — Cloudflare-native SaaS starter' },
-      { name: 'description', content: 'The open-source, Cloudflare-native SaaS starter. Clone it and ship on Workers.' },
-      { property: 'og:title', content: 'FlareStarter' },
-      { property: 'og:description', content: 'The open-source, Cloudflare-native SaaS starter. Clone it and ship on Workers.' },
+      { title: 'PPTMaster — Editable presentation workspace' },
+      { name: 'description', content: 'PPTMaster — guided source-to-editable-PPTX generation.' },
+      { property: 'og:title', content: 'PPTMaster' },
+      { property: 'og:description', content: 'Guided source-to-editable-PPTX generation.' },
       { property: 'og:type', content: 'website' },
     ],
     links: [

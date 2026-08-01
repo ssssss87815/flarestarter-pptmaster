@@ -25,11 +25,11 @@ export const Route = createFileRoute('/{-$locale}/pricing')({
       origin,
       locale,
       path: '/pricing',
-      title: locale === 'zh' ? '定价 — FlareStarter' : 'Pricing — FlareStarter',
+      title: locale === 'zh' ? '套餐 — PPTMaster' : 'Plans — PPTMaster',
       description:
         locale === 'zh'
-          ? '开源核心（Apache 2.0）。Pro 一次买断、终身可用，即将推出。'
-          : 'Open source core (Apache 2.0). Pro — a one-time lifetime license — is coming soon.',
+          ? 'PPTMaster 免费 Beta 与专业生成套餐。'
+          : 'PPTMaster Beta and professional presentation generation plans.',
     })
     return { meta, links }
   },

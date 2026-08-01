@@ -7,7 +7,7 @@ import { WaitlistDialog } from '@/features/waitlist/components/waitlist-dialog'
 import type { Locale } from '@/features/i18n/locale'
 
 // Set this to your real repository URL before publishing.
-const GITHUB_URL = 'https://github.com/flarestarter/flarestarter'
+const GITHUB_URL = 'https://github.com/ssssss87815/flarestarter-pptmaster'
 
 interface Content {
   kicker: string
@@ -46,24 +46,24 @@ interface Content {
  * swap the CTA to the checkout server fn and drop the coming-soon copy. */
 const CONTENT: Record<Locale, Content> = {
   en: {
-    kicker: '// pricing',
-    title: 'Open source core. Pro once, forever.',
+    kicker: '// PPTMaster plans',
+    title: 'Start free. Upgrade when your decks demand more.',
     subtitle:
-      'Clone the complete Apache 2.0 core today — it ships a real app. Pro is on the way: pay once, stay current for life, and get answers straight from the maintainers. Join the waitlist to be first in line.',
-    lifetimeNote: 'One-time purchase · no subscription, ever',
+      'Use the guided PPTMaster workflow in Beta. Pro unlocks higher limits and advanced generation controls.',
+    lifetimeNote: 'Beta access · clear limits · no surprise billing',
     personal: 'Personal',
     team: 'Team',
-    freeName: 'Open source',
+    freeName: 'Beta',
     proName: 'Pro',
-    comingSoon: 'Coming soon',
-    freeDesc: 'The complete Apache 2.0 template. Yours to clone.',
-    proDesc: 'Pay once. Stay current for life, with the maintainers one message away.',
-    once: 'once',
-    freeNote: 'Apache 2.0 licensed · no card required',
-    proNote: 'Planned pricing · 1 developer · all future updates',
-    proTeamNote: 'Planned pricing · up to 4 developers · all future updates',
-    ctaFree: 'Clone on GitHub',
-    ctaPro: 'Join the waitlist',
+    comingSoon: 'Available in Beta',
+    freeDesc: 'For trying the end-to-end PPTMaster workflow.',
+    proDesc: 'For serious production work with higher limits and priority support.',
+    once: 'month',
+    freeNote: 'Invite required · no card required',
+    proNote: 'Higher limits · advanced controls',
+    proTeamNote: 'Shared workspace · team controls',
+    ctaFree: 'Use Beta',
+    ctaPro: 'Upgrade',
     bandKicker: '// real talk',
     bandTitle: 'The open core might be all you need.',
     bandSub: 'If it saves you a weekend, consider sponsoring — an early-sponsor discount will be waiting when Pro lands.',
@@ -83,24 +83,23 @@ const CONTENT: Record<Locale, Content> = {
     ],
   },
   zh: {
-    kicker: '// pricing',
-    title: '开源核心，Pro 一次买断、终身可用',
-    subtitle:
-      '今天即可克隆完整的 Apache 2.0 核心——它本身就是个可用的应用。Pro 正在路上：一次付费，底座终身保持最新，遇到问题维护者直接答。加入等待列表，上线第一时间通知你。',
-    lifetimeNote: '一次性买断 · 永不订阅',
+    kicker: '// PPTMaster 套餐',
+    title: '先用 Beta，真正需要时再升级。',
+    subtitle: 'Beta 用户可以完整体验 PPTMaster 流程；Pro 提供更高额度和高级生成控制。',
+    lifetimeNote: 'Beta 准入 · 额度透明 · 不会意外扣费',
     personal: '个人',
     team: '团队',
-    freeName: '开源版',
+    freeName: 'Beta',
     proName: 'Pro',
-    comingSoon: '即将推出',
-    freeDesc: '完整的 Apache 2.0 模板，克隆即用',
-    proDesc: '一次付费，终身保持最新；卡住时，维护者直接答。',
-    once: '买断',
-    freeNote: 'Apache 2.0 许可 · 无需信用卡',
-    proNote: '规划定价 · 1 名开发者 · 含所有后续更新',
-    proTeamNote: '规划定价 · 最多 4 名开发者 · 含所有后续更新',
-    ctaFree: '在 GitHub 克隆',
-    ctaPro: '加入等待列表',
+    comingSoon: 'Beta 可用',
+    freeDesc: '适合体验完整的 PPTMaster 生成流程。',
+    proDesc: '适合持续生产，提供更高额度和优先支持。',
+    once: '月',
+    freeNote: '需要邀请码 · 无需信用卡',
+    proNote: '更高额度 · 高级控制',
+    proTeamNote: '共享工作区 · 团队控制',
+    ctaFree: '使用 Beta',
+    ctaPro: '升级 Pro',
     bandKicker: '// 说句实话',
     bandTitle: '开源版，可能就够你用了。',
     bandSub: '如果它帮你省了不少时间，欢迎赞助支持——Pro 上线时，早期赞助者有专属折扣。',

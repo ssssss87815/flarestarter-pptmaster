@@ -1,4 +1,4 @@
-/** FlareStarter wordmark — 4-point spark mark + "Flare" (bold) + "Starter" (58%). `compact` renders the mark only. */
+/** PPTMaster wordmark for the product shell. `compact` renders the mark only. */
 export function Logo({ size = 18, compact = false }: { size?: number; compact?: boolean }) {
   return (
     <span
@@ -20,7 +20,7 @@ export function Logo({ size = 18, compact = false }: { size?: number; compact?: 
       </span>
       {!compact && (
         <span>
-          Flare<span className="font-medium opacity-[0.58]">Starter</span>
+          PPT<span className="font-medium opacity-[0.58]">Master</span>
         </span>
       )}
     </span>

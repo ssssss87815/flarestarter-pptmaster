@@ -1,6 +1,6 @@
 import { useEffect, useState, type ReactNode } from 'react'
 import { Link, getRouteApi } from '@tanstack/react-router'
-import { Home, Sparkles, Settings, Gauge, Users, Menu, ClipboardList, PanelLeftClose, PanelLeftOpen, Heart, MessageSquare } from 'lucide-react'
+import { Home, Sparkles, Settings, Gauge, Users, Menu, ClipboardList, PanelLeftClose, PanelLeftOpen, Heart, MessageSquare, SlidersHorizontal } from 'lucide-react'
 import { Logo } from '@/components/brand/logo'
 import { Badge } from '@/components/ui/badge'
 import { ThemeToggle } from '@/features/theme/theme-toggle'
@@ -81,6 +81,11 @@ export function AppShell({
           <Sparkles size={18} className="shrink-0" />
           {label(t('app.proDemo'))}
           {!rail && <Badge variant="pro" className="ml-auto">Pro</Badge>}
+        </Link>
+        <Link to="/{-$locale}/app/advanced" activeProps={{}} className={item(active === 'advanced')} title={t('app.advancedWorkbench')}>
+          <SlidersHorizontal size={18} className="shrink-0" />
+          {label(t('app.advancedWorkbench'))}
+          {!rail && <Badge variant="pro" className="ml-auto">PPT</Badge>}
         </Link>
         <Link to="/{-$locale}/app/feedback" activeProps={{}} className={item(active === 'feedback')} title={t('feedback.nav')}>
           <MessageSquare size={18} className="shrink-0" />
@@ -164,7 +169,7 @@ export function AppShell({
           </button>
           <span className="app-crumb">
             <span className="hidden md:inline">
-              FlareStarter <span className="mx-1.5 text-fg-3">/</span>
+            PPTMaster <span className="mx-1.5 text-fg-3">/</span>
             </span>
             <b>{crumb}</b>
           </span>

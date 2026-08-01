@@ -50,7 +50,7 @@ export function SiteNav({ theme, loggedIn }: { theme: 'light' | 'dark'; loggedIn
       style={{ background: 'color-mix(in srgb, var(--background) 82%, transparent)' }}
     >
       <nav className="flex h-16 items-center gap-3 px-4 md:px-7">
-        <Link to="/{-$locale}" aria-label="FlareStarter" className="shrink-0">
+        <Link to="/{-$locale}" aria-label="PPTMaster" className="shrink-0">
           <Logo />
         </Link>
         <div className="flex-1" />
