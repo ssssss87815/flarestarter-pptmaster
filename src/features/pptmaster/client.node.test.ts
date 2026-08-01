@@ -30,6 +30,23 @@ test('project requests carry the authenticated shell user identity', async () =>
   )
 })
 
+test('health requests target the PPTMaster service root and tolerate disk_state', async () => {
+  vi.doMock('@/lib/env', () => ({ env: {
+    PPTMASTER_API_URL: 'https://ppt.example.com',
+    PPTMASTER_INTERNAL_API_KEY: 'test-key',
+  } }))
+  fetchMock.mockResolvedValue(new Response(JSON.stringify({ status: 'degraded', disk_state: 'warn' }), {
+    status: 200,
+    headers: { 'content-type': 'application/json' },
+  }))
+  const { getPptMasterHealth } = await import('./client')
+  await expect(getPptMasterHealth()).resolves.toEqual({ status: 'degraded', disk_state: 'warn' })
+  expect(fetchMock).toHaveBeenCalledWith(
+    'https://ppt.example.com/healthz',
+    expect.objectContaining({ headers: expect.objectContaining({ authorization: 'Bearer test-key' }) }),
+  )
+})
+
 test('artifact download is proxied as base64 bytes with filename metadata', async () => {
   vi.doMock('@/lib/env', () => ({ env: {
     PPTMASTER_API_URL: 'https://ppt.example.com',
