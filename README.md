@@ -1,6 +1,6 @@
 <div align="center">
-  <h1>FlareStarter</h1>
-  <p>A full-stack, edge-native SaaS starter built on <strong>TanStack Start</strong> + <strong>Cloudflare Workers</strong>.</p>
+  <h1>FlareStarter PPTMaster</h1>
+  <p>A Cloudflare-native SaaS shell for the PPTMaster presentation workflow, built on <strong>TanStack Start</strong> + <strong>Cloudflare Workers</strong>.</p>
   <p>
     <a href="https://github.com/FlareStarter/flarestarter/actions/workflows/ci.yml"><img src="https://github.com/FlareStarter/flarestarter/actions/workflows/ci.yml/badge.svg" alt="CI"></a>
     <a href="https://github.com/FlareStarter/flarestarter/blob/main/LICENSE"><img src="https://img.shields.io/badge/License-Apache_2.0-blue.svg" alt="License"></a>
@@ -8,7 +8,7 @@
     <a href="https://www.typescriptlang.org/"><img src="https://img.shields.io/badge/TypeScript-007ACC?logo=typescript&logoColor=white" alt="TypeScript"></a>
   </p>
   <p>
-    <i>Auth, billing, email, i18n, SEO, an admin console — wired, tested, fork-ready.</i>
+    <i>Secure project ownership, Markdown-to-PPT workflow controls, and server-side PPTMaster artifact delivery.</i>
   </p>
   <p>
     <a href="https://flarestarter.com"><strong>Live Demo</strong></a> ·
@@ -20,6 +20,16 @@
 ---
 
 **English** | [简体中文](README.zh.md)
+
+## Project boundary
+
+This repository is the **new FlareStarter PPTMaster product**. It is intentionally separate from the original PPTMaster repository:
+
+- **This project** (`flarestarter-pptmaster-shell`) owns the SaaS shell: authentication, users, projects, source upload, confirmations, workflow controls, ownership, and browser downloads.
+- **Original PPTMaster** (`ppt-master-productized`) remains the original engine and is maintained separately. It owns the native presentation pipeline, skills, Strategist/Executor implementation, SVG/PPTX generation, and its original SaaS control plane.
+- This project calls PPTMaster through a server-side API boundary. PPTMaster URLs and internal credentials must never be exposed to the browser.
+
+The original PPTMaster `main` is not vendored into this repository and is not modified by this project's development workflow.
 
 FlareStarter ships only what actually works: every feature in this repo is a real implementation — no mocks, no stubs, no placeholder TODOs padding the count. It all runs on the Cloudflare free-to-cheap stack (Workers + D1 + KV).
 

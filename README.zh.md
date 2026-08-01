@@ -1,6 +1,6 @@
 <div align="center">
-  <h1>FlareStarter</h1>
-  <p>基于 <strong>TanStack Start</strong> + <strong>Cloudflare Workers</strong> 的全栈、边缘原生 SaaS 起步模板。</p>
+  <h1>FlareStarter PPTMaster</h1>
+  <p>基于 <strong>TanStack Start</strong> + <strong>Cloudflare Workers</strong> 的 PPTMaster 云端 SaaS 外壳。</p>
   <p>
     <a href="https://github.com/FlareStarter/flarestarter/actions/workflows/ci.yml"><img src="https://github.com/FlareStarter/flarestarter/actions/workflows/ci.yml/badge.svg" alt="CI"></a>
     <a href="https://github.com/FlareStarter/flarestarter/blob/main/LICENSE"><img src="https://img.shields.io/badge/License-Apache_2.0-blue.svg" alt="License"></a>
@@ -20,6 +20,16 @@
 ---
 
 [English](README.md) | **简体中文**
+
+## 项目边界
+
+本仓库是全新的 **FlareStarter PPTMaster** 项目，与原始 PPTMaster 仓库严格分离：
+
+- **本项目**负责 SaaS 外壳：认证、用户、项目、材料上传、确认流程、工作台、ownership 和浏览器下载。
+- **原项目** `ppt-master-productized` 负责 PPTMaster 原生引擎、skills、Strategist/Executor、SVG/PPTX 生成及原有控制面。
+- 本项目只通过服务端 API 调用 PPTMaster；PPTMaster 地址和内部凭据不得暴露给浏览器。
+
+原 PPTMaster 的 `main` 不会被 vendor 到本仓库，也不会被本项目开发流程修改。
 
 FlareStarter 只交付能跑的东西：仓库里的每个功能都是真实实现，没有 mock、没有占位、没有为凑数而留空的 TODO。所有代码都跑在 Cloudflare 的低成本（乃至免费）技术栈上 (Workers + D1 + KV)。
 
