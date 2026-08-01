@@ -2,7 +2,7 @@ import { createServerFn } from '@tanstack/react-start'
 import { z } from 'zod'
 
 import { requireUser } from '@/features/auth/middleware'
-import { createPptMasterProject, approvePptMasterExport, approvePptMasterOutline, getPptMasterHealth, getPptMasterProgress, getPptMasterSpec, listPptMasterProjects, lockPptMasterConfirmations, pptMasterDownloadUrl, startPptMasterGeneration, uploadPptMasterMarkdown } from './client'
+import { createPptMasterProject, approvePptMasterExport, approvePptMasterOutline, downloadPptMasterArtifact, getPptMasterHealth, getPptMasterProgress, getPptMasterSpec, listPptMasterProjects, lockPptMasterConfirmations, startPptMasterGeneration, uploadPptMasterMarkdown } from './client'
 
 export const getPptMasterProjects = createServerFn({ method: 'GET' }).handler(async () => {
   const user = await requireUser()
@@ -70,11 +70,11 @@ export const approvePptMasterExportAction = createServerFn({ method: 'POST' })
     return approvePptMasterExport(user.id, data.projectId)
   })
 
-export const getPptMasterDownloadUrlAction = createServerFn({ method: 'GET' })
+export const downloadPptMasterArtifactAction = createServerFn({ method: 'GET' })
   .validator(z.object({ projectId: z.string().min(1) }))
   .handler(async ({ data }) => {
     const user = await requireUser()
-    return { url: pptMasterDownloadUrl(data.projectId), userId: user.id }
+    return downloadPptMasterArtifact(user.id, data.projectId)
   })
 
 export const getPptMasterHealthStatus = createServerFn({ method: 'GET' }).handler(async () => {

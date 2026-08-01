@@ -8,7 +8,7 @@ import {
   approvePptMasterExportAction,
   approvePptMasterOutlineAction,
   getPptMasterProgressAction,
-  getPptMasterDownloadUrlAction,
+  downloadPptMasterArtifactAction,
   getPptMasterSpecAction,
   lockPptMasterConfirmationsAction,
   startPptMasterGenerationAction,
@@ -90,8 +90,14 @@ function ProjectWorkbench() {
   async function download() {
     setError(null)
     try {
-      const result = await getPptMasterDownloadUrlAction({ data: { projectId: progress.id } })
-      window.location.assign(result.url)
+      const result = await downloadPptMasterArtifactAction({ data: { projectId: progress.id } })
+      const bytes = Uint8Array.from(atob(result.data), (char) => char.charCodeAt(0))
+      const url = URL.createObjectURL(new Blob([bytes], { type: result.contentType }))
+      const anchor = document.createElement('a')
+      anchor.href = url
+      anchor.download = result.filename
+      anchor.click()
+      URL.revokeObjectURL(url)
     } catch (cause) { setError(cause instanceof Error ? cause.message : 'Download failed.') }
   }
 

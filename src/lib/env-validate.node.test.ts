@@ -68,6 +68,15 @@ test('assertEnvOnce passes and memoizes on a valid env', async () => {
   vi.doUnmock('./env')
 })
 
+test('PPTMaster integration requires both URL and internal key', () => {
+  expect(validateEnv({ ...ok, PPTMASTER_API_URL: 'https://ppt.example.com' }).errors).toEqual([
+    expect.stringContaining('PPTMaster integration'),
+  ])
+  expect(validateEnv({ ...ok, PPTMASTER_INTERNAL_API_KEY: 'secret' }).errors).toEqual([
+    expect.stringContaining('PPTMaster integration'),
+  ])
+  expect(validateEnv({ ...ok, PPTMASTER_API_URL: 'https://ppt.example.com', PPTMASTER_INTERNAL_API_KEY: 'secret' }).errors).toEqual([])
+})
 test('Stripe fully configured is clean', () => {
   const r = validateEnv({
     ...ok,

@@ -43,7 +43,7 @@ function internalHeaders(userId?: string): HeadersInit {
   if (!key) throw new Error('PPTMASTER_INTERNAL_API_KEY is not configured')
   return {
     accept: 'application/json',
-    authorization: `Bearer ${key}`,
+    authorization: 'Bearer ' + key,
     ...(userId ? { 'x-pptmaster-user-id': userId } : {}),
   }
 }
@@ -117,6 +117,17 @@ export async function approvePptMasterExport(userId: string, projectId: string):
   }, userId)
 }
 
-export function pptMasterDownloadUrl(projectId: string): string {
-  return `${baseUrl()}/api/projects/${encodeURIComponent(projectId)}/download`
+export async function downloadPptMasterArtifact(userId: string, projectId: string): Promise<{ filename: string; contentType: string; data: string }> {
+  const response = await fetch(`${baseUrl()}/api/projects/${encodeURIComponent(projectId)}/download`, {
+    headers: internalHeaders(userId),
+  })
+  if (!response.ok) throw new Error(`PPTMaster download ${response.status}`)
+  const bytes = new Uint8Array(await response.arrayBuffer())
+  let binary = ''
+  for (let i = 0; i < bytes.length; i += 0x8000) binary += String.fromCharCode(...bytes.subarray(i, i + 0x8000))
+  return {
+    filename: response.headers.get('content-disposition')?.match(/filename="?([^";]+)"?/)?.[1] ?? `${projectId}.pptx`,
+    contentType: response.headers.get('content-type') ?? 'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+    data: btoa(binary),
+  }
 }

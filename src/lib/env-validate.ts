@@ -59,6 +59,7 @@ const envSchema = z
     pair('GOOGLE_CLIENT_ID', 'GOOGLE_CLIENT_SECRET', 'Google OAuth')
     pair('GITHUB_CLIENT_ID', 'GITHUB_CLIENT_SECRET', 'GitHub OAuth')
     pair('TURNSTILE_SITE_KEY', 'TURNSTILE_SECRET_KEY', 'Turnstile')
+    pair('PPTMASTER_API_URL', 'PPTMASTER_INTERNAL_API_KEY', 'PPTMaster integration')
 
     // A Stripe secret key with no webhook secret means webhooks fail signature
     // verification silently.
