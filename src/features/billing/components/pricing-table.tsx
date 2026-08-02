@@ -1,13 +1,11 @@
 import { useState } from 'react'
 import { Link } from '@tanstack/react-router'
-import { Check, Bell, Github, Heart } from 'lucide-react'
+import { Check, Bell } from 'lucide-react'
 import { useTranslation } from '@/features/i18n/provider'
 import { buttonVariants } from '@/components/ui/button'
 import { WaitlistDialog } from '@/features/waitlist/components/waitlist-dialog'
 import type { Locale } from '@/features/i18n/locale'
 
-// Set this to your real repository URL before publishing.
-const GITHUB_URL = 'https://github.com/ssssss87815/flarestarter-pptmaster'
 
 interface Content {
   kicker: string
@@ -62,24 +60,24 @@ const CONTENT: Record<Locale, Content> = {
     freeNote: 'Invite required · no card required',
     proNote: 'Higher limits · advanced controls',
     proTeamNote: 'Shared workspace · team controls',
-    ctaFree: 'Use Beta',
+    ctaFree: 'Start Beta',
     ctaPro: 'Upgrade',
-    bandKicker: '// real talk',
-    bandTitle: 'The open core might be all you need.',
-    bandSub: 'If it saves you a weekend, consider sponsoring — an early-sponsor discount will be waiting when Pro lands.',
-    bandSponsor: 'Sponsor the project',
+    bandKicker: '// choose your workflow',
+    bandTitle: 'Start with guided generation or take full control.',
+    bandSub: 'Use the standard project flow for speed, or enter the Advanced Workbench when you need to control confirmations, preview and export.',
+    bandSponsor: 'Open Advanced Workbench',
     freeFeats: [
-      'Complete Apache 2.0 template',
-      'Cloudflare Workers deploy',
-      'Auth + Stripe billing + admin',
-      'D1 · KV · dark mode · i18n',
-      'Community support',
+      'Controlled Beta access',
+      'Source-grounded presentation workflow',
+      'Advanced Workbench entry',
+      'Preview and verified export',
+      'Project ownership isolation',
     ],
     proFeats: [
-      'Everything in the open core',
-      'Lifetime updates — all future modules included',
-      'Priority support, straight from the maintainers',
-      'Premium modules, exclusive to Pro',
+      'Everything in Beta',
+      'Higher generation and export limits',
+      'Advanced visual and workflow controls',
+      'Priority support for production decks',
     ],
   },
   zh: {
@@ -98,18 +96,18 @@ const CONTENT: Record<Locale, Content> = {
     freeNote: '需要邀请码 · 无需信用卡',
     proNote: '更高额度 · 高级控制',
     proTeamNote: '共享工作区 · 团队控制',
-    ctaFree: '使用 Beta',
+    ctaFree: '开始使用 Beta',
     ctaPro: '升级 Pro',
-    bandKicker: '// 说句实话',
-    bandTitle: '开源版，可能就够你用了。',
-    bandSub: '如果它帮你省了不少时间，欢迎赞助支持——Pro 上线时，早期赞助者有专属折扣。',
-    bandSponsor: '赞助这个项目',
-    freeFeats: ['完整 Apache 2.0 模板', 'Cloudflare Workers 部署', '认证 + Stripe 计费 + 后台', 'D1 · KV · 暗色 · 国际化', '社区支持'],
+    bandKicker: '// 选择你的工作流',
+    bandTitle: '快速生成，或进入高级工作台完全控制。',
+    bandSub: '普通项目适合快速开始；需要控制确认、大纲、预览和导出时，进入高级工作台。',
+    bandSponsor: '打开高级工作台',
+    freeFeats: ['受控 Beta 准入', '材料驱动的 PPTMaster 流程', '高级工作台入口', '预览与验证导出', '项目归属隔离'],
     proFeats: [
-      '开源核心的全部',
-      '终身更新，含未来所有模块',
-      '优先支持，维护者亲自解答',
-      '更多高级模块，Pro 专属',
+      'Beta 的全部能力',
+      '更高的生成与导出额度',
+      '高级视觉与工作流控制',
+      '持续生产的优先支持',
     ],
   },
 }
@@ -159,9 +157,7 @@ function PriceCard({
             <Bell size={16} /> {c.ctaPro}
           </button>
         ) : (
-          <a href={GITHUB_URL} className={buttonVariants({ variant: 'outline', className: 'w-full' })}>
-            <Github size={15} /> {c.ctaFree}
-          </a>
+          <Link to="/{-$locale}/app" className={buttonVariants({ variant: 'outline', className: 'w-full' })}>{c.ctaFree}</Link>
         )}
         <div className="my-5 h-px bg-border" />
         <div className="grid gap-2.5">
@@ -242,12 +238,8 @@ export function PricingTable({ turnstileSiteKey }: { turnstileSiteKey: string | 
         </h2>
         <p className="mx-auto mb-7 max-w-[36em] text-[15px] leading-snug text-fg-2">{c.bandSub}</p>
         <div className="flex flex-wrap items-center justify-center gap-3">
-          <a href={GITHUB_URL} className={buttonVariants({})}>
-            <Github size={15} /> {c.ctaFree}
-          </a>
-          <Link to="/{-$locale}/sponsor" className={buttonVariants({ variant: 'outline' })}>
-            <Heart size={15} /> {c.bandSponsor}
-          </Link>
+          <Link to="/{-$locale}/app" className={buttonVariants({})}>{c.ctaFree}</Link>
+          <Link to="/{-$locale}/app/advanced" className={buttonVariants({ variant: 'outline' })}>{c.bandSponsor}</Link>
         </div>
       </section>
 
