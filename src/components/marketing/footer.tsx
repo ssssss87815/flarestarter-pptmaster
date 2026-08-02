@@ -4,10 +4,7 @@ import { Logo } from '@/components/brand/logo'
 import { ThemeToggle } from '@/features/theme/theme-toggle'
 import { LangSwitch } from '@/features/i18n/lang-switch'
 
-const GITHUB_URL = 'https://github.com/flarestarter/flarestarter'
-const TELEGRAM_URL = 'https://t.me/+coaN5Ihjte9jNzZl'
-const X_URL = 'https://x.com/0xdinglv'
-const XHS_URL = 'https://xhslink.com/m/19FI1djnItu'
+const GITHUB_URL = 'https://github.com/ssssss87815/flarestarter-pptmaster'
 
 export function Footer({ theme }: { theme: 'light' | 'dark' }) {
   const { t } = useTranslation()
@@ -28,18 +25,13 @@ export function Footer({ theme }: { theme: 'light' | 'dark' }) {
         <FooterCol title={t('marketing.footerProduct')}>
           <Link className="foot-link" to="/{-$locale}" hash="features">{t('marketing.navFeatures')}</Link>
           <Link className="foot-link" to="/{-$locale}/pricing">{t('marketing.footerPricing')}</Link>
-          <Link className="foot-link" to="/{-$locale}/waitlist">{t('marketing.footerWaitlist')}</Link>
           <Link className="foot-link" to="/{-$locale}/changelog">{t('marketing.footerChangelog')}</Link>
-          <Link className="foot-link" to="/{-$locale}/sponsor">{t('sponsor.footerSponsor')}</Link>
           <a className="foot-link" href="/docs">{t('marketing.footerDocs')}</a>
         </FooterCol>
 
         {/* Resources */}
         <FooterCol title={t('marketing.footerResources')}>
           <a className="foot-link" href={GITHUB_URL}>{t('marketing.footerGithub')}</a>
-          <a className="foot-link" href={TELEGRAM_URL} target="_blank" rel="noreferrer">{t('marketing.footerTelegram')}</a>
-          <a className="foot-link" href={X_URL} target="_blank" rel="noreferrer">{t('marketing.footerX')}</a>
-          <a className="foot-link" href={XHS_URL} target="_blank" rel="noreferrer">{t('marketing.footerXhs')}</a>
         </FooterCol>
 
         {/* Legal */}

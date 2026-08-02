@@ -29,11 +29,11 @@ export const Route = createFileRoute('/{-$locale}/sponsor')({
       origin,
       locale,
       path: '/sponsor',
-      title: locale === 'zh' ? '赞助 — FlareStarter' : 'Sponsor — FlareStarter',
+      title: locale === 'zh' ? '赞助 — PPTMaster' : 'Support — PPTMaster',
       description:
         locale === 'zh'
-          ? '赞助这个开源项目，一次性或按月均可。'
-          : 'Sponsor this open-source project. One-time or monthly.',
+          ? '支持 PPTMaster 的持续开发。'
+          : 'Support continued development of PPTMaster.',
     })
     return { meta, links }
   },

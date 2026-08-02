@@ -3,8 +3,6 @@ import { ArrowRight, Terminal } from 'lucide-react'
 import { useTranslation } from '@/features/i18n/provider'
 import { buttonVariants } from '@/components/ui/button'
 
-const GITHUB_URL = 'https://github.com/ssssss87815/flarestarter-pptmaster'
-
 function TerminalCard() {
   return (
     <div className="term">
@@ -12,22 +10,22 @@ function TerminalCard() {
         <span className="term-dot" style={{ background: '#FF5F57' }} />
         <span className="term-dot" style={{ background: '#FEBC2E' }} />
         <span className="term-dot" style={{ background: '#28C840' }} />
-        <span className="ml-2 text-xs text-fg-3">zsh — my-app</span>
+        <span className="ml-2 text-xs text-fg-3">PPTMaster — generation pipeline</span>
       </div>
       <div className="term-body">
         <div>
-          <span className="pr">$</span> git clone {GITHUB_URL} my-app
+          <span className="pr">$</span> source → confirmations → strategist
         </div>
         <div className="mt-1.5">
-          <span className="pr">$</span> cd my-app && pnpm install
+          <span className="pr">$</span> executor --live-preview
         </div>
-        <div className="ok mt-1.5">✓ auth · billing · admin · i18n</div>
-        <div className="ok">✓ D1 + KV wired</div>
+        <div className="ok mt-1.5">✓ spec_lock.md · page notes</div>
+        <div className="ok">✓ SVG quality check · native PPTX</div>
         <div className="mt-1.5">
-          <span className="pr">$</span> pnpm dev
+          <span className="pr">$</span> export --verified
         </div>
         <div>
-          <span className="ok">✓</span> <span className="pr">http://localhost:3000</span>
+          <span className="ok">✓</span> <span className="pr">editable presentation ready</span>
         </div>
         <div className="mt-1.5">
           <span className="pr">$</span> <span className="term-cursor" />
@@ -62,12 +60,9 @@ export function Hero({ loggedIn }: { loggedIn: boolean }) {
               {t('marketing.heroCtaPrimary')} <ArrowRight size={18} />
             </Link>
           )}
-          <a
-            href={GITHUB_URL}
-            className={buttonVariants({ variant: 'outline', size: 'lg', className: 'font-mono text-sm' })}
-          >
-            <Terminal size={16} /> {t('marketing.gitClone')}
-          </a>
+          <Link to="/{-$locale}/app/advanced" className={buttonVariants({ variant: 'outline', size: 'lg', className: 'font-mono text-sm' })}>
+            <Terminal size={16} /> {t('app.advancedWorkbench')}
+          </Link>
         </div>
       </div>
       <TerminalCard />

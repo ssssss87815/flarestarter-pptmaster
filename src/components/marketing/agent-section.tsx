@@ -1,7 +1,7 @@
 import { useTranslation } from '@/features/i18n/provider'
 
 // Tool names are hardcoded (universal proper nouns); 'your agent' keeps it tool-agnostic.
-const AGENTS = ['Claude', 'Codex', 'your agent'] as const
+const AGENTS = ['Source', 'Confirm', 'Generate', 'Review', 'Export'] as const
 
 export function AgentSection() {
   const { t } = useTranslation()

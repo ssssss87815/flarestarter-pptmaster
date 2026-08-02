@@ -65,9 +65,9 @@ function AppHome() {
       </div>
 
       <section className="mb-7 rounded-[14px] border border-border bg-card p-[18px]">
-        <div className="mb-4 flex items-center gap-2"><Plus size={18} /><h2 className="m-0 font-mono text-sm uppercase tracking-wide text-fg-3">Create PPTMaster project</h2></div>
+        <div className="mb-4 flex items-center gap-2"><Plus size={18} /><h2 className="m-0 font-mono text-sm uppercase tracking-wide text-fg-3">Create presentation project</h2></div>
         <div className="grid gap-3 sm:grid-cols-2">
-          <Input value={name} onChange={(event) => setName(event.target.value)} placeholder="Project name" aria-label="Project name" />
+          <Input value={name} onChange={(event) => setName(event.target.value)} placeholder="Presentation name" aria-label="Presentation name" />
           <Input value={topic} onChange={(event) => setTopic(event.target.value)} placeholder="Topic (optional)" aria-label="Topic" />
         </div>
         <div className="mt-3 flex items-center gap-3">
@@ -77,8 +77,8 @@ function AppHome() {
       </section>
 
       <section className="mb-7">
-        <div className="mb-3.5 flex items-center justify-between"><h2 className="font-mono text-sm uppercase tracking-wide text-fg-3">PPTMaster projects</h2><span className="text-xs text-fg-3">{projects.length} projects</span></div>
-        {projects.length === 0 ? <div className="rounded-[14px] border border-dashed border-border p-6 text-sm text-fg-3">No PPTMaster projects yet. Create one above.</div> : <div className="grid gap-3.5">{projects.map((project) => <div key={project.id} className="rounded-[14px] border border-border bg-card p-[18px]"><div className="flex items-start justify-between gap-4"><div className="flex items-start gap-3"><span className="icon-tile"><FileText size={20} /></span><div><h3 className="m-0 text-[15px] font-semibold text-foreground">{project.name}</h3><p className="mt-1 text-[13px] text-fg-3">{project.status}{project.detail ? ` · ${project.detail}` : ''}</p></div></div><Link to="/{-$locale}/app/projects/$projectId" params={{ projectId: project.id }} className="text-fg-3 hover:text-foreground" aria-label={`Open ${project.name}`}><ArrowRight size={17} /></Link></div></div>)}</div>}
+        <div className="mb-3.5 flex items-center justify-between"><h2 className="font-mono text-sm uppercase tracking-wide text-fg-3">Your presentations</h2><span className="text-xs text-fg-3">{projects.length} projects</span></div>
+        {projects.length === 0 ? <div className="rounded-[14px] border border-dashed border-border p-6 text-sm text-fg-3">No presentation projects yet. Create one above.</div> : <div className="grid gap-3.5">{projects.map((project) => <div key={project.id} className="rounded-[14px] border border-border bg-card p-[18px]"><div className="flex items-start justify-between gap-4"><div className="flex items-start gap-3"><span className="icon-tile"><FileText size={20} /></span><div><h3 className="m-0 text-[15px] font-semibold text-foreground">{project.name}</h3><p className="mt-1 text-[13px] text-fg-3">{project.status}{project.detail ? ` · ${project.detail}` : ''}</p></div></div><Link to="/{-$locale}/app/projects/$projectId" params={{ projectId: project.id }} className="text-fg-3 hover:text-foreground" aria-label={`Open ${project.name}`}><ArrowRight size={17} /></Link></div></div>)}</div>}
       </section>
 
       <h2 className="mb-3.5 font-mono text-sm uppercase tracking-wide text-fg-3">{t('app.quickActions')}</h2>

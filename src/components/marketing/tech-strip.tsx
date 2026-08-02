@@ -1,7 +1,7 @@
 import { useTranslation } from '@/features/i18n/provider'
 
 // Universal proper nouns — recognizable to the dev audience; intentionally text, not logos.
-const STACK = ['Cloudflare Workers', 'TanStack Start', 'Stripe', 'better-auth', 'Drizzle', 'Tailwind'] as const
+const STACK = ['Source intake', 'Strategist', 'Executor', 'Live Preview', 'Native DrawingML', 'PPTX'] as const
 
 export function TechStrip() {
   const { t } = useTranslation()

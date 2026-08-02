@@ -12,7 +12,7 @@ test('stripDefaultLocalePrefix：去掉 /en 前缀且保留 query 和 hash', () 
 })
 
 test('translate 解析嵌套 key', () => {
-  expect(translate(en, 'home.title')).toBe('Ship your SaaS on the edge')
+  expect(translate(en, 'home.title')).toBe('Create an editable presentation')
 })
 test('translate 插值 {name}', () => {
   expect(translate(en, 'home.greeting', { name: 'Yang' })).toBe('Hello, Yang!')
