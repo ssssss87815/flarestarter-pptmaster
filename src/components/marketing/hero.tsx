@@ -14,7 +14,7 @@ function TerminalCard() {
       </div>
       <div className="term-body">
         <div>
-          <span className="pr">$</span> source → confirmations → strategist
+          <span className="pr">$</span> source.md → PPTMaster project
         </div>
         <div className="mt-1.5">
           <span className="pr">$</span> executor --live-preview
