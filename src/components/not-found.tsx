@@ -8,7 +8,7 @@ export function NotFound() {
   // document.title, not a rendered <title>: the root head() already emits one,
   // and React 19 hoisting would append a second (invalid, and browsers keep the first).
   useEffect(() => {
-    document.title = 'Page not found — FlareStarter'
+    document.title = 'Page not found — PPTMaster'
   }, [])
   return (
     <main className="grid-bg flex min-h-screen flex-col items-center justify-center gap-[18px] p-8 text-center">

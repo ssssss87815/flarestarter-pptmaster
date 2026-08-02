@@ -9,7 +9,7 @@ export function authPageHead(
   const locale: Locale = (params as { locale?: string })?.locale === 'zh' ? 'zh' : 'en'
   return {
     meta: [
-      { title: `${dictionaries[locale].auth[key]} — FlareStarter` },
+      { title: `${dictionaries[locale].auth[key]} — PPTMaster` },
       { name: 'robots', content: 'noindex' },
     ],
   }
