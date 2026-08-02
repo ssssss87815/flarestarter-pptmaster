@@ -209,7 +209,7 @@ export const zh: Dict = {
     autoRenewNote: '按月自动续费直至取消，可随时经 Stripe 门户管理',
     nonRefundNote: '赞助为自愿支持，不设退款',
     earlyPerkNote: '早期赞助者：Pro 上线时享专属优惠',
-    messageLabel: '公开留言', messageOptional: '可选', messagePlaceholder: '用 FlareStarter 一个周末就上线了我们的 SaaS',
+    messageLabel: '公开留言', messageOptional: '可选', messagePlaceholder: 'PPTMaster 帮我们做出了更清晰的演示文稿',
     messageNote: '会作为引言展示在赞助墙上，附在你的名字旁。',
     sponsorBtn: '赞助', secure: '通过 Stripe 安全支付 · 可随时取消',
     payWithCard: '银行卡', payWithWechat: '微信支付',

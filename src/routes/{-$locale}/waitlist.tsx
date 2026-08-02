@@ -28,7 +28,7 @@ export const Route = createFileRoute('/{-$locale}/waitlist')({
       origin,
       locale,
       path: '/waitlist',
-      title: `${dict} — FlareStarter`,
+      title: `${dict} — PPTMaster`,
       description: locale === 'zh' ? '我们一上线就第一时间通知你。' : "We'll let you know the moment we launch.",
     })
     return { meta, links }

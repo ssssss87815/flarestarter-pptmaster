@@ -230,7 +230,7 @@ export const en = {
     autoRenewNote: 'Renews monthly until canceled — manage anytime via the Stripe portal',
     nonRefundNote: 'Sponsorships are voluntary support and are non-refundable',
     earlyPerkNote: 'Early sponsors get an exclusive perk when Pro launches',
-    messageLabel: 'Public message', messageOptional: 'optional', messagePlaceholder: 'FlareStarter shipped our SaaS in a weekend',
+    messageLabel: 'Public message', messageOptional: 'optional', messagePlaceholder: 'PPTMaster helped us create a clearer deck',
     messageNote: 'Shown as a quote on the sponsor wall, next to your name.',
     sponsorBtn: 'Sponsor', secure: 'Secure checkout via Stripe · cancel anytime',
     payWithCard: 'Card', payWithWechat: 'WeChat Pay',

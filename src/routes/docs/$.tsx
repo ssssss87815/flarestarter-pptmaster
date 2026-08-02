@@ -90,7 +90,7 @@ export const Route = createFileRoute('/docs/$')({
   // must not fall back to the site-wide default title (duplicate-title farm).
   // og:title/og:description 同步覆盖（否则分享卡片仍显示 __root 的全站默认值，与 <title> 脱节）。
   head: ({ loaderData }) => {
-    const title = loaderData?.title ? `${loaderData.title} · FlareStarter Docs` : 'FlareStarter Docs'
+    const title = loaderData?.title ? `${loaderData.title} · PPTMaster Docs` : 'PPTMaster Docs'
     const canonical = loaderData?.origin ? `${loaderData.origin}${loaderData.docsPath}` : null
     return {
       meta: [
