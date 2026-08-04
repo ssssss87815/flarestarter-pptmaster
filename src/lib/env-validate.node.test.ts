@@ -75,8 +75,24 @@ test('PPTMaster integration requires both URL and internal key', () => {
   expect(validateEnv({ ...ok, PPTMASTER_INTERNAL_API_KEY: 'secret' }).errors).toEqual([
     expect.stringContaining('PPTMaster integration'),
   ])
-  expect(validateEnv({ ...ok, PPTMASTER_API_URL: 'https://ppt.example.com', PPTMASTER_INTERNAL_API_KEY: 'secret' }).errors).toEqual([])
+  const bridge = {
+    PPTMASTER_BRIDGE_ISSUER: 'flarestarter-pptmaster',
+    PPTMASTER_BRIDGE_AUDIENCE: 'pptmaster-saas',
+    PPTMASTER_BRIDGE_KEY_ID: 'fs-test-1',
+    PPTMASTER_BRIDGE_HMAC_SECRET_BASE64URL: 'YnJpZGdlLWZpeHR1cmUtc2VjcmV0LXYxLTMyLWJ5dGVzISE',
+  }
+  expect(validateEnv({ ...ok, PPTMASTER_API_URL: 'https://ppt.example.com', PPTMASTER_INTERNAL_API_KEY: 'secret', ...bridge }).errors).toEqual([])
 })
+
+test('noncanonical same-bytes base64url alias is rejected', () => {
+  const bridge = {
+    PPTMASTER_API_URL: 'https://ppt.example.com', PPTMASTER_INTERNAL_API_KEY: 'secret',
+    PPTMASTER_BRIDGE_ISSUER: 'flarestarter-pptmaster', PPTMASTER_BRIDGE_AUDIENCE: 'pptmaster-saas', PPTMASTER_BRIDGE_KEY_ID: 'fs-test-1',
+    PPTMASTER_BRIDGE_HMAC_SECRET_BASE64URL: 'AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAB',
+  }
+  expect(validateEnv({ ...ok, ...bridge }).errors).toEqual(expect.arrayContaining([expect.stringContaining('PPTMASTER_BRIDGE_HMAC_SECRET_BASE64URL')]))
+})
+
 test('Stripe fully configured is clean', () => {
   const r = validateEnv({
     ...ok,

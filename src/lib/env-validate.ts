@@ -48,6 +48,10 @@ const envSchema = z
     SENTRY_DSN: optional,
     PPTMASTER_API_URL: optional,
     PPTMASTER_INTERNAL_API_KEY: optional,
+    PPTMASTER_BRIDGE_ISSUER: optional,
+    PPTMASTER_BRIDGE_AUDIENCE: optional,
+    PPTMASTER_BRIDGE_KEY_ID: optional,
+    PPTMASTER_BRIDGE_HMAC_SECRET_BASE64URL: optional,
   })
   .superRefine((env, ctx) => {
     // OAuth: half a pair is always a misconfiguration.
@@ -59,7 +63,46 @@ const envSchema = z
     pair('GOOGLE_CLIENT_ID', 'GOOGLE_CLIENT_SECRET', 'Google OAuth')
     pair('GITHUB_CLIENT_ID', 'GITHUB_CLIENT_SECRET', 'GitHub OAuth')
     pair('TURNSTILE_SITE_KEY', 'TURNSTILE_SECRET_KEY', 'Turnstile')
-    pair('PPTMASTER_API_URL', 'PPTMASTER_INTERNAL_API_KEY', 'PPTMaster integration')
+    const pptmasterFields = [
+      'PPTMASTER_API_URL',
+      'PPTMASTER_INTERNAL_API_KEY',
+      'PPTMASTER_BRIDGE_ISSUER',
+      'PPTMASTER_BRIDGE_AUDIENCE',
+      'PPTMASTER_BRIDGE_KEY_ID',
+      'PPTMASTER_BRIDGE_HMAC_SECRET_BASE64URL',
+    ] as const
+    const configuredPptmaster = pptmasterFields.some((key) => Boolean(env[key]))
+    if (configuredPptmaster && pptmasterFields.some((key) => !env[key])) {
+      ctx.addIssue({ code: 'custom', path: ['PPTMASTER_BRIDGE_ISSUER'], message: 'PPTMaster integration requires all six PPTMASTER_* values' })
+    }
+    if (env.PPTMASTER_API_URL) {
+      try {
+        const url = new URL(env.PPTMASTER_API_URL)
+        if (url.protocol !== 'http:' && url.protocol !== 'https:') throw new Error('protocol')
+      } catch {
+        ctx.addIssue({ code: 'custom', path: ['PPTMASTER_API_URL'], message: 'PPTMASTER_API_URL must be an absolute HTTP(S) URL' })
+      }
+    }
+    for (const key of ['PPTMASTER_BRIDGE_ISSUER', 'PPTMASTER_BRIDGE_AUDIENCE', 'PPTMASTER_BRIDGE_KEY_ID'] as const) {
+      if (env[key] && /[\u0000-\u001f\u007f]/.test(env[key])) {
+        ctx.addIssue({ code: 'custom', path: [key], message: `${key} contains invalid control characters` })
+      }
+    }
+    if (env.PPTMASTER_BRIDGE_HMAC_SECRET_BASE64URL) {
+      const value = env.PPTMASTER_BRIDGE_HMAC_SECRET_BASE64URL
+      if (!/^[A-Za-z0-9_-]+$/.test(value) || value.length % 4 === 1) {
+        ctx.addIssue({ code: 'custom', path: ['PPTMASTER_BRIDGE_HMAC_SECRET_BASE64URL'], message: 'PPTMASTER_BRIDGE_HMAC_SECRET_BASE64URL must be canonical unpadded base64url' })
+      } else {
+        try {
+          const padded = value.replace(/-/g, '+').replace(/_/g, '/') + '='.repeat((4 - value.length % 4) % 4)
+          const bytes = Uint8Array.from(atob(padded), (char) => char.charCodeAt(0))
+          const canonical = btoa(String.fromCharCode(...bytes)).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/g, '')
+          if (bytes.length < 32 || canonical !== value) throw new Error('noncanonical or short')
+        } catch {
+          ctx.addIssue({ code: 'custom', path: ['PPTMASTER_BRIDGE_HMAC_SECRET_BASE64URL'], message: 'PPTMASTER_BRIDGE_HMAC_SECRET_BASE64URL must decode to at least 32 bytes' })
+        }
+      }
+    }
 
     // A Stripe secret key with no webhook secret means webhooks fail signature
     // verification silently.

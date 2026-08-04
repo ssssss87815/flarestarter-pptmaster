@@ -1,0 +1,45 @@
+{
+  "schema": "pptmaster-bridge-hmac-v1-fixture",
+  "vectors": [
+    {
+      "domain": "PPTMASTER-BRIDGE-HMAC-SHA256",
+      "version": "1",
+      "method": "POST",
+      "canonical_target": "/api/projects?locale=zh&view=%E6%A6%82%E8%A6%81",
+      "issuer": "flarestarter-pptmaster",
+      "audience": "pptmaster-saas",
+      "key_id": "fs-fixture-1",
+      "timestamp": 1785729600,
+      "nonce": "AAECAwQFBgcICQoLDA0ODw",
+      "subject": "用户-123",
+      "email": "LEE@EXAMPLE.COM",
+      "display_name": "李 Lee",
+      "body_utf8": "{\"name\":\"demo\",\"topic\":\"bridge\"}",
+      "idempotency_key": "idem-unicode-1",
+      "secret_base64url": "YnJpZGdlLWZpeHR1cmUtc2VjcmV0LXYxLTMyLWJ5dGVzISE",
+      "body_sha256": "f6a56a7290c310f8296b166002e4593a2abbcb76839fb5a9b01474339492f924",
+      "canonical_string": "PPTMASTER-BRIDGE-HMAC-SHA256\n1\nPOST\n/api/projects?locale=zh&view=%E6%A6%82%E8%A6%81\nflarestarter-pptmaster\npptmaster-saas\nfs-fixture-1\n1785729600\nAAECAwQFBgcICQoLDA0ODw\n55So5oi3LTEyMw\nbGVlQGV4YW1wbGUuY29t\n5p2OIExlZQ\nf6a56a7290c310f8296b166002e4593a2abbcb76839fb5a9b01474339492f924\nidem-unicode-1",
+      "signature_base64url": "_vipYrORNdRJFDsxq-DFDrw8CAJME9M5J6bXE-pdAKI"
+    },
+    {
+      "domain": "PPTMASTER-BRIDGE-HMAC-SHA256",
+      "version": "1",
+      "method": "GET",
+      "canonical_target": "/api/projects/p1/progress?include=spec",
+      "issuer": "flarestarter-pptmaster",
+      "audience": "pptmaster-saas",
+      "key_id": "fs-fixture-1",
+      "timestamp": 1785729601,
+      "nonce": "EBESExQVFhcYGRobHB0eHw",
+      "subject": "user-empty",
+      "email": "user@example.com",
+      "display_name": "",
+      "body_utf8": "",
+      "idempotency_key": "",
+      "secret_base64url": "YnJpZGdlLWZpeHR1cmUtc2VjcmV0LXYxLTMyLWJ5dGVzISE",
+      "body_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "canonical_string": "PPTMASTER-BRIDGE-HMAC-SHA256\n1\nGET\n/api/projects/p1/progress?include=spec\nflarestarter-pptmaster\npptmaster-saas\nfs-fixture-1\n1785729601\nEBESExQVFhcYGRobHB0eHw\ndXNlci1lbXB0eQ\ndXNlckBleGFtcGxlLmNvbQ\n\ne3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855\n",
+      "signature_base64url": "YAJik9d5qVLRKJ8ZjNDs035HzqCei0IY8zOwmtp7jhU"
+    }
+  ]
+}

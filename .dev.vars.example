@@ -35,6 +35,10 @@ TURNSTILE_SECRET_KEY=
 CF_ANALYTICS_TOKEN=
 # Sentry server-side error reporting. Blank = off. DSN is in the Sentry project settings.
 SENTRY_DSN=
-# PPTMaster integration — configure both values together. These are server-only.
+# PPTMaster integration — configure all six values together. These are server-only.
 PPTMASTER_API_URL=
 PPTMASTER_INTERNAL_API_KEY=
+PPTMASTER_BRIDGE_ISSUER=
+PPTMASTER_BRIDGE_AUDIENCE=
+PPTMASTER_BRIDGE_KEY_ID=
+PPTMASTER_BRIDGE_HMAC_SECRET_BASE64URL=
