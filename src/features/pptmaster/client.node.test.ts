@@ -147,16 +147,16 @@ test('retries bounded service unavailability and preserves multipart bytes', asy
   expect(first.headers.get('x-pptmaster-bridge-body-sha256')).toBe(second.headers.get('x-pptmaster-bridge-body-sha256'))
 })
 
-test.skipIf(!e2eUrl)('real HTTP E2E covers caller identity, ownership and multipart flow', async () => {
+test.skipIf(!e2eUrl)('real HTTP E2E covers caller identity, ownership, multipart flow, and invalid bridge authentication', async () => {
   const endpoint = new URL(e2eUrl!)
-  let forceInvalidServiceAuth = false
+  let forceInvalidBridgeAuth = false
   const realFetch = (input: RequestInfo | URL, init?: RequestInit): Promise<Response> => {
     const request = input instanceof Request ? input : new Request(input, init)
     return new Promise((resolve, reject) => {
       void request.arrayBuffer().then((body) => {
         const path = new URL(request.url).pathname + new URL(request.url).search
         const outgoingHeaders = Object.fromEntries(request.headers.entries())
-        if (forceInvalidServiceAuth) {
+        if (forceInvalidBridgeAuth) {
           outgoingHeaders.authorization = 'Bearer invalid-test-service-auth'
           // The receiver's legacy bearer is not part of bridge-v1 auth. Keep the
           // signed envelope but make the bridge signature invalid so this
@@ -210,9 +210,9 @@ test.skipIf(!e2eUrl)('real HTTP E2E covers caller identity, ownership and multip
     unauthenticated.end()
   })
   expect(noAuth).toBe(401)
-  forceInvalidServiceAuth = true
+  forceInvalidBridgeAuth = true
   await expect(createPptMasterProject(owner, { name: 'Invalid service auth' })).rejects.toThrow(/401/)
-  forceInvalidServiceAuth = false
+  forceInvalidBridgeAuth = false
 })
 
 test('multipart upload signs the exact Request body bytes', async () => {
