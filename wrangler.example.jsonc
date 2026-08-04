@@ -102,8 +102,7 @@
 		"PPTMASTER_INTERNAL_API_KEY": "",
 		"PPTMASTER_BRIDGE_ISSUER": "",
 		"PPTMASTER_BRIDGE_AUDIENCE": "",
-		"PPTMASTER_BRIDGE_KEY_ID": "",
-		"PPTMASTER_BRIDGE_HMAC_SECRET_BASE64URL": ""
+		"PPTMASTER_BRIDGE_KEY_ID": ""
 	},
 	/**
 	 * Static Assets
@@ -138,7 +137,7 @@
 				"binding": "CACHE",
 				"id": "5efe0215aa9b4cd09eda469d33b18daf"
 			}],
-			"vars": { "PPTMASTER_API_URL": "https://ppt-staging.labhub.site", "PPTMASTER_BRIDGE_ISSUER": "flarestarter-staging", "PPTMASTER_BRIDGE_AUDIENCE": "pptmaster-staging", "PPTMASTER_BRIDGE_KEY_ID": "staging-key-1", "PPTMASTER_BRIDGE_HMAC_SECRET_BASE64URL": "" }
+			"vars": { "PPTMASTER_API_URL": "https://ppt-staging.labhub.site", "PPTMASTER_BRIDGE_ISSUER": "flarestarter-staging", "PPTMASTER_BRIDGE_AUDIENCE": "pptmaster-staging", "PPTMASTER_BRIDGE_KEY_ID": "staging-key-1" }
 		},
 		"production": {
 			"name": "flarestarter-pptmaster-production",
@@ -157,7 +156,7 @@
 				"binding": "CACHE",
 				"id": "7fa6672e09974795b5f41dc670d49a2e"
 			}],
-			"vars": { "PPTMASTER_API_URL": "https://ppt.labhub.site", "PPTMASTER_BRIDGE_ISSUER": "", "PPTMASTER_BRIDGE_AUDIENCE": "", "PPTMASTER_BRIDGE_KEY_ID": "", "PPTMASTER_BRIDGE_HMAC_SECRET_BASE64URL": "" }
+			"vars": { "PPTMASTER_API_URL": "https://ppt.labhub.site", "PPTMASTER_BRIDGE_ISSUER": "", "PPTMASTER_BRIDGE_AUDIENCE": "", "PPTMASTER_BRIDGE_KEY_ID": "" }
 		}
 	}
 }

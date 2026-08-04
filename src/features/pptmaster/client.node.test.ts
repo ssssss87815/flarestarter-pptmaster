@@ -1,4 +1,6 @@
 import { request as nodeRequest } from 'node:http'
+import { env as nodeProcessEnv } from 'node:process'
+import { request as nodeHttpsRequest } from 'node:https'
 import { beforeEach, expect, test, vi } from 'vitest'
 
 const caller = { id: '用户-id-不可替换', email: 'Lee@Example.com', name: '李 Lee' }
@@ -16,6 +18,18 @@ function configure() {
 
 const project = JSON.stringify({ id: 'p1', name: 'Demo', status: 'draft' })
 const e2eUrl = import.meta.env.VITE_PPTMASTER_E2E_URL as string | undefined
+
+function e2eConfigure() {
+  return {
+    ...configure(),
+    PPTMASTER_API_URL: e2eUrl,
+    PPTMASTER_INTERNAL_API_KEY: nodeProcessEnv.PPTMASTER_E2E_INTERNAL_API_KEY ?? configure().PPTMASTER_INTERNAL_API_KEY,
+    PPTMASTER_BRIDGE_ISSUER: nodeProcessEnv.PPTMASTER_E2E_BRIDGE_ISSUER ?? configure().PPTMASTER_BRIDGE_ISSUER,
+    PPTMASTER_BRIDGE_AUDIENCE: nodeProcessEnv.PPTMASTER_E2E_BRIDGE_AUDIENCE ?? configure().PPTMASTER_BRIDGE_AUDIENCE,
+    PPTMASTER_BRIDGE_KEY_ID: nodeProcessEnv.PPTMASTER_E2E_BRIDGE_KEY_ID ?? configure().PPTMASTER_BRIDGE_KEY_ID,
+    PPTMASTER_BRIDGE_HMAC_SECRET_BASE64URL: nodeProcessEnv.PPTMASTER_E2E_BRIDGE_HMAC_SECRET_BASE64URL ?? configure().PPTMASTER_BRIDGE_HMAC_SECRET_BASE64URL,
+  }
+}
 
 beforeEach(() => {
   vi.resetModules()
@@ -142,8 +156,15 @@ test.skipIf(!e2eUrl)('real HTTP E2E covers caller identity, ownership and multip
       void request.arrayBuffer().then((body) => {
         const path = new URL(request.url).pathname + new URL(request.url).search
         const outgoingHeaders = Object.fromEntries(request.headers.entries())
-        if (forceInvalidServiceAuth) outgoingHeaders.authorization = 'Bearer invalid-test-service-auth'
-        const outgoing = nodeRequest({
+        if (forceInvalidServiceAuth) {
+          outgoingHeaders.authorization = 'Bearer invalid-test-service-auth'
+          // The receiver's legacy bearer is not part of bridge-v1 auth. Keep the
+          // signed envelope but make the bridge signature invalid so this
+          // negative case proves the receiver rejects tampered authentication.
+          outgoingHeaders['x-pptmaster-bridge-signature'] = 'invalid-test-signature'
+        }
+        const transport = endpoint.protocol === 'https:' ? nodeHttpsRequest : nodeRequest
+        const outgoing = transport({
           hostname: endpoint.hostname,
           port: endpoint.port,
           method: request.method,
@@ -163,7 +184,7 @@ test.skipIf(!e2eUrl)('real HTTP E2E covers caller identity, ownership and multip
     })
   }
   vi.stubGlobal('fetch', realFetch)
-  vi.doMock('@/lib/env', () => ({ env: { ...configure(), PPTMASTER_API_URL: e2eUrl } }))
+  vi.doMock('@/lib/env', () => ({ env: e2eConfigure() }))
   const { createPptMasterProject, getPptMasterProgress, listPptMasterProjects, uploadPptMasterMarkdown, downloadPptMasterArtifact } = await import('./client')
   const owner = { id: 'e2e-owner-a', email: 'e2e-owner-a@example.com', name: 'E2E Owner A' }
   const other = { id: 'e2e-owner-b', email: 'e2e-owner-b@example.com', name: 'E2E Owner B' }
@@ -180,7 +201,8 @@ test.skipIf(!e2eUrl)('real HTTP E2E covers caller identity, ownership and multip
   await expect(getPptMasterProgress(other, created.id)).rejects.toThrow(/401|404/)
   await expect(downloadPptMasterArtifact(owner, created.id)).rejects.toThrow(/409|404/)
   const noAuth = await new Promise<number>((resolve, reject) => {
-    const unauthenticated = nodeRequest({ hostname: endpoint.hostname, port: endpoint.port, method: 'GET', path: '/api/projects', headers: { accept: 'application/json' } }, (response) => {
+    const transport = endpoint.protocol === 'https:' ? nodeHttpsRequest : nodeRequest
+    const unauthenticated = transport({ hostname: endpoint.hostname, port: endpoint.port, method: 'GET', path: '/api/projects', headers: { accept: 'application/json' } }, (response) => {
       response.resume()
       response.on('end', () => resolve(response.statusCode ?? 0))
     })
