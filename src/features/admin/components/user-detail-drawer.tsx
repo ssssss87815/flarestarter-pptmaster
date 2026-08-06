@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from '@tanstack/react-router'
-import { Ban, Check, Copy, ExternalLink, LogIn, CalendarIcon } from 'lucide-react'
+import { Ban, Check, Copy, ExternalLink, LogIn, CalendarIcon, RefreshCw, ShieldOff } from 'lucide-react'
 import { toast } from 'sonner'
 import { authClient } from '@/features/auth/auth.client'
 import { useTranslation } from '@/features/i18n/provider'
@@ -17,6 +17,7 @@ import { initials } from '@/features/admin/components/user-table'
 import { fmtDate } from '@/lib/format-date'
 import type { AdminUserRow } from '@/features/admin/getAdminUsers'
 import { Label } from '@/components/ui/label'
+import { getAdminUserSessionsFn, revokeAdminUserSessionsFn, type AdminUserSession } from '@/features/admin/middleware'
 
 interface Props {
   row: AdminUserRow | null
@@ -35,15 +36,43 @@ export function UserDetailDrawer({ row, open, onOpenChange, currentUserId, onCha
   const [expiry, setExpiry] = useState<Date | undefined>(undefined)
   const [calOpen, setCalOpen] = useState(false)
   const [busy, setBusy] = useState(false)
+  const [sessions, setSessions] = useState<AdminUserSession[] | null>(null)
+  const [sessionsBusy, setSessionsBusy] = useState(false)
 
   useEffect(() => {
     setReason('')
     setExpiry(undefined)
     setCalOpen(false)
+    setSessions(null)
   }, [row?.id])
 
   if (!row) return null
-  const isSelf = row.id === currentUserId
+  const selectedRow = row
+  const isSelf = selectedRow.id === currentUserId
+
+  async function loadSessions() {
+    setSessionsBusy(true)
+    try {
+      setSessions(await getAdminUserSessionsFn({ data: { userId: selectedRow.id } }))
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : 'Error')
+    } finally {
+      setSessionsBusy(false)
+    }
+  }
+
+  async function revokeSessions() {
+    if (isSelf) return
+    setSessionsBusy(true)
+    try {
+      await revokeAdminUserSessionsFn({ data: { userId: selectedRow.id } })
+      toast.success(t('admin.sessionsRevoked'))
+      await loadSessions()
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : 'Error')
+      setSessionsBusy(false)
+    }
+  }
 
   async function act(fn: () => Promise<{ error?: { message?: string } | null }>, ok: string, after?: () => void) {
     setBusy(true)
@@ -122,6 +151,38 @@ export function UserDetailDrawer({ row, open, onOpenChange, currentUserId, onCha
           </div>
 
           <hr className="border-border" />
+
+          <div className="grid gap-3">
+            <div className="flex items-center justify-between gap-3">
+              <span className="font-semibold">{t('admin.sessions')}</span>
+              <Button variant="outline" size="sm" disabled={sessionsBusy} onClick={() => void loadSessions()}>
+                <RefreshCw size={14} className={sessionsBusy ? 'animate-spin' : ''} /> {t('admin.viewSessions')}
+              </Button>
+            </div>
+            {sessions && (
+              <>
+                {sessions.length === 0 ? <p className="text-fg-3">{t('admin.noSessions')}</p> : (
+                  <div className="grid gap-2">
+                    {sessions.map((item) => (
+                      <div key={item.id} className="rounded-md border border-border p-2 text-xs">
+                        <div className="font-mono break-all">{item.id}</div>
+                        <div className="mt-1 grid gap-1 text-fg-3">
+                          <span>{t('admin.sessionCreated')}: {fmtDate(item.createdAt)}</span>
+                          <span>{t('admin.sessionExpires')}: {fmtDate(item.expiresAt)}</span>
+                          {item.ipAddress && <span>{t('admin.sessionIp')}: {item.ipAddress}</span>}
+                          {item.userAgent && <span className="break-words">{t('admin.sessionUserAgent')}: {item.userAgent}</span>}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+                <Button variant="outline" disabled={isSelf || sessionsBusy} onClick={() => void revokeSessions()}>
+                  <ShieldOff size={15} /> {t('admin.revokeSessions')}
+                </Button>
+                {isSelf && <p className="text-xs text-fg-3">{t('admin.selfSessionRevokeDisabled')}</p>}
+              </>
+            )}
+          </div>
 
           {row.banned ? (
             <div className="grid gap-3">

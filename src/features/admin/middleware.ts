@@ -10,12 +10,15 @@ import { getWaitlist, type WaitlistRow } from '@/features/waitlist/getWaitlist'
 import { listSponsorships, setSponsorshipHidden, type AdminSponsorRow } from '@/features/sponsor/sponsor.server'
 import { listFeedbackForAdmin, setFeedbackStatus, type AdminFeedbackRow } from '@/features/feedback/feedback.server'
 import type { FeedbackStatus } from '@/features/feedback/feedback.shared'
+import { assertRevocableAdminUserSessions, getAdminUserSessions, revokeAdminUserSessions, type AdminUserSession } from './getAdminUserSessions'
+import { getPptMasterHealth } from '@/features/pptmaster/client'
 
 export type { AdminStats }
 export type { AdminUserRow }
 export type { WaitlistRow }
 export type { AdminSponsorRow }
 export type { AdminFeedbackRow }
+export type { AdminUserSession }
 
 /** 仅管理员可过；非管理员 → 404（不泄露 admin 存在）。返回 admin user。 */
 export const requireAdmin = createServerFn({ method: 'GET' }).handler(() => assertAdmin())
@@ -79,3 +82,28 @@ export const setFeedbackStatusFn = createServerFn({ method: 'POST' })
     await assertAdmin()
     await setFeedbackStatus(createDb(env.DB), data.id, data.status, data.adminNote ?? null, Date.now())
   })
+
+export const getAdminUserSessionsFn = createServerFn({ method: 'GET' })
+  .validator((d: { userId: string }) => ({ userId: typeof d?.userId === 'string' ? d.userId : '' }))
+  .handler(async ({ data }): Promise<AdminUserSession[]> => {
+    await assertAdmin()
+    if (!data.userId) throw new Error('Invalid user id')
+    return getAdminUserSessions(createDb(env.DB), data.userId)
+  })
+
+export const revokeAdminUserSessionsFn = createServerFn({ method: 'POST' })
+  .validator((d: { userId: string }) => ({ userId: typeof d?.userId === 'string' ? d.userId : '' }))
+  .handler(async ({ data }): Promise<{ revoked: number }> => {
+    const admin = await assertAdmin()
+    assertRevocableAdminUserSessions(admin.id, data.userId)
+    return { revoked: await revokeAdminUserSessions(createDb(env.DB), data.userId) }
+  })
+
+export const getAdminPptMasterHealthFn = createServerFn({ method: 'GET' }).handler(async (): Promise<{ status: string; disk_state?: string }> => {
+  await assertAdmin()
+  try {
+    return await getPptMasterHealth()
+  } catch {
+    return { status: 'unavailable' }
+  }
+})
