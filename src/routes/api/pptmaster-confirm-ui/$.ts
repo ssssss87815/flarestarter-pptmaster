@@ -22,7 +22,7 @@ const handler = async ({ request }: { request: Request }) => {
       method: request.method,
       body: request.method === 'POST' ? await request.text() : undefined,
       headers: request.method === 'POST' ? { 'content-type': request.headers.get('content-type') ?? 'application/json' } : undefined,
-    })
+    }, new URL(request.url).search.slice(1))
     // The control plane rewrites Confirm UI absolute /api,/static,.. URLs to
     // /projects/{id}/confirm-ui/... (its own proxy prefix). Behind the Worker we
     // must map that prefix back to OUR proxy prefix so the browser keeps hitting

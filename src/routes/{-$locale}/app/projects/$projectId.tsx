@@ -59,7 +59,7 @@ function ProjectWorkbench() {
     setError(null); setOpeningConfirm(true)
     try {
       await openPptMasterConfirmUiAction({ data: { projectId: progress.id } })
-      window.location.assign(`/api/pptmaster-confirm-ui/${encodeURIComponent(progress.id)}/`)
+      window.location.assign(`/api/pptmaster-confirm-ui/${encodeURIComponent(progress.id)}/?return_to=/app/projects/${encodeURIComponent(progress.id)}`)
     } catch (cause) { setError(cause instanceof Error ? cause.message : 'Confirm UI unavailable.') }
     finally { setOpeningConfirm(false) }
   }

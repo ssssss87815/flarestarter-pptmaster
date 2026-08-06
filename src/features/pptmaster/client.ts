@@ -157,9 +157,10 @@ function normalizeConfirmUiPath(projectId: string, path: string): string {
   return `/projects/${encodeURIComponent(projectId)}/confirm-ui${normalized ? `/${segments.join('/')}` : '/'}`
 }
 
-export async function proxyPptMasterConfirmUiRequest(user: PptMasterUser, projectId: string, path = '', init?: RequestInit): Promise<{ body: string; contentType: string; status: number }> {
+export async function proxyPptMasterConfirmUiRequest(user: PptMasterUser, projectId: string, path = '', init?: RequestInit, query = ''): Promise<{ body: string; contentType: string; status: number }> {
   const normalized = path.replace(/^\/+/, '')
-  const response = await bridgeFetch(user, normalizeConfirmUiPath(projectId, path), init)
+  const target = normalizeConfirmUiPath(projectId, path) + (query ? `?${query}` : '')
+  const response = await bridgeFetch(user, target, init)
   const contentType = response.headers.get('content-type') || 'text/plain; charset=utf-8'
   if (!response.ok) throw new Error(`PPTMaster Confirm UI ${response.status}`)
   if (normalized && contentType.toLowerCase().includes('text/html')) throw new Error('Unexpected Confirm UI content type')
