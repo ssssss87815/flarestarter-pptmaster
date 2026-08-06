@@ -179,6 +179,33 @@ export async function getPptMasterConfirmUiDocument(user: PptMasterUser, project
   return { html: result.body, contentType: result.contentType }
 }
 
+export async function startPptMasterLivePreview(user: PptMasterUser, projectId: string): Promise<{ live_preview_url: string }> {
+  return request(`/api/projects/${encodeURIComponent(projectId)}/live-preview`, z.object({ live_preview_url: z.string() }), {
+    method: 'POST', headers: { 'content-type': 'application/json' }, body: '{}',
+  }, user)
+}
+
+function normalizeLivePreviewPath(projectId: string, path: string): string {
+  const normalized = path.replace(/^\/+/, '')
+  const segments = normalized ? normalized.split('/') : []
+  if (!/^[A-Za-z0-9][A-Za-z0-9_-]{0,127}$/.test(projectId)) throw new Error('Invalid project id')
+  if (segments.some((segment) => !segment || segment === '.' || segment === '..' || segment.includes('%') || segment.includes('\\') || segment.includes('\0'))) {
+    throw new Error('Invalid live preview path')
+  }
+  if (segments[0] && !['api', 'static', 'images', 'assets'].includes(segments[0])) throw new Error('Invalid live preview path')
+  return `/projects/${encodeURIComponent(projectId)}/live${normalized ? `/${segments.join('/')}` : '/'}`
+}
+
+export async function proxyPptMasterLiveRequest(user: PptMasterUser, projectId: string, path = '', init?: RequestInit, query = ''): Promise<{ body: string; contentType: string; status: number }> {
+  const normalized = path.replace(/^\/+/, '')
+  const target = normalizeLivePreviewPath(projectId, path) + (query ? `?${query}` : '')
+  const response = await bridgeFetch(user, target, init)
+  const contentType = response.headers.get('content-type') || 'text/plain; charset=utf-8'
+  if (!response.ok) throw new Error(`PPTMaster Live Preview ${response.status}`)
+  if (normalized && contentType.toLowerCase().includes('text/html')) throw new Error('Unexpected live preview content type')
+  return { body: await response.text(), contentType, status: response.status }
+}
+
 export async function uploadPptMasterMarkdown(user: PptMasterUser, projectId: string, filename: string, markdown: string): Promise<PptMasterProject & { imported_sources?: string[] }> {
   const body = new FormData()
   body.append('file', new Blob([markdown], { type: 'text/markdown; charset=utf-8' }), filename.endsWith('.md') ? filename : `${filename}.md`)

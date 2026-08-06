@@ -94,6 +94,13 @@ export const approvePptMasterExportAction = createServerFn({ method: 'POST' })
     return approvePptMasterExport(pptUser(user), data.projectId)
   })
 
+export const startPptMasterLivePreviewAction = createServerFn({ method: 'POST' })
+  .validator(z.object({ projectId: z.string().min(1) }))
+  .handler(async ({ data }) => {
+    const user = await requireUser()
+    return startPptMasterLivePreview(pptUser(user), data.projectId)
+  })
+
 export const downloadPptMasterArtifactAction = createServerFn({ method: 'GET' })
   .validator(z.object({ projectId: z.string().min(1) }))
   .handler(async ({ data }) => {

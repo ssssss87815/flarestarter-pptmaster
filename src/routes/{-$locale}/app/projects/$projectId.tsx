@@ -10,6 +10,7 @@ import {
   downloadPptMasterArtifactAction,
   getPptMasterSpecAction,
   openPptMasterConfirmUiAction,
+  startPptMasterLivePreviewAction,
   uploadPptMasterMarkdownAction,
 } from '@/features/pptmaster/actions'
 import { AppShell } from '@/components/app/app-shell'
@@ -75,6 +76,14 @@ function ProjectWorkbench() {
     finally { setExporting(false) }
   }
 
+  async function openLivePreview() {
+    setError(null)
+    try {
+      await startPptMasterLivePreviewAction({ data: { projectId: progress.id } })
+      window.location.assign(`/api/pptmaster-live/${encodeURIComponent(progress.id)}/?return_to=/app/projects/${encodeURIComponent(progress.id)}`)
+    } catch (cause) { setError(cause instanceof Error ? cause.message : 'Live preview unavailable.') }
+  }
+
   async function download() {
     setError(null)
     try {
@@ -99,7 +108,7 @@ function ProjectWorkbench() {
 
       <section className="mb-5 rounded-[14px] border border-border bg-card p-[18px]"><h2 className="mb-4 font-mono text-sm uppercase tracking-wide text-fg-3">Source material</h2><Input value={filename} onChange={(event) => setFilename(event.target.value)} placeholder="source.md" aria-label="Markdown filename" /><textarea value={markdown} onChange={(event) => setMarkdown(event.target.value)} className="mt-3 min-h-48 w-full rounded-[7px] border border-input bg-background p-3 text-sm text-foreground focus-visible:outline-none focus-visible:border-primary" aria-label="Markdown source" /><button type="button" onClick={upload} disabled={uploading || !markdown.trim()} className="mt-3 inline-flex items-center gap-2 rounded-[7px] bg-primary px-4 py-2 text-sm font-medium text-primary-foreground disabled:opacity-50"><Upload size={16} />{uploading ? 'Uploading…' : 'Add source material'}</button></section>
 
-      <section className="mb-5 rounded-[14px] border border-border bg-card p-[18px]"><h2 className="mb-3 font-mono text-sm uppercase tracking-wide text-fg-3">Canonical Confirm UI</h2><p className="mb-4 text-sm text-fg-2">高级项目只在这里完成八项确认。确认结果将锁定 spec 并驱动后续规划与生成；项目页不再复制确认表单。</p><button type="button" onClick={openConfirmUi} disabled={openingConfirm || isGenerating} className="rounded-[7px] bg-primary px-4 py-2 text-sm font-medium text-primary-foreground disabled:opacity-50">{openingConfirm ? '正在打开…' : isGenerating ? '生成中，暂不可修改确认' : '打开 Confirm UI'}</button>{isGenerating && <p className="mt-3 text-sm text-fg-2">当前流水线正在运行（{progress.status}），确认锁定后需等生成完成才能再次修改。</p>}{progress.status === 'preview_ready' && <button type="button" onClick={approveExport} disabled={exporting} className="mt-3 inline-flex items-center gap-2 rounded-[7px] bg-primary px-4 py-2 text-sm font-medium text-primary-foreground disabled:opacity-50">{exporting ? '导出中…' : '确认并导出 PPTX'}</button>}{error && <p role="alert" className="mt-3 text-sm text-red-400">{error}</p>}</section>
+      <section className="mb-5 rounded-[14px] border border-border bg-card p-[18px]"><h2 className="mb-3 font-mono text-sm uppercase tracking-wide text-fg-3">Canonical Confirm UI</h2><p className="mb-4 text-sm text-fg-2">高级项目只在这里完成八项确认。确认结果将锁定 spec 并驱动后续规划与生成；项目页不再复制确认表单。</p><button type="button" onClick={openConfirmUi} disabled={openingConfirm || isGenerating} className="rounded-[7px] bg-primary px-4 py-2 text-sm font-medium text-primary-foreground disabled:opacity-50">{openingConfirm ? '正在打开…' : isGenerating ? '生成中，暂不可修改确认' : '打开 Confirm UI'}</button>{isGenerating && <p className="mt-3 text-sm text-fg-2">当前流水线正在运行（{progress.status}），确认锁定后需等生成完成才能再次修改。</p>}{(progress.status === 'preview_ready' || progress.status === 'export_ready') && <div className="mt-3 flex flex-wrap items-center gap-2"><button type="button" onClick={openLivePreview} className="inline-flex items-center gap-2 rounded-[7px] border border-input bg-background px-4 py-2 text-sm font-medium text-foreground hover:bg-accent">打开预览</button>{progress.status === 'preview_ready' && <button type="button" onClick={approveExport} disabled={exporting} className="inline-flex items-center gap-2 rounded-[7px] bg-primary px-4 py-2 text-sm font-medium text-primary-foreground disabled:opacity-50">{exporting ? '导出中…' : '确认并导出 PPTX'}</button>}</div>}{error && <p role="alert" className="mt-3 text-sm text-red-400">{error}</p>}</section>
 
       {spec && <section className="mb-5 rounded-[14px] border border-border bg-card p-[18px]"><h2 className="mb-3 font-mono text-sm uppercase tracking-wide text-fg-3">Outline / spec review</h2><details open><summary className="cursor-pointer text-sm text-foreground">design_spec.md</summary><pre className="mt-3 max-h-64 overflow-auto whitespace-pre-wrap rounded bg-background p-3 text-xs text-fg-2">{spec.design_spec}</pre></details><details className="mt-3"><summary className="cursor-pointer text-sm text-foreground">spec_lock.md</summary><pre className="mt-3 max-h-64 overflow-auto whitespace-pre-wrap rounded bg-background p-3 text-xs text-fg-2">{spec.spec_lock}</pre></details></section>}
 
