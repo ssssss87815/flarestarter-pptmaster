@@ -221,6 +221,19 @@ export async function uploadPptMasterMarkdown(user: PptMasterUser, projectId: st
   }, user)
 }
 
+export async function uploadPptMasterSourceFile(user: PptMasterUser, projectId: string, filename: string, base64: string, mime: string): Promise<PptMasterProject & { imported_sources?: string[] }> {
+  // Control plane imports PDF/DOCX/PPTX/MD/TXT via the same /sources endpoint.
+  const binary = atob(base64)
+  const bytes = new Uint8Array(binary.length)
+  for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i)
+  const body = new FormData()
+  body.append('file', new Blob([bytes], { type: mime || 'application/octet-stream' }), filename)
+  return request(`/api/projects/${encodeURIComponent(projectId)}/sources`, z.object({ ...projectSchema.shape, imported_sources: z.array(z.string()).optional() }), {
+    method: 'POST',
+    body,
+  }, user)
+}
+
 export async function listPptMasterProjects(user: PptMasterUser): Promise<PptMasterProject[]> {
   const result = await request('/api/projects', z.union([z.array(projectSchema), z.object({ projects: z.array(projectSchema) })]), undefined, user)
   return Array.isArray(result) ? result : result.projects

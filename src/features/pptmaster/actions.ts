@@ -8,7 +8,7 @@ import { env } from '@/lib/env'
 import { createDb } from '@/db/client'
 import { user } from '@/features/auth/auth.schema'
 import { grantBetaPro } from '@/features/billing/billing.server'
-import { createPptMasterProject, approvePptMasterExport, approvePptMasterOutline, downloadPptMasterArtifact, enrollPptMasterBeta, getPptMasterProgress, getPptMasterSpec, listPptMasterProjects, lockPptMasterConfirmations, openPptMasterConfirmUi, startPptMasterGeneration, startPptMasterLivePreview, startPptMasterQuick, uploadPptMasterMarkdown, type PptMasterUser } from './client'
+import { createPptMasterProject, approvePptMasterExport, approvePptMasterOutline, downloadPptMasterArtifact, enrollPptMasterBeta, getPptMasterProgress, getPptMasterSpec, listPptMasterProjects, lockPptMasterConfirmations, openPptMasterConfirmUi, startPptMasterGeneration, startPptMasterLivePreview, startPptMasterQuick, uploadPptMasterMarkdown, uploadPptMasterSourceFile, type PptMasterUser } from './client'
 
 function pptUser(user: { id: string; email: string; name: string }): PptMasterUser {
   return { id: user.id, email: user.email, name: user.name }
@@ -50,6 +50,13 @@ export const uploadPptMasterMarkdownAction = createServerFn({ method: 'POST' })
   .handler(async ({ data }) => {
     const user = await requireUser()
     return uploadPptMasterMarkdown(pptUser(user), data.projectId, data.filename, data.markdown)
+  })
+
+export const uploadPptMasterSourceFileAction = createServerFn({ method: 'POST' })
+  .validator(z.object({ projectId: z.string().min(1), filename: z.string().min(1), base64: z.string().min(1), mime: z.string() }))
+  .handler(async ({ data }) => {
+    const user = await requireUser()
+    return uploadPptMasterSourceFile(pptUser(user), data.projectId, data.filename, data.base64, data.mime)
   })
 
 export const getPptMasterProgressAction = createServerFn({ method: 'GET' })
