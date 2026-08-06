@@ -100,7 +100,14 @@ async function bridgeFetch(user: PptMasterUser, path: string, init: RequestInit 
 
 async function request<T>(path: string, schema: z.ZodType<T>, init: RequestInit | undefined, user: PptMasterUser): Promise<T> {
   const response = await bridgeFetch(user, path, init)
-  if (!response.ok) throw new Error(`PPTMaster API ${response.status} for ${path}`)
+  if (!response.ok) {
+    let detail = ''
+    try {
+      const body = await response.json()
+      if (body && typeof body.detail === 'string') detail = body.detail
+    } catch { /* non-JSON error body */ }
+    throw new Error(`PPTMaster API ${response.status} for ${path}${detail ? `: ${detail}` : ''}`)
+  }
   return schema.parse(await response.json())
 }
 
