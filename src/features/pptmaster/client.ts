@@ -257,6 +257,26 @@ export async function startPptMasterGeneration(user: PptMasterUser, projectId: s
   }, user)
 }
 
+export async function rerunPptMasterPages(user: PptMasterUser, projectId: string, pages: string[]): Promise<PptMasterProgress> {
+  return request(`/api/projects/${encodeURIComponent(projectId)}/rerun-pages`, progressSchema, {
+    method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ pages }),
+  }, user)
+}
+
+export async function uploadPptMasterUserImages(user: PptMasterUser, projectId: string, files: { filename: string; base64: string; mime: string }[]): Promise<{ added: { name: string; bytes: number }[] }> {
+  const body = new FormData()
+  for (const file of files) {
+    const binary = atob(file.base64)
+    const bytes = new Uint8Array(binary.length)
+    for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i)
+    body.append('file', new Blob([bytes], { type: file.mime || 'application/octet-stream' }), file.filename)
+  }
+  return request(`/api/projects/${encodeURIComponent(projectId)}/images`, z.object({ added: z.array(z.object({ name: z.string(), bytes: z.number() })) }).passthrough(), {
+    method: 'POST',
+    body,
+  }, user)
+}
+
 export async function getPptMasterSpec(user: PptMasterUser, projectId: string): Promise<PptMasterSpec> {
   return request(`/api/projects/${encodeURIComponent(projectId)}/spec`, specSchema, undefined, user)
 }
