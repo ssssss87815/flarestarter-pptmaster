@@ -80,7 +80,9 @@ function ProjectWorkbench() {
     setError(null)
     try {
       await startPptMasterLivePreviewAction({ data: { projectId: progress.id } })
-      window.location.assign(`/api/pptmaster-live/${encodeURIComponent(progress.id)}/?return_to=/app/projects/${encodeURIComponent(progress.id)}`)
+      // Open in a NEW tab so the project page stays put; closing the preview
+      // tab must never take the workbench with it.
+      window.open(`/api/pptmaster-live/${encodeURIComponent(progress.id)}/?return_to=/app/projects/${encodeURIComponent(progress.id)}`, '_blank', 'noopener')
     } catch (cause) { setError(cause instanceof Error ? cause.message : 'Live preview unavailable.') }
   }
 
@@ -112,7 +114,7 @@ function ProjectWorkbench() {
 
       {spec && <section className="mb-5 rounded-[14px] border border-border bg-card p-[18px]"><h2 className="mb-3 font-mono text-sm uppercase tracking-wide text-fg-3">Outline / spec review</h2><details open><summary className="cursor-pointer text-sm text-foreground">design_spec.md</summary><pre className="mt-3 max-h-64 overflow-auto whitespace-pre-wrap rounded bg-background p-3 text-xs text-fg-2">{spec.design_spec}</pre></details><details className="mt-3"><summary className="cursor-pointer text-sm text-foreground">spec_lock.md</summary><pre className="mt-3 max-h-64 overflow-auto whitespace-pre-wrap rounded bg-background p-3 text-xs text-fg-2">{spec.spec_lock}</pre></details></section>}
 
-      <section className="rounded-[14px] border border-border bg-card p-[18px]"><h2 className="mb-4 font-mono text-sm uppercase tracking-wide text-fg-3">Progress</h2><div className="grid gap-3 text-sm text-fg-2 sm:grid-cols-3"><div>Status: <strong className="text-foreground">{progress.status}</strong></div><div>Sources: <strong className="text-foreground">{progress.sources?.length ?? 0}</strong></div><div>SVG pages: <strong className="text-foreground">{progress.svg_count ?? 0}/{progress.expected_pages ?? '—'}</strong></div><div>Exports: <strong className="text-foreground">{progress.export_count ?? 0}</strong></div></div>{progress.exports?.length ? <button type="button" onClick={download} disabled={!isFinished} className={`mt-4 text-sm ${isFinished ? 'text-primary' : 'text-fg-3 opacity-60'}`}>{isFinished ? `Download ${progress.exports.join(', ')}` : `Export available: ${progress.exports.join(', ')}`}</button> : null}</section>
+      <section className="rounded-[14px] border border-border bg-card p-[18px]"><h2 className="mb-4 font-mono text-sm uppercase tracking-wide text-fg-3">Progress</h2><div className="grid gap-3 text-sm text-fg-2 sm:grid-cols-3"><div>Status: <strong className="text-foreground">{progress.status}</strong></div><div>Sources: <strong className="text-foreground">{progress.sources?.length ?? 0}</strong></div><div>SVG pages: <strong className="text-foreground">{progress.svg_count ?? 0}/{progress.expected_pages ?? '—'}</strong></div><div>Exports: <strong className="text-foreground">{progress.export_count ?? 0}</strong></div></div>{progress.exports?.length ? <button type="button" onClick={download} disabled={!isFinished} className={`mt-4 inline-flex items-center gap-2 rounded-[7px] px-4 py-2 text-sm font-medium disabled:opacity-50 ${isFinished ? 'bg-primary text-primary-foreground' : 'border border-input bg-background text-fg-3'}`}>{isFinished ? `下载 ${progress.exports.join(', ')}` : `导出可用: ${progress.exports.join(', ')}`}</button> : null}</section>
     </AppShell>
   )
 }

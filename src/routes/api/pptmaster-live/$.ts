@@ -29,18 +29,17 @@ const handler = async ({ request }: { request: Request }) => {
     // route; otherwise those sub-requests 404 and the preview UI breaks.
     let body = result.body
     const ct = (result.contentType ?? '').toLowerCase()
-    if (ct.includes('html') || ct.includes('javascript') || ct.includes('css') || ct.includes('json') || ct.startsWith('text/')) {
+    if (ct.includes('html') || ct.includes('javascript') || ct.includes('css') || ct.includes('json') || ct.includes('svg') || ct.startsWith('text/')) {
       body = body.split(`/projects/${encodeURIComponent(projectId)}/live/`).join(`/api/pptmaster-live/${encodeURIComponent(projectId)}/`)
     }
-    return new Response(body, {
-      status: result.status,
-      headers: {
-        'content-type': result.contentType,
-        'cache-control': 'no-store',
-        'x-content-type-options': 'nosniff',
-        'content-security-policy': "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self'; font-src 'self' data:; frame-ancestors 'self'; base-uri 'self'; form-action 'self'",
-      },
-    })
+    const headers = {
+      'content-type': result.contentType,
+      'cache-control': 'no-store',
+      'x-content-type-options': 'nosniff',
+      'content-security-policy': "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self'; font-src 'self' data:; frame-ancestors 'self'; base-uri 'self'; form-action 'self'",
+    }
+    if (result.bodyBytes) return new Response(result.bodyBytes, { status: result.status, headers })
+    return new Response(body, { status: result.status, headers })
   } catch (error) {
     if (error instanceof Error && error.message.startsWith('Invalid ')) return new Response('Not found', { status: 404 })
     return new Response('Live preview unavailable', { status: 502 })

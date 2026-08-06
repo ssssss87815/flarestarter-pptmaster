@@ -196,13 +196,19 @@ function normalizeLivePreviewPath(projectId: string, path: string): string {
   return `/projects/${encodeURIComponent(projectId)}/live${normalized ? `/${segments.join('/')}` : '/'}`
 }
 
-export async function proxyPptMasterLiveRequest(user: PptMasterUser, projectId: string, path = '', init?: RequestInit, query = ''): Promise<{ body: string; contentType: string; status: number }> {
+export async function proxyPptMasterLiveRequest(user: PptMasterUser, projectId: string, path = '', init?: RequestInit, query = ''): Promise<{ body: string; bodyBytes?: Uint8Array; contentType: string; status: number }> {
   const normalized = path.replace(/^\/+/, '')
   const target = normalizeLivePreviewPath(projectId, path) + (query ? `?${query}` : '')
   const response = await bridgeFetch(user, target, init)
   const contentType = response.headers.get('content-type') || 'text/plain; charset=utf-8'
   if (!response.ok) throw new Error(`PPTMaster Live Preview ${response.status}`)
   if (normalized && contentType.toLowerCase().includes('text/html')) throw new Error('Unexpected live preview content type')
+  const ct = contentType.toLowerCase()
+  // Binary payloads (slide images, fonts) must pass through byte-for-byte;
+  // decoding them as text corrupts the data and images fail to render.
+  if (ct.startsWith('image/') || ct.startsWith('font/') || ct === 'application/octet-stream') {
+    return { body: '', bodyBytes: new Uint8Array(await response.arrayBuffer()), contentType, status: response.status }
+  }
   return { body: await response.text(), contentType, status: response.status }
 }
 
