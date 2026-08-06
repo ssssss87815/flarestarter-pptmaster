@@ -1,17 +1,14 @@
 import { useEffect, useState } from 'react'
 import { createFileRoute, Link, useRouter } from '@tanstack/react-router'
-import { ArrowLeft, CheckCircle2, Play, Upload } from 'lucide-react'
+import { ArrowLeft, Upload } from 'lucide-react'
 
 import { requireUser } from '@/features/auth/middleware'
 import { getEntitlement } from '@/features/billing/middleware'
 import {
-  approvePptMasterExportAction,
-  approvePptMasterOutlineAction,
   getPptMasterProgressAction,
   downloadPptMasterArtifactAction,
   getPptMasterSpecAction,
-  lockPptMasterConfirmationsAction,
-  startPptMasterGenerationAction,
+  openPptMasterConfirmUiAction,
   uploadPptMasterMarkdownAction,
 } from '@/features/pptmaster/actions'
 import { AppShell } from '@/components/app/app-shell'
@@ -40,12 +37,8 @@ function ProjectWorkbench() {
   const router = useRouter()
   const [filename, setFilename] = useState('source.md')
   const [markdown, setMarkdown] = useState('# My presentation\n\nAdd the source material for this PPTMaster project.')
-  const [pageCount, setPageCount] = useState('8')
   const [uploading, setUploading] = useState(false)
-  const [confirming, setConfirming] = useState(false)
-  const [generating, setGenerating] = useState(false)
-  const [approvingOutline, setApprovingOutline] = useState(false)
-  const [approvingExport, setApprovingExport] = useState(false)
+  const [openingConfirm, setOpeningConfirm] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const isPro = ent.plan === 'pro'
 
@@ -62,29 +55,13 @@ function ProjectWorkbench() {
     catch (cause) { setError(cause instanceof Error ? cause.message : 'Upload failed.') }
     finally { setUploading(false) }
   }
-  async function confirm() {
-    setError(null); setConfirming(true)
-    try { await lockPptMasterConfirmationsAction({ data: { projectId: progress.id, confirmations: { audience: 'General professional audience', goal: 'Create a clear and credible presentation', mode: 'presentation', language: '中文', tone: 'clear and credible', visual_style: 'modern professional', page_count: Number(pageCount) || 8, canvas: 'ppt169', image_usage: 'optional' } } }); await refresh() }
-    catch (cause) { setError(cause instanceof Error ? cause.message : 'Confirmation failed.') }
-    finally { setConfirming(false) }
-  }
-  async function generate() {
-    setError(null); setGenerating(true)
-    try { await startPptMasterGenerationAction({ data: { projectId: progress.id } }); await refresh() }
-    catch (cause) { setError(cause instanceof Error ? cause.message : 'Generation failed.') }
-    finally { setGenerating(false) }
-  }
-  async function approveOutline() {
-    setError(null); setApprovingOutline(true)
-    try { await approvePptMasterOutlineAction({ data: { projectId: progress.id } }); await refresh() }
-    catch (cause) { setError(cause instanceof Error ? cause.message : 'Outline approval failed.') }
-    finally { setApprovingOutline(false) }
-  }
-  async function approveExport() {
-    setError(null); setApprovingExport(true)
-    try { await approvePptMasterExportAction({ data: { projectId: progress.id } }); await refresh() }
-    catch (cause) { setError(cause instanceof Error ? cause.message : 'Export approval failed.') }
-    finally { setApprovingExport(false) }
+  async function openConfirmUi() {
+    setError(null); setOpeningConfirm(true)
+    try {
+      await openPptMasterConfirmUiAction({ data: { projectId: progress.id } })
+      window.location.assign(`/api/pptmaster-confirm-ui/${encodeURIComponent(progress.id)}/`)
+    } catch (cause) { setError(cause instanceof Error ? cause.message : 'Confirm UI unavailable.') }
+    finally { setOpeningConfirm(false) }
   }
 
   async function download() {
@@ -101,10 +78,6 @@ function ProjectWorkbench() {
     } catch (cause) { setError(cause instanceof Error ? cause.message : 'Download failed.') }
   }
 
-  const canLockConfirmations = ['draft', 'sources_ready', 'confirmation_pending', 'confirmation_locked'].includes(progress.status)
-  const canStartGeneration = progress.status === 'spec_ready' && !!spec
-  const showOutlineApproval = canStartGeneration
-  const showExportApproval = progress.status === 'preview_ready'
   const isFinished = progress.status === 'export_ready' || progress.status === 'delivery_verified'
 
   return (
@@ -114,7 +87,7 @@ function ProjectWorkbench() {
 
       <section className="mb-5 rounded-[14px] border border-border bg-card p-[18px]"><h2 className="mb-4 font-mono text-sm uppercase tracking-wide text-fg-3">Source material</h2><Input value={filename} onChange={(event) => setFilename(event.target.value)} placeholder="source.md" aria-label="Markdown filename" /><textarea value={markdown} onChange={(event) => setMarkdown(event.target.value)} className="mt-3 min-h-48 w-full rounded-[7px] border border-input bg-background p-3 text-sm text-foreground focus-visible:outline-none focus-visible:border-primary" aria-label="Markdown source" /><button type="button" onClick={upload} disabled={uploading || !markdown.trim()} className="mt-3 inline-flex items-center gap-2 rounded-[7px] bg-primary px-4 py-2 text-sm font-medium text-primary-foreground disabled:opacity-50"><Upload size={16} />{uploading ? 'Uploading…' : 'Add source material'}</button></section>
 
-      <section className="mb-5 rounded-[14px] border border-border bg-card p-[18px]"><h2 className="mb-4 font-mono text-sm uppercase tracking-wide text-fg-3">Workflow</h2><div className="flex flex-wrap items-end gap-3"><label className="text-sm text-fg-2">Pages<Input value={pageCount} onChange={(event) => setPageCount(event.target.value)} className="mt-1 w-28" inputMode="numeric" /></label><button type="button" onClick={confirm} disabled={confirming || !canLockConfirmations} className="rounded-[7px] border border-border px-4 py-2 text-sm font-medium text-foreground disabled:opacity-50">{confirming ? 'Saving…' : 'Lock confirmations'}</button><button type="button" onClick={generate} disabled={generating || !canStartGeneration} className="inline-flex items-center gap-2 rounded-[7px] bg-primary px-4 py-2 text-sm font-medium text-primary-foreground disabled:opacity-50"><Play size={16} />{generating ? 'Starting…' : 'Start generation'}</button>{showOutlineApproval && <button type="button" onClick={approveOutline} disabled={approvingOutline} className="inline-flex items-center gap-2 rounded-[7px] border border-border px-4 py-2 text-sm font-medium text-foreground disabled:opacity-50"><CheckCircle2 size={16} />{approvingOutline ? 'Approving…' : 'Approve outline'}</button>}{showExportApproval && <button type="button" onClick={approveExport} disabled={approvingExport} className="inline-flex items-center gap-2 rounded-[7px] bg-primary px-4 py-2 text-sm font-medium text-primary-foreground disabled:opacity-50">{approvingExport ? 'Exporting…' : 'Approve export'}</button>}</div>{error && <p role="alert" className="mt-3 text-sm text-red-400">{error}</p>}</section>
+      <section className="mb-5 rounded-[14px] border border-border bg-card p-[18px]"><h2 className="mb-3 font-mono text-sm uppercase tracking-wide text-fg-3">Canonical Confirm UI</h2><p className="mb-4 text-sm text-fg-2">高级项目只在这里完成八项确认。确认结果将锁定 spec 并驱动后续规划与生成；项目页不再复制确认表单。</p><button type="button" onClick={openConfirmUi} disabled={openingConfirm} className="rounded-[7px] bg-primary px-4 py-2 text-sm font-medium text-primary-foreground disabled:opacity-50">{openingConfirm ? '正在打开…' : '打开 Confirm UI'}</button>{error && <p role="alert" className="mt-3 text-sm text-red-400">{error}</p>}</section>
 
       {spec && <section className="mb-5 rounded-[14px] border border-border bg-card p-[18px]"><h2 className="mb-3 font-mono text-sm uppercase tracking-wide text-fg-3">Outline / spec review</h2><details open><summary className="cursor-pointer text-sm text-foreground">design_spec.md</summary><pre className="mt-3 max-h-64 overflow-auto whitespace-pre-wrap rounded bg-background p-3 text-xs text-fg-2">{spec.design_spec}</pre></details><details className="mt-3"><summary className="cursor-pointer text-sm text-foreground">spec_lock.md</summary><pre className="mt-3 max-h-64 overflow-auto whitespace-pre-wrap rounded bg-background p-3 text-xs text-fg-2">{spec.spec_lock}</pre></details></section>}
 

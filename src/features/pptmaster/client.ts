@@ -1,6 +1,7 @@
 import { z } from 'zod'
 
 import { env } from '@/lib/env'
+import { signPptMasterBridge } from './bridge'
 
 const projectSchema = z.object({
   id: z.string(),
@@ -32,6 +33,12 @@ export type PptMasterProject = z.infer<typeof projectSchema>
 export type PptMasterProgress = z.infer<typeof progressSchema>
 export type PptMasterSpec = z.infer<typeof specSchema>
 export type PptMasterBetaEnrollment = { ok: boolean; user_id: string; plan_id: string }
+export type PptMasterUser = { id: string; email: string; name: string }
+
+export type PptMasterQuickInput = {
+  name: string; topic: string; audience: string; goal: string; language: string; tone: string; visual_style: string
+  page_count: number; canvas: 'ppt169' | 'ppt43'; image_usage: 'optional' | 'none' | 'ai' | 'web'
+}
 
 function baseUrl(): string {
   const value = env.PPTMASTER_API_URL?.trim()
@@ -39,97 +46,181 @@ function baseUrl(): string {
   return value.replace(/\/$/, '')
 }
 
-function internalHeaders(userId?: string): HeadersInit {
-  const key = env.PPTMASTER_INTERNAL_API_KEY?.trim()
-  if (!key) throw new Error('PPTMASTER_INTERNAL_API_KEY is not configured')
-  return {
-    accept: 'application/json',
-    authorization: 'Bearer ' + key,
-    ...(userId ? { 'x-pptmaster-user-id': userId } : {}),
-  }
+function bridgeConfig(): { issuer: string; audience: string; keyId: string; secret: string } {
+  const issuer = env.PPTMASTER_BRIDGE_ISSUER?.trim()
+  const audience = env.PPTMASTER_BRIDGE_AUDIENCE?.trim()
+  const keyId = env.PPTMASTER_BRIDGE_ACTIVE_KEY_ID?.trim()
+  const secret = env.PPTMASTER_BRIDGE_HMAC_KEY?.trim()
+  if (!issuer || !audience || !keyId || !secret) throw new Error('PPTMaster bridge configuration is incomplete')
+  return { issuer, audience, keyId, secret }
 }
 
-async function request<T>(path: string, schema: z.ZodType<T>, init?: RequestInit, userId?: string): Promise<T> {
-  const response = await fetch(`${baseUrl()}${path}`, {
+function legacyHeaders(): HeadersInit {
+  const key = env.PPTMASTER_INTERNAL_API_KEY?.trim()
+  if (!key) throw new Error('PPTMASTER_INTERNAL_API_KEY is not configured')
+  return { accept: 'application/json', authorization: 'Bearer ' + key }
+}
+
+function canonicalTarget(url: string): string {
+  const parsed = new URL(url)
+  return parsed.pathname + parsed.search
+}
+
+async function bridgeFetch(user: PptMasterUser, path: string, init: RequestInit = {}): Promise<Response> {
+  const url = `${baseUrl()}${path}`
+  const method = (init.method ?? 'GET').toUpperCase()
+  const idempotencyKey = method === 'GET' || method === 'HEAD' ? undefined : (new Headers(init.headers).get('idempotency-key') ?? crypto.randomUUID())
+  const outgoing = new Request(url, {
     ...init,
-    headers: { ...internalHeaders(userId), ...(init?.headers ?? {}) },
+    headers: { ...legacyHeaders(), ...(init.headers ?? {}) },
   })
+  const body = new Uint8Array(await outgoing.clone().arrayBuffer())
+  const config = bridgeConfig()
+  const nonceBytes = crypto.getRandomValues(new Uint8Array(16))
+  let binary = ''
+  for (const byte of nonceBytes) binary += String.fromCharCode(byte)
+  const nonce = btoa(binary).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/g, '')
+  const bridge = await signPptMasterBridge({
+    method,
+    canonicalTarget: canonicalTarget(outgoing.url),
+    issuer: config.issuer,
+    audience: config.audience,
+    keyId: config.keyId,
+    timestamp: Math.floor(Date.now() / 1000),
+    nonce,
+    subject: user.id,
+    email: user.email,
+    displayName: user.name,
+    body,
+    idempotencyKey,
+  }, config.secret)
+  for (const [key, value] of Object.entries(bridge)) outgoing.headers.set(key, value)
+  return fetch(outgoing)
+}
+
+async function request<T>(path: string, schema: z.ZodType<T>, init: RequestInit | undefined, user: PptMasterUser): Promise<T> {
+  const response = await bridgeFetch(user, path, init)
   if (!response.ok) throw new Error(`PPTMaster API ${response.status} for ${path}`)
   return schema.parse(await response.json())
 }
 
 export async function getPptMasterHealth(): Promise<{ status: string; disk_state?: string }> {
-  return request('/healthz', z.object({ status: z.string(), disk_state: z.string().optional() }))
+  const response = await fetch(`${baseUrl()}/healthz`, {
+    headers: legacyHeaders(),
+    signal: AbortSignal.timeout(5000),
+  })
+  if (!response.ok) throw new Error(`PPTMaster API ${response.status} for /healthz`)
+  const health = z.object({ status: z.string(), disk_state: z.string().optional() }).parse(await response.json())
+  const diskHealthy = !health.disk_state || health.disk_state === 'ok' || health.disk_state === 'healthy'
+  return { ...health, status: health.status === 'ok' && !diskHealthy ? 'degraded' : health.status }
 }
 
-export async function enrollPptMasterBeta(userId: string, inviteCode: string): Promise<PptMasterBetaEnrollment> {
+export async function enrollPptMasterBeta(user: PptMasterUser, inviteCode: string): Promise<PptMasterBetaEnrollment> {
   return request('/api/internal/beta/enroll', z.object({ ok: z.boolean(), user_id: z.string(), plan_id: z.string() }), {
     method: 'POST',
     headers: { 'content-type': 'application/json' },
     body: JSON.stringify({ invite_code: inviteCode }),
-  }, userId)
+  }, user)
 }
 
-export async function createPptMasterProject(userId: string, input: { name: string; topic?: string; mode?: 'advanced' | 'manual' }): Promise<PptMasterProject> {
+export async function createPptMasterProject(user: PptMasterUser, input: { name: string; topic?: string; mode?: 'advanced' | 'manual' }): Promise<PptMasterProject> {
   return request('/api/projects', projectSchema, {
     method: 'POST',
     headers: { 'content-type': 'application/json' },
     body: JSON.stringify(input),
-  }, userId)
+  }, user)
 }
 
-export async function uploadPptMasterMarkdown(userId: string, projectId: string, filename: string, markdown: string): Promise<PptMasterProject & { imported_sources?: string[] }> {
+export async function startPptMasterQuick(user: PptMasterUser, input: PptMasterQuickInput): Promise<PptMasterProject> {
+  return request('/api/quick-start', projectSchema, {
+    method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(input),
+  }, user)
+}
+
+export async function openPptMasterConfirmUi(user: PptMasterUser, projectId: string): Promise<{ confirm_ui_url: string }> {
+  return request(`/api/projects/${encodeURIComponent(projectId)}/confirm-ui`, z.object({ confirm_ui_url: z.string() }), {
+    method: 'POST', headers: { 'content-type': 'application/json' }, body: '{}',
+  }, user)
+}
+
+function normalizeConfirmUiPath(projectId: string, path: string): string {
+  const normalized = path.replace(/^\/+/, '')
+  const segments = normalized ? normalized.split('/') : []
+  if (!/^[A-Za-z0-9][A-Za-z0-9_-]{0,127}$/.test(projectId)) throw new Error('Invalid project id')
+  if (segments.some((segment) => !segment || segment === '.' || segment === '..' || segment.includes('%') || segment.includes('\\') || segment.includes('\0'))) {
+    throw new Error('Invalid Confirm UI path')
+  }
+  if (segments[0] && !['api', 'static', 'images', 'assets'].includes(segments[0])) throw new Error('Invalid Confirm UI path')
+  if (segments[0] === 'api' && !['api/catalogs', 'api/recommendations', 'api/confirm'].includes(normalized)) {
+    throw new Error('Invalid Confirm UI API path')
+  }
+  return `/projects/${encodeURIComponent(projectId)}/confirm-ui${normalized ? `/${segments.join('/')}` : '/'}`
+}
+
+export async function proxyPptMasterConfirmUiRequest(user: PptMasterUser, projectId: string, path = '', init?: RequestInit): Promise<{ body: string; contentType: string; status: number }> {
+  const normalized = path.replace(/^\/+/, '')
+  const response = await bridgeFetch(user, normalizeConfirmUiPath(projectId, path), init)
+  const contentType = response.headers.get('content-type') || 'text/plain; charset=utf-8'
+  if (!response.ok) throw new Error(`PPTMaster Confirm UI ${response.status}`)
+  if (normalized && contentType.toLowerCase().includes('text/html')) throw new Error('Unexpected Confirm UI content type')
+  return { body: await response.text(), contentType, status: response.status }
+}
+
+export async function getPptMasterConfirmUiDocument(user: PptMasterUser, projectId: string, path = ''): Promise<{ html: string; contentType: string }> {
+  const result = await proxyPptMasterConfirmUiRequest(user, projectId, path)
+  return { html: result.body, contentType: result.contentType }
+}
+
+export async function uploadPptMasterMarkdown(user: PptMasterUser, projectId: string, filename: string, markdown: string): Promise<PptMasterProject & { imported_sources?: string[] }> {
   const body = new FormData()
   body.append('file', new Blob([markdown], { type: 'text/markdown; charset=utf-8' }), filename.endsWith('.md') ? filename : `${filename}.md`)
   return request(`/api/projects/${encodeURIComponent(projectId)}/sources`, z.object({ ...projectSchema.shape, imported_sources: z.array(z.string()).optional() }), {
     method: 'POST',
     body,
-  }, userId)
+  }, user)
 }
 
-export async function listPptMasterProjects(userId: string): Promise<PptMasterProject[]> {
-  const result = await request('/api/projects', z.union([z.array(projectSchema), z.object({ projects: z.array(projectSchema) })]), undefined, userId)
+export async function listPptMasterProjects(user: PptMasterUser): Promise<PptMasterProject[]> {
+  const result = await request('/api/projects', z.union([z.array(projectSchema), z.object({ projects: z.array(projectSchema) })]), undefined, user)
   return Array.isArray(result) ? result : result.projects
 }
 
-export async function getPptMasterProgress(userId: string, projectId: string): Promise<PptMasterProgress> {
-  return request(`/api/projects/${encodeURIComponent(projectId)}/progress`, progressSchema, undefined, userId)
+export async function getPptMasterProgress(user: PptMasterUser, projectId: string): Promise<PptMasterProgress> {
+  return request(`/api/projects/${encodeURIComponent(projectId)}/progress`, progressSchema, undefined, user)
 }
 
-export async function lockPptMasterConfirmations(userId: string, projectId: string, input: Record<string, unknown>): Promise<PptMasterProgress> {
+export async function lockPptMasterConfirmations(user: PptMasterUser, projectId: string, input: Record<string, unknown>): Promise<PptMasterProgress> {
   return request(`/api/projects/${encodeURIComponent(projectId)}/confirmations`, progressSchema, {
     method: 'POST',
     headers: { 'content-type': 'application/json' },
     body: JSON.stringify(input),
-  }, userId)
+  }, user)
 }
 
-export async function startPptMasterGeneration(userId: string, projectId: string): Promise<PptMasterProgress> {
+export async function startPptMasterGeneration(user: PptMasterUser, projectId: string): Promise<PptMasterProgress> {
   return request(`/api/projects/${encodeURIComponent(projectId)}/generate`, progressSchema, {
     method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({}),
-  }, userId)
+  }, user)
 }
 
-export async function getPptMasterSpec(userId: string, projectId: string): Promise<PptMasterSpec> {
-  return request(`/api/projects/${encodeURIComponent(projectId)}/spec`, specSchema, undefined, userId)
+export async function getPptMasterSpec(user: PptMasterUser, projectId: string): Promise<PptMasterSpec> {
+  return request(`/api/projects/${encodeURIComponent(projectId)}/spec`, specSchema, undefined, user)
 }
 
-export async function approvePptMasterOutline(userId: string, projectId: string): Promise<PptMasterProgress> {
+export async function approvePptMasterOutline(user: PptMasterUser, projectId: string): Promise<PptMasterProgress> {
   return request(`/api/projects/${encodeURIComponent(projectId)}/approve-outline`, progressSchema, {
     method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({}),
-  }, userId)
+  }, user)
 }
 
-export async function approvePptMasterExport(userId: string, projectId: string): Promise<PptMasterProgress> {
+export async function approvePptMasterExport(user: PptMasterUser, projectId: string): Promise<PptMasterProgress> {
   return request(`/api/projects/${encodeURIComponent(projectId)}/approve-export`, progressSchema, {
     method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({}),
-  }, userId)
+  }, user)
 }
 
-export async function downloadPptMasterArtifact(userId: string, projectId: string): Promise<{ filename: string; contentType: string; data: string }> {
-  const response = await fetch(`${baseUrl()}/api/projects/${encodeURIComponent(projectId)}/download`, {
-    headers: internalHeaders(userId),
-  })
+export async function downloadPptMasterArtifact(user: PptMasterUser, projectId: string): Promise<{ filename: string; contentType: string; data: string }> {
+  const response = await bridgeFetch(user, `/api/projects/${encodeURIComponent(projectId)}/download`)
   if (!response.ok) throw new Error(`PPTMaster download ${response.status}`)
   const bytes = new Uint8Array(await response.arrayBuffer())
   let binary = ''

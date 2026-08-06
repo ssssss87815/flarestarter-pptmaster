@@ -30,6 +30,7 @@ function AdvancedWorkbench() {
   const [error, setError] = useState<string | null>(null)
 
   async function create() {
+    if (ent.plan !== 'pro') { setError('高级工作台需要有效的 Pro 或 Beta 订阅。'); return }
     const cleanTopic = topic.trim()
     if (!cleanTopic) { setError(t('app.advancedTopicRequired')); return }
     setCreating(true); setError(null)
@@ -47,7 +48,7 @@ function AdvancedWorkbench() {
       <div className="mb-7 flex items-start gap-3"><span className="icon-tile"><SlidersHorizontal size={22} /></span><div><h1 className="page-h">{t('app.advancedWorkbench')}</h1><p className="mt-1.5 text-sm text-fg-2">{t('app.advancedWorkbenchSub')}</p></div></div>
       <section className="rounded-[14px] border border-primary/30 bg-card p-5">
         <h2 className="mb-2 text-base font-semibold">{t('app.advancedCreateTitle')}</h2>
-        <p className="mb-5 text-sm text-fg-2">{t('app.advancedCreateBody')}</p>
+        <p className="mb-5 text-sm text-fg-2">高级工作台只创建项目并管理材料。创建后进入项目页，通过唯一的 canonical Confirm UI 完成八项确认；这里不复制一键生成表单，也不会自动生成。</p>
         <div className="grid gap-3">
           <Input value={topic} onChange={(e) => setTopic(e.target.value)} placeholder={t('app.advancedTopicPlaceholder')} aria-label={t('app.advancedTopicLabel')} />
           <Input value={name} onChange={(e) => setName(e.target.value)} placeholder={t('app.advancedNamePlaceholder')} aria-label={t('app.advancedNameLabel')} />

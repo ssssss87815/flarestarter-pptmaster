@@ -47,7 +47,10 @@ function Register() {
       return
     }
     try {
-      await enrollPptMasterBetaAction({ data: { inviteCode } })
+      // better-auth 客户端返回 { data: { token, user }, error }；其类型对 user 的
+      // 推断不完整（Omit 掉了 user），这里做一次窄化断言取 data.user.id。
+      const created = res as unknown as { data?: { user?: { id?: string } } }
+      await enrollPptMasterBetaAction({ data: { inviteCode, userId: created.data?.user?.id, email } })
     } catch (cause) {
       setError(cause instanceof Error ? cause.message : 'Beta invite enrollment failed.')
       return

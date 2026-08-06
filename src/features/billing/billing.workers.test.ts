@@ -16,7 +16,7 @@ import { env } from 'cloudflare:test'
 import { eq } from 'drizzle-orm'
 import { createDb, type DB } from '@/db/client'
 import { subscription, processedWebhookEvents } from './billing.schema'
-import { handleWebhook, applyDomainEvent, getEntitlementFor, cancelSubscriptionsForUser, startCheckout } from './billing.server'
+import { handleWebhook, applyDomainEvent, getEntitlementFor, cancelSubscriptionsForUser, startCheckout, grantBetaPro } from './billing.server'
 import type { PaymentProvider } from './payment'
 import type { DomainEvent } from './entitlement'
 import { applyBillingSchema, seedUserAndSubscription } from './test-helpers'
@@ -958,5 +958,69 @@ describe('10. Payment failure signal sets/clears paymentFailedAt', () => {
     await seedUserAndSubscription(db, { userId, customerId, status: 'active', plan: 'pro', lifetime: true })
     const t = await applyDomainEvent(db, { type: 'payment.failed', eventId: `epf_${crypto.randomUUID().slice(0, 8)}`, customerId }, Date.now())
     expect(t).toBeNull()
+  })
+})
+
+// ---------------------------------------------------------------------------
+// 11. Beta grant (grantBetaPro): shell-side entitlement sync after beta enroll
+// ---------------------------------------------------------------------------
+describe('11. grantBetaPro writes an active beta/pro subscription row', () => {
+  test('fresh user → beta row created and entitlement becomes pro', async () => {
+    const db = createDb(env.DB)
+    const userId = `beta-${crypto.randomUUID()}`
+    await seedUserAndSubscription(db, { userId, customerId: `cus_seed_${crypto.randomUUID().slice(0, 8)}`, status: 'none', plan: 'free' })
+    // clear the seeded subscription so this user starts with NO row (fresh)
+    await db.delete(subscription).where(eq(subscription.userId, userId))
+
+    const now = Date.now()
+    await grantBetaPro(db, userId, now)
+
+    const rows = await db.select().from(subscription).where(eq(subscription.userId, userId))
+    expect(rows).toHaveLength(1)
+    expect(rows[0].provider).toBe('beta')
+    expect(rows[0].status).toBe('active')
+    expect(rows[0].plan).toBe('pro')
+    expect(rows[0].customerId).toBe(`beta:${userId}`)
+    expect(rows[0].id).toBe(`beta_${userId}`)
+    expect(rows[0].lifetime).toBe(false)
+
+    const ent = await getEntitlementFor(db, userId)
+    expect(ent.plan).toBe('pro')
+    expect(ent.isActive).toBe(true)
+    expect(ent.lifetime).toBe(false)
+    expect(ent.paymentFailed).toBe(false)
+  })
+
+  test('idempotent: calling twice keeps a single row and stays pro', async () => {
+    const db = createDb(env.DB)
+    const userId = `beta-idem-${crypto.randomUUID()}`
+    await seedUserAndSubscription(db, { userId, customerId: `cus_seed_${crypto.randomUUID().slice(0, 8)}`, status: 'none', plan: 'free' })
+    await db.delete(subscription).where(eq(subscription.userId, userId))
+    const now = Date.now()
+    await grantBetaPro(db, userId, now)
+    await grantBetaPro(db, userId, now + 1000)
+
+    const rows = await db.select().from(subscription).where(eq(subscription.userId, userId))
+    expect(rows).toHaveLength(1)
+    expect(rows[0].plan).toBe('pro')
+    expect(rows[0].provider).toBe('beta')
+  })
+
+  test('overwrites an existing free/stripe row → active beta pro', async () => {
+    const db = createDb(env.DB)
+    const userId = `beta-over-${crypto.randomUUID()}`
+    const customerId = `cus_stripe_${crypto.randomUUID().slice(0, 8)}`
+    await seedUserAndSubscription(db, { userId, customerId, status: 'none', plan: 'free', subscriptionId: 'sub_stripe' })
+
+    await grantBetaPro(db, userId, Date.now())
+
+    const rows = await db.select().from(subscription).where(eq(subscription.userId, userId))
+    expect(rows).toHaveLength(1)
+    expect(rows[0].provider).toBe('beta')
+    expect(rows[0].status).toBe('active')
+    expect(rows[0].plan).toBe('pro')
+
+    const ent = await getEntitlementFor(db, userId)
+    expect(ent.plan).toBe('pro')
   })
 })

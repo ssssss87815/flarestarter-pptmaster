@@ -12,6 +12,29 @@ export async function getEntitlementFor(db: DB, userId: string): Promise<Entitle
   return resolveEntitlement(row ? { status: row.status, plan: row.plan, currentPeriodEnd: row.currentPeriodEnd, lifetime: row.lifetime, paymentFailedAt: row.paymentFailedAt } : null)
 }
 
+/** Beta 邀请激活：给壳侧 entitlement 授 Pro（provider='beta'）。幂等 upsert（按 userId）。
+ *  customerId 用 `beta:<userId>` 占位（NOT NULL 约束），与 Stripe customerId 空间隔离，
+ *  Stripe webhook 按 customerId 定位时不会误伤 beta 行。 */
+export async function grantBetaPro(db: DB, userId: string, now: number = Date.now()): Promise<void> {
+  const t = new Date(now)
+  await db
+    .insert(subscription)
+    .values({
+      id: `beta_${userId}`,
+      userId,
+      provider: 'beta',
+      customerId: `beta:${userId}`,
+      status: 'active',
+      plan: 'pro',
+      createdAt: t,
+      updatedAt: t,
+    })
+    .onConflictDoUpdate({
+      target: subscription.userId,
+      set: { provider: 'beta', status: 'active', plan: 'pro', updatedAt: t },
+    })
+}
+
 /** 应用领域事件到订阅表（系统级，按 customerId 定位）。返回发生的状态跃迁（供回调），无跃迁则 null。
  *  cancelSubscription：买断时用于终止在生效中的 Stripe 订阅（须幂等）。先取消后授予——
  *  取消失败即抛错，让 webhook 返回 500 触发 Stripe 重投，避免订阅在买断后继续扣费。 */
