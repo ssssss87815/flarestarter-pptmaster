@@ -47,5 +47,5 @@ const handler = async ({ request }: { request: Request }) => {
 }
 
 export const Route = createFileRoute('/api/pptmaster-live/$')({
-  server: { handlers: { GET: handler, HEAD: handler } },
+  server: { handlers: { GET: handler, HEAD: handler, POST: handler } },
 })
