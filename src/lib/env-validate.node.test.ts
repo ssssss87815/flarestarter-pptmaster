@@ -77,6 +77,16 @@ test('PPTMaster integration requires both URL and internal key', () => {
   ])
   expect(validateEnv({ ...ok, PPTMASTER_API_URL: 'https://ppt.example.com', PPTMASTER_INTERNAL_API_KEY: 'secret' }).errors).toEqual([])
 })
+
+test('bridge configuration must be complete', () => {
+  const result = validateEnv({ ...ok, PPTMASTER_BRIDGE_ISSUER: 'issuer' })
+  expect(result.errors).toEqual(expect.arrayContaining([expect.stringContaining('PPTMaster bridge')]))
+})
+
+test('bridge configuration accepts a complete set', () => {
+  expect(validateEnv({ ...ok, PPTMASTER_BRIDGE_ISSUER: 'issuer', PPTMASTER_BRIDGE_AUDIENCE: 'audience', PPTMASTER_BRIDGE_ACTIVE_KEY_ID: 'key', PPTMASTER_BRIDGE_HMAC_KEY: 'secret' }).errors).toEqual([])
+})
+
 test('Stripe fully configured is clean', () => {
   const r = validateEnv({
     ...ok,

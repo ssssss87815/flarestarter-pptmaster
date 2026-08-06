@@ -68,9 +68,10 @@ npx wrangler secret put SENTRY_DSN --env production
 
 <Callout type="warn">
 `RESEND_API_KEY` 技术上可选(遵循「key 缺失 → 功能关闭」),但**正式生产强烈建议配置**:
-缺失时 `requireEmailVerification` 自动关闭——任何人可用他人邮箱注册、找回密码链接也发不出去
-(只进 `wrangler tail` 日志),存在账号归属风险。已部署构建缺 Resend 时,启动日志会打印
-`[env] ⚠️ RESEND_API_KEY is not set …` 告警提醒。配上后无需改代码,重新部署即自动恢复强验证。
+缺失时验证邮件只进 `wrangler tail` 日志(dev transport 脱敏),找回密码链接也发不出去,
+存在账号归属风险。已部署构建缺 Resend 时,启动日志会打印
+`[env] ⚠️ RESEND_API_KEY is not set …` 告警提醒。注意:邮箱**验证是否强制**由
+`REQUIRE_EMAIL_VERIFICATION` 单独控制(默认不强制),与是否配了 Resend 无关。
 </Callout>
 
 <Callout type="info">

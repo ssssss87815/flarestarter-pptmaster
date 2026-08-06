@@ -105,6 +105,8 @@ export const en = {
       weakPassword: 'Password is too weak.',
       rateLimited: 'Too many attempts. Try again later.',
       captchaFailed: 'Bot check failed. Please try again.',
+      invalidInput: 'Please check your email format and try again.',
+      banned: 'This account has been banned. Please contact support.',
       unknown: 'Something went wrong. Please try again.',
     },
   },
@@ -142,6 +144,8 @@ export const en = {
     sponsorsExport: 'Export CSV',
     feedbackAdmin: 'All Feedback', feedbackSub: 'Every submission, with status controls and replies.',
     adminNotePlaceholder: 'Optional reply shown to the submitter', save: 'Save', saved: 'Saved.',
+    systemStatus: 'System status', pptMasterStatus: 'PPTMaster runtime', unavailable: 'Unavailable', diskState: 'Disk', statusChecked: 'Health endpoint responded without disk details.',
+    sessions: 'Sessions', viewSessions: 'View session metadata', revokeSessions: 'Revoke all sessions', noSessions: 'No sessions found', sessionsRevoked: 'All sessions revoked.', sessionCreated: 'Created', sessionExpires: 'Expires', sessionIp: 'IP address', sessionUserAgent: 'User agent', selfSessionRevokeDisabled: 'You cannot revoke your own sessions.',
   },
   marketing: {
     navFeatures: 'Features', navPricing: 'Pricing', navDocs: 'Docs', navChangelog: 'Changelog',

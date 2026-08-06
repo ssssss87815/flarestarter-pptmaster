@@ -91,6 +91,8 @@ export const zh: Dict = {
       weakPassword: '密码强度不足。',
       rateLimited: '请求过于频繁，请稍后再试。',
       captchaFailed: '人机校验未通过，请重试。',
+      invalidInput: '邮箱格式不正确，请检查后重试。',
+      banned: '该账号已被封禁，请联系支持。',
       unknown: '出现了一些问题，请重试。',
     },
   },
@@ -128,6 +130,8 @@ export const zh: Dict = {
     sponsorsExport: '导出 CSV',
     feedbackAdmin: '全部反馈', feedbackSub: '全部反馈，可流转状态并回复。',
     adminNotePlaceholder: '可选回复，提交者可见', save: '保存', saved: '已保存。',
+    systemStatus: '系统状态', pptMasterStatus: 'PPTMaster 运行状态', unavailable: '不可用', diskState: '磁盘', statusChecked: '健康接口已响应，但未返回磁盘详情。',
+    sessions: '会话', viewSessions: '查看会话元数据', revokeSessions: '撤销全部会话', noSessions: '暂无会话', sessionsRevoked: '已撤销全部会话。', sessionCreated: '创建时间', sessionExpires: '过期时间', sessionIp: 'IP 地址', sessionUserAgent: '用户代理', selfSessionRevokeDisabled: '不能撤销当前管理员自己的会话。',
   },
   marketing: {
     navFeatures: '功能', navPricing: '定价', navDocs: '文档', navChangelog: '更新日志',

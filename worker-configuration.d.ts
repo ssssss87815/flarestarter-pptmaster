@@ -28,6 +28,10 @@ interface __BaseEnv_Env {
 	RESEND_AUDIENCE_ID?: "";
 	PPTMASTER_API_URL?: "";
 	PPTMASTER_INTERNAL_API_KEY?: "";
+	PPTMASTER_BRIDGE_ISSUER?: "";
+	PPTMASTER_BRIDGE_AUDIENCE?: "";
+	PPTMASTER_BRIDGE_ACTIVE_KEY_ID?: "";
+	PPTMASTER_BRIDGE_HMAC_KEY?: "";
 }
 declare namespace Cloudflare {
 	interface GlobalProps {

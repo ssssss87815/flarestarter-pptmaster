@@ -42,5 +42,12 @@ export async function sendEmail(input: SendEmailInput): Promise<void> {
   // 生产构建里降级路径要脱敏（import.meta.env.PROD 由 vite 构建期注入；vite dev 为 false，
   // 本地开发照旧在控制台拿到完整链接）。
   const transport: Transport = apiKey ? resendTransport(apiKey, from) : createDevTransport({ redactBody: import.meta.env.PROD })
-  await sendEmailWith(transport, input)
+  try {
+    await sendEmailWith(transport, input)
+  } catch (cause) {
+    // better-auth 在 runInBackgroundOrAwait 里发验证邮件，异常会被吞掉——
+    // 不在这里打日志的话，邮件静默失败且无人察觉。
+    console.error('[email] send failed:', cause instanceof Error ? cause.message : cause)
+    throw cause
+  }
 }

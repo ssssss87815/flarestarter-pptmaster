@@ -7,6 +7,7 @@ import * as schema from './auth.schema'
 import { sendEmail } from '@/features/email/email.server'
 import { negotiateLocale, defaultLocale, type Locale } from '@/features/i18n/locale'
 import { isAdminEmail } from '@/features/admin/is-admin'
+import { createAdminApiGuard } from '@/features/admin/admin-api-guard'
 
 export interface AuthEnv {
   BETTER_AUTH_SECRET: string
@@ -18,6 +19,7 @@ export interface AuthEnv {
   ADMIN_EMAILS?: string
   TURNSTILE_SECRET_KEY?: string
   RESEND_API_KEY?: string
+  REQUIRE_EMAIL_VERIFICATION?: string
 }
 
 /** Derive the user's preferred locale from an incoming Better-Auth hook request. */
@@ -49,9 +51,10 @@ export function createAuth(authEnv: AuthEnv, db: DB) {
     database: drizzleAdapter(db, { provider: 'sqlite', schema }),
     emailAndPassword: {
       enabled: true,
-      // 只在真能发邮件时强制验证：缺 RESEND_API_KEY 时验证邮件只进日志（dev transport），
-      // 强制会把所有注册用户永久锁在「请先验证邮箱」外——遵循「key 缺失 → 功能关闭」约定。
-      requireEmailVerification: Boolean(authEnv.RESEND_API_KEY),
+      // 邮箱验证是显式开关（REQUIRE_EMAIL_VERIFICATION），默认不强制：
+      // 注册即建立 session，用户可直接使用；验证邮件仍会尝试发送（sendOnSignUp）。
+      // Beta 阶段滥用门槛由邀请码承担；生产如需强制验证，设置该 env 即可。
+      requireEmailVerification: Boolean(authEnv.REQUIRE_EMAIL_VERIFICATION),
       sendResetPassword: async ({ user, url }, request) => {
         const locale = localeFromRequest(request)
         await sendEmail({ to: user.email, locale, template: 'reset-password', data: { url } })
@@ -65,6 +68,7 @@ export function createAuth(authEnv: AuthEnv, db: DB) {
       },
     },
     session: { cookieCache: { enabled: true, maxAge: 5 * 60 } },
+    hooks: { before: createAdminApiGuard(db, authEnv.ADMIN_EMAILS) },
     // Per-IP rate limiting on auth endpoints. Built-in rules already throttle
     // sign-in/sign-up (3/10s) and send-verification/password-reset (3/60s).
     // On Workers: memory storage is per-isolate (useless), so persist in D1;

@@ -30,6 +30,8 @@ const envSchema = z
     RESEND_API_KEY: optional,
     RESEND_AUDIENCE_ID: optional,
     EMAIL_FROM: optional,
+    // 显式开启才强制注册后先验证邮箱（默认关：注册即登录，验证邮件仍尝试发送）。
+    REQUIRE_EMAIL_VERIFICATION: optional,
     GOOGLE_CLIENT_ID: optional,
     GOOGLE_CLIENT_SECRET: optional,
     GITHUB_CLIENT_ID: optional,
@@ -48,6 +50,10 @@ const envSchema = z
     SENTRY_DSN: optional,
     PPTMASTER_API_URL: optional,
     PPTMASTER_INTERNAL_API_KEY: optional,
+    PPTMASTER_BRIDGE_ISSUER: optional,
+    PPTMASTER_BRIDGE_AUDIENCE: optional,
+    PPTMASTER_BRIDGE_ACTIVE_KEY_ID: optional,
+    PPTMASTER_BRIDGE_HMAC_KEY: optional,
   })
   .superRefine((env, ctx) => {
     // OAuth: half a pair is always a misconfiguration.
@@ -60,6 +66,11 @@ const envSchema = z
     pair('GITHUB_CLIENT_ID', 'GITHUB_CLIENT_SECRET', 'GitHub OAuth')
     pair('TURNSTILE_SITE_KEY', 'TURNSTILE_SECRET_KEY', 'Turnstile')
     pair('PPTMASTER_API_URL', 'PPTMASTER_INTERNAL_API_KEY', 'PPTMaster integration')
+    pair('PPTMASTER_BRIDGE_ISSUER', 'PPTMASTER_BRIDGE_AUDIENCE', 'PPTMaster bridge identity')
+    const bridgeFields = ['PPTMASTER_BRIDGE_ISSUER', 'PPTMASTER_BRIDGE_AUDIENCE', 'PPTMASTER_BRIDGE_ACTIVE_KEY_ID', 'PPTMASTER_BRIDGE_HMAC_KEY'] as const
+    if (bridgeFields.some((key) => !!env[key]) && bridgeFields.some((key) => !env[key])) {
+      ctx.addIssue({ code: 'custom', path: ['PPTMASTER_BRIDGE_HMAC_KEY'], message: 'PPTMaster bridge: set issuer, audience, active key id, and HMAC key together, or none' })
+    }
 
     // A Stripe secret key with no webhook secret means webhooks fail signature
     // verification silently.
