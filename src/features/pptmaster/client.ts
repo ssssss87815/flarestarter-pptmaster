@@ -14,6 +14,7 @@ const projectSchema = z.object({
 })
 
 const progressSchema = projectSchema.extend({
+  pipeline_mode: z.string().optional(),
   svg_count: z.number().optional(),
   expected_pages: z.number().optional(),
   export_count: z.number().optional(),
@@ -260,6 +261,12 @@ export async function startPptMasterGeneration(user: PptMasterUser, projectId: s
 export async function rerunPptMasterPages(user: PptMasterUser, projectId: string, pages: string[]): Promise<PptMasterProgress> {
   return request(`/api/projects/${encodeURIComponent(projectId)}/rerun-pages`, progressSchema, {
     method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ pages }),
+  }, user)
+}
+
+export async function deletePptMasterProject(user: PptMasterUser, projectId: string): Promise<{ ok: boolean; id: string; status: string }> {
+  return request(`/api/projects/${encodeURIComponent(projectId)}/delete`, z.object({ ok: z.boolean(), id: z.string(), status: z.string() }).passthrough(), {
+    method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({}),
   }, user)
 }
 

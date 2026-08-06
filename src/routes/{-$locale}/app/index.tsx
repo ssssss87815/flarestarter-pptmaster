@@ -4,7 +4,8 @@ import { ArrowRight, FileText, Settings, Sparkles, SlidersHorizontal } from 'luc
 
 import { requireUser } from '@/features/auth/middleware'
 import { getEntitlement } from '@/features/billing/middleware'
-import { getPptMasterProjects, startPptMasterQuickAction } from '@/features/pptmaster/actions'
+import { deletePptMasterProjectAction, getPptMasterProjects, startPptMasterQuickAction } from '@/features/pptmaster/actions'
+import { pptmasterStatusLabel } from '@/features/pptmaster/status'
 import { useTranslation } from '@/features/i18n/provider'
 import { AppShell } from '@/components/app/app-shell'
 import { Badge } from '@/components/ui/badge'
@@ -43,7 +44,16 @@ function AppHome() {
   const [canvas, setCanvas] = useState<'ppt169' | 'ppt43'>('ppt169')
   const [imageUsage, setImageUsage] = useState<'optional' | 'none' | 'ai' | 'web'>('optional')
   const [creating, setCreating] = useState(false)
+  const [deletingId, setDeletingId] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
+
+  async function deleteProject(id: string, name: string) {
+    if (!window.confirm(`确定删除「${name}」吗？所有产物将被归档，且不可撤销。`)) return
+    setDeletingId(id); setError(null)
+    try { await deletePptMasterProjectAction({ data: { projectId: id } }); await router.invalidate() }
+    catch (cause) { setError(cause instanceof Error ? cause.message : '删除失败。') }
+    finally { setDeletingId(null) }
+  }
 
   async function createProject() {
     setError(null)
@@ -94,7 +104,7 @@ function AppHome() {
 
       <section className="mb-7">
         <div className="mb-3.5 flex items-center justify-between"><h2 className="font-mono text-sm uppercase tracking-wide text-fg-3">Your presentations</h2><span className="text-xs text-fg-3">{projects.length} projects</span></div>
-        {projects.length === 0 ? <div className="rounded-[14px] border border-dashed border-border p-6 text-sm text-fg-3">No presentation projects yet. Create one above.</div> : <div className="grid gap-3.5">{projects.map((project) => <div key={project.id} className="rounded-[14px] border border-border bg-card p-[18px]"><div className="flex items-start justify-between gap-4"><div className="flex items-start gap-3"><span className="icon-tile"><FileText size={20} /></span><div><h3 className="m-0 text-[15px] font-semibold text-foreground">{project.name}</h3><p className="mt-1 text-[13px] text-fg-3">{project.status}{project.detail ? ` · ${project.detail}` : ''}</p></div></div><Link to="/{-$locale}/app/projects/$projectId" params={{ projectId: project.id }} className="text-fg-3 hover:text-foreground" aria-label={`Open ${project.name}`}><ArrowRight size={17} /></Link></div></div>)}</div>}
+        {projects.length === 0 ? <div className="rounded-[14px] border border-dashed border-border p-6 text-sm text-fg-3">No presentation projects yet. Create one above.</div> : <div className="grid gap-3.5">{projects.map((project) => <div key={project.id} className="rounded-[14px] border border-border bg-card p-[18px]"><div className="flex items-start justify-between gap-4"><div className="flex items-start gap-3"><span className="icon-tile"><FileText size={20} /></span><div><h3 className="m-0 text-[15px] font-semibold text-foreground">{project.name}</h3><p className="mt-1 text-[13px] text-fg-3">{pptmasterStatusLabel(project.status)}{project.detail ? ` · ${project.detail}` : ''}</p></div></div><div className="flex items-center gap-2"><button type="button" onClick={() => deleteProject(project.id, project.name)} disabled={deletingId === project.id} className="text-xs text-fg-3 hover:text-red-400 disabled:opacity-50" aria-label={`Delete ${project.name}`}>{deletingId === project.id ? '删除中…' : '删除'}</button><Link to="/{-$locale}/app/projects/$projectId" params={{ projectId: project.id }} className="text-fg-3 hover:text-foreground" aria-label={`Open ${project.name}`}><ArrowRight size={17} /></Link></div></div></div>)}</div>}
       </section>
 
       <h2 className="mb-3.5 font-mono text-sm uppercase tracking-wide text-fg-3">{t('app.quickActions')}</h2>

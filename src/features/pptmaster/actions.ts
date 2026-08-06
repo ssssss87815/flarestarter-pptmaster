@@ -8,7 +8,7 @@ import { env } from '@/lib/env'
 import { createDb } from '@/db/client'
 import { user } from '@/features/auth/auth.schema'
 import { grantBetaPro } from '@/features/billing/billing.server'
-import { createPptMasterProject, approvePptMasterExport, approvePptMasterOutline, downloadPptMasterArtifact, enrollPptMasterBeta, getPptMasterProgress, getPptMasterSpec, listPptMasterProjects, lockPptMasterConfirmations, openPptMasterConfirmUi, rerunPptMasterPages, startPptMasterGeneration, startPptMasterLivePreview, startPptMasterQuick, uploadPptMasterMarkdown, uploadPptMasterSourceFile, uploadPptMasterUserImages, type PptMasterUser } from './client'
+import { createPptMasterProject, approvePptMasterExport, approvePptMasterOutline, deletePptMasterProject, downloadPptMasterArtifact, enrollPptMasterBeta, getPptMasterProgress, getPptMasterSpec, listPptMasterProjects, lockPptMasterConfirmations, openPptMasterConfirmUi, rerunPptMasterPages, startPptMasterGeneration, startPptMasterLivePreview, startPptMasterQuick, uploadPptMasterMarkdown, uploadPptMasterSourceFile, uploadPptMasterUserImages, type PptMasterUser } from './client'
 
 function pptUser(user: { id: string; email: string; name: string }): PptMasterUser {
   return { id: user.id, email: user.email, name: user.name }
@@ -85,6 +85,13 @@ export const rerunPptMasterPagesAction = createServerFn({ method: 'POST' })
   .handler(async ({ data }) => {
     const user = await requireUser()
     return rerunPptMasterPages(pptUser(user), data.projectId, data.pages)
+  })
+
+export const deletePptMasterProjectAction = createServerFn({ method: 'POST' })
+  .validator(z.object({ projectId: z.string().min(1) }))
+  .handler(async ({ data }) => {
+    const user = await requireUser()
+    return deletePptMasterProject(pptUser(user), data.projectId)
   })
 
 export const uploadPptMasterUserImagesAction = createServerFn({ method: 'POST' })
