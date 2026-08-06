@@ -151,7 +151,7 @@ function normalizeConfirmUiPath(projectId: string, path: string): string {
     throw new Error('Invalid Confirm UI path')
   }
   if (segments[0] && !['api', 'static', 'images', 'assets'].includes(segments[0])) throw new Error('Invalid Confirm UI path')
-  if (segments[0] === 'api' && !['api/catalogs', 'api/recommendations', 'api/confirm'].includes(normalized)) {
+  if (segments[0] === 'api' && !['api/catalogs', 'api/recommendations', 'api/confirm', 'api/shutdown'].includes(normalized)) {
     throw new Error('Invalid Confirm UI API path')
   }
   return `/projects/${encodeURIComponent(projectId)}/confirm-ui${normalized ? `/${segments.join('/')}` : '/'}`

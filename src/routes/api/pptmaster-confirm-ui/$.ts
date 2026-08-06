@@ -23,7 +23,17 @@ const handler = async ({ request }: { request: Request }) => {
       body: request.method === 'POST' ? await request.text() : undefined,
       headers: request.method === 'POST' ? { 'content-type': request.headers.get('content-type') ?? 'application/json' } : undefined,
     })
-    return new Response(result.body, {
+    // The control plane rewrites Confirm UI absolute /api,/static,.. URLs to
+    // /projects/{id}/confirm-ui/... (its own proxy prefix). Behind the Worker we
+    // must map that prefix back to OUR proxy prefix so the browser keeps hitting
+    // this route; otherwise those sub-requests 404 and the UI hangs on "Loading
+    // recommendations".
+    let body = result.body
+    const ct = (result.contentType ?? '').toLowerCase()
+    if (ct.includes('html') || ct.includes('javascript') || ct.includes('css') || ct.includes('json') || ct.startsWith('text/')) {
+      body = body.split(`/projects/${encodeURIComponent(projectId)}/confirm-ui/`).join(`/api/pptmaster-confirm-ui/${encodeURIComponent(projectId)}/`)
+    }
+    return new Response(body, {
       status: result.status,
       headers: {
         'content-type': result.contentType,
