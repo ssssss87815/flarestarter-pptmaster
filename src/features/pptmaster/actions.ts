@@ -8,7 +8,7 @@ import { env } from '@/lib/env'
 import { createDb } from '@/db/client'
 import { user } from '@/features/auth/auth.schema'
 import { grantBetaPro } from '@/features/billing/billing.server'
-import { createPptMasterProject, approvePptMasterExport, approvePptMasterOutline, downloadPptMasterArtifact, enrollPptMasterBeta, getPptMasterProgress, getPptMasterSpec, listPptMasterProjects, lockPptMasterConfirmations, openPptMasterConfirmUi, startPptMasterGeneration, startPptMasterQuick, uploadPptMasterMarkdown, type PptMasterUser } from './client'
+import { createPptMasterProject, approvePptMasterExport, approvePptMasterOutline, downloadPptMasterArtifact, enrollPptMasterBeta, getPptMasterProgress, getPptMasterSpec, listPptMasterProjects, lockPptMasterConfirmations, openPptMasterConfirmUi, startPptMasterGeneration, startPptMasterLivePreview, startPptMasterQuick, uploadPptMasterMarkdown, type PptMasterUser } from './client'
 
 function pptUser(user: { id: string; email: string; name: string }): PptMasterUser {
   return { id: user.id, email: user.email, name: user.name }
