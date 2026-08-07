@@ -14,7 +14,9 @@ import { assertRevocableAdminUserSessions, getAdminUserSessions, revokeAdminUser
 import { getPptMasterHealth } from '@/features/pptmaster/client'
 import { eq } from 'drizzle-orm'
 import { subscription } from '@/features/billing/billing.schema'
+import { user as userTable } from '@/features/auth/auth.schema'
 import { getAdminRevenue, type AdminRevenueResult } from '@/features/billing/admin-revenue'
+import { getUserUsage, type PptMasterUserUsage } from '@/features/pptmaster/client'
 
 export type { AdminRevenueResult }
 
@@ -166,4 +168,27 @@ export const setManualSubscriptionFn = createServerFn({ method: 'POST' })
       } as any)
     }
     return { ok: true, action: data.action }
+  })
+
+/** server fn: assertAdmin → set/clear the admin note on a user. */
+export const setAdminNoteFn = createServerFn({ method: 'POST' })
+  .validator((d: { userId: string; note: string }) => d)
+  .handler(async ({ data }) => {
+    await assertAdmin()
+    const db = createDb(env.DB)
+    const note = data.note.trim()
+    await db.update(userTable).set({ adminNote: note || null, updatedAt: new Date() }).where(eq(userTable.id, data.userId))
+    return { ok: true }
+  })
+
+/** server fn: assertAdmin → PPTMaster usage summary for a user (from the control plane). */
+export const getUserUsageFn = createServerFn({ method: 'GET' })
+  .validator((d: { userId: string }) => d)
+  .handler(async ({ data }): Promise<PptMasterUserUsage | null> => {
+    const admin = await assertAdmin()
+    try {
+      return await getUserUsage({ id: admin.id, email: admin.email, name: admin.name ?? '' }, data.userId)
+    } catch {
+      return null // control plane unreachable/misconfigured → UI shows a dash
+    }
   })

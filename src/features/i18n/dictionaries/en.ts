@@ -151,6 +151,9 @@ export const en = {
     interval: 'Interval', periodEnd: 'Period end', stripeDashboard: 'Open Stripe Dashboard',
     manualSubscription: 'Manual subscription', grant30d: 'Grant Pro 30d', grantLifetime: 'Grant lifetime Pro', revokePro: 'Revoke Pro',
     adminHint: 'Admins are controlled by the ADMIN_EMAILS environment variable — add this email to production config to promote.',
+    filterAllPlans: 'All plans', filterAllRoles: 'All roles', roleUser: 'User',
+    usage: 'PPTMaster usage', projects: 'Projects', generated: 'Generated', exported: 'Exported', generating: 'In progress', lastActive: 'Last active',
+    note: 'Note', notePlaceholder: 'Internal note for this user (visible to admins only).',
     },
   marketing: {
     navFeatures: 'Features', navPricing: 'Pricing', navDocs: 'Docs', navChangelog: 'Changelog',

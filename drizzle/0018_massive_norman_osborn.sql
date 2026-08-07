@@ -1,0 +1,1 @@
+ALTER TABLE `user` ADD `admin_note` text;

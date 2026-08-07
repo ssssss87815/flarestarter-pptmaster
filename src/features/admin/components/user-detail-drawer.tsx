@@ -17,7 +17,8 @@ import { initials } from '@/features/admin/components/user-table'
 import { fmtDate } from '@/lib/format-date'
 import type { AdminUserRow } from '@/features/admin/getAdminUsers'
 import { Label } from '@/components/ui/label'
-import { getAdminUserSessionsFn, revokeAdminUserSessionsFn, setManualSubscriptionFn, type AdminUserSession, type ManualGrantAction } from '@/features/admin/middleware'
+import { getAdminUserSessionsFn, revokeAdminUserSessionsFn, setManualSubscriptionFn, setAdminNoteFn, getUserUsageFn, type AdminUserSession, type ManualGrantAction } from '@/features/admin/middleware'
+import type { PptMasterUserUsage } from '@/features/pptmaster/client'
 
 interface Props {
   row: AdminUserRow | null
@@ -37,6 +38,9 @@ export function UserDetailDrawer({ row, open, onOpenChange, currentUserId, onCha
   const [calOpen, setCalOpen] = useState(false)
   const [busy, setBusy] = useState(false)
   const [subBusy, setSubBusy] = useState(false)
+  const [noteInput, setNoteInput] = useState('')
+  const [noteBusy, setNoteBusy] = useState(false)
+  const [usage, setUsage] = useState<PptMasterUserUsage | null>(null)
   const [sessions, setSessions] = useState<AdminUserSession[] | null>(null)
   const [sessionsBusy, setSessionsBusy] = useState(false)
 
@@ -45,6 +49,11 @@ export function UserDetailDrawer({ row, open, onOpenChange, currentUserId, onCha
     setExpiry(undefined)
     setCalOpen(false)
     setSessions(null)
+    setNoteInput(row?.adminNote ?? '')
+    setUsage(null)
+    if (row) {
+      void getUserUsageFn({ data: { userId: row.id } }).then((u) => setUsage(u))
+    }
   }, [row?.id])
 
   if (!row) return null
@@ -59,6 +68,20 @@ export function UserDetailDrawer({ row, open, onOpenChange, currentUserId, onCha
       toast.error(e instanceof Error ? e.message : 'Error')
     } finally {
       setSessionsBusy(false)
+    }
+  }
+
+  async function saveNote() {
+    if (!row) return
+    setNoteBusy(true)
+    try {
+      await setAdminNoteFn({ data: { userId: row.id, note: noteInput } })
+      toast.success(t('admin.saved'))
+      onChanged()
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : 'Error')
+    } finally {
+      setNoteBusy(false)
     }
   }
 
@@ -173,6 +196,37 @@ export function UserDetailDrawer({ row, open, onOpenChange, currentUserId, onCha
               <Button variant="ghost" size="sm" disabled={subBusy} onClick={() => void grantSub('revoke')}>{t('admin.revokePro')}</Button>
             </div>
             {row.role !== 'admin' && <p className="text-xs text-fg-3">{t('admin.adminHint')}</p>}
+          </div>
+
+          <div className="grid gap-2">
+            <span className="text-fg-3 text-xs">{t('admin.usage')}</span>
+            <div className="grid grid-cols-4 gap-2 text-center">
+              <div className="rounded-md border border-border p-2">
+                <div className="text-[16px] font-semibold">{usage?.projectCount ?? '—'}</div>
+                <div className="text-[11px] text-fg-3">{t('admin.projects')}</div>
+              </div>
+              <div className="rounded-md border border-border p-2">
+                <div className="text-[16px] font-semibold">{usage?.generated ?? '—'}</div>
+                <div className="text-[11px] text-fg-3">{t('admin.generated')}</div>
+              </div>
+              <div className="rounded-md border border-border p-2">
+                <div className="text-[16px] font-semibold">{usage?.exported ?? '—'}</div>
+                <div className="text-[11px] text-fg-3">{t('admin.exported')}</div>
+              </div>
+              <div className="rounded-md border border-border p-2">
+                <div className="text-[16px] font-semibold">{usage?.generating ?? '—'}</div>
+                <div className="text-[11px] text-fg-3">{t('admin.generating')}</div>
+              </div>
+            </div>
+            {usage?.lastActive && <p className="text-xs text-fg-3">{t('admin.lastActive')}: {fmtDate(usage.lastActive)}</p>}
+          </div>
+
+          <div className="grid gap-2">
+            <span className="text-fg-3 text-xs">{t('admin.note')}</span>
+            <Textarea value={noteInput} onChange={(e) => setNoteInput(e.target.value)} rows={2} placeholder={t('admin.notePlaceholder')} />
+            <div>
+              <Button variant="outline" size="sm" disabled={noteBusy} onClick={() => void saveNote()}>{t('admin.save')}</Button>
+            </div>
           </div>
 
           <hr className="border-border" />

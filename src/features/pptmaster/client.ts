@@ -123,6 +123,27 @@ export async function getPptMasterHealth(): Promise<{ status: string; disk_state
   return { ...health, status: health.status === 'ok' && !diskHealthy ? 'degraded' : health.status }
 }
 
+export async function getUserUsage(user: PptMasterUser, userId: string): Promise<PptMasterUserUsage> {
+  const r = await request(`/api/internal/user-usage/${encodeURIComponent(userId)}`, userUsageSchema, undefined, user)
+  return { projectCount: r.project_count, generated: r.generated, exported: r.exported, generating: r.generating, lastActive: r.last_active }
+}
+
+const userUsageSchema = z.object({
+  project_count: z.number(),
+  generated: z.number(),
+  exported: z.number(),
+  generating: z.number(),
+  last_active: z.string().nullable(),
+})
+
+export interface PptMasterUserUsage {
+  projectCount: number
+  generated: number
+  exported: number
+  generating: number
+  lastActive: string | null
+}
+
 export async function enrollPptMasterBeta(user: PptMasterUser, inviteCode: string): Promise<PptMasterBetaEnrollment> {
   return request('/api/internal/beta/enroll', z.object({ ok: z.boolean(), user_id: z.string(), plan_id: z.string() }), {
     method: 'POST',

@@ -137,6 +137,9 @@ export const zh: Dict = {
     interval: '周期', periodEnd: '本期到期', stripeDashboard: '打开 Stripe 后台',
     manualSubscription: '手动订阅', grant30d: '开通 Pro 30 天', grantLifetime: '开通永久 Pro', revokePro: '取消 Pro',
     adminHint: '管理员由 ADMIN_EMAILS 环境变量控制——如需设为管理员，请将该邮箱加入生产配置。',
+    filterAllPlans: '全部套餐', filterAllRoles: '全部角色', roleUser: '用户',
+    usage: 'PPTMaster 用量', projects: '项目', generated: '已生成', exported: '已导出', generating: '进行中', lastActive: '最近活跃',
+    note: '备注', notePlaceholder: '内部备注（仅管理员可见）。',
     },
   marketing: {
     navFeatures: '功能', navPricing: '定价', navDocs: '文档', navChangelog: '更新日志',

@@ -15,6 +15,8 @@ import { getAdminUsersFn, type AdminUserRow } from '@/features/admin/middleware'
 // defaults are applied at read time (and the server fn defaults them too).
 interface UsersSearch {
   q?: string
+  plan?: 'free' | 'pro'
+  role?: 'user' | 'admin'
   page?: number
   pageSize?: number
   sortBy?: string
@@ -25,6 +27,8 @@ export const Route = createFileRoute('/{-$locale}/admin/users')({
   validateSearch: (s: Record<string, unknown>): UsersSearch => {
     const out: UsersSearch = {}
     if (typeof s.q === 'string' && s.q) out.q = s.q
+    if (s.plan === 'free' || s.plan === 'pro') out.plan = s.plan
+    if (s.role === 'user' || s.role === 'admin') out.role = s.role
     if (typeof s.page === 'number') out.page = s.page
     if (typeof s.pageSize === 'number') out.pageSize = s.pageSize
     if (typeof s.sortBy === 'string') out.sortBy = s.sortBy
@@ -86,8 +90,8 @@ function UsersPage() {
         <p className="mt-1.5 text-[14.5px] text-fg-2">{t('admin.usersSub')}</p>
       </div>
 
-      <div className="mb-4 max-w-[380px]">
-        <div className="field-wrap relative">
+      <div className="mb-4 flex flex-wrap items-center gap-2">
+        <div className="field-wrap relative max-w-[380px] flex-1">
           <span className="lead"><Search size={17} /></span>
           <Input
             className="pl-[38px] pr-9"
@@ -113,6 +117,24 @@ function UsersPage() {
             </button>
           )}
         </div>
+        <select
+          className="h-9 rounded-md border border-border bg-transparent px-2.5 text-[13px] outline-none"
+          value={search.plan ?? ''}
+          onChange={(e) => setSearch({ plan: (e.target.value || undefined) as UsersSearch['plan'], page: 0 }, true)}
+        >
+          <option value="">{t('admin.filterAllPlans')}</option>
+          <option value="pro">{t('admin.pro')}</option>
+          <option value="free">{t('admin.free')}</option>
+        </select>
+        <select
+          className="h-9 rounded-md border border-border bg-transparent px-2.5 text-[13px] outline-none"
+          value={search.role ?? ''}
+          onChange={(e) => setSearch({ role: (e.target.value || undefined) as UsersSearch['role'], page: 0 }, true)}
+        >
+          <option value="">{t('admin.filterAllRoles')}</option>
+          <option value="admin">{t('admin.roleAdmin')}</option>
+          <option value="user">{t('admin.roleUser')}</option>
+        </select>
       </div>
 
       <Card className={`overflow-hidden p-0 transition-opacity ${isLoading ? 'opacity-60' : ''}`}>

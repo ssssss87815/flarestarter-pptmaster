@@ -9,7 +9,7 @@
  * every server-fn entry point gates with assertAdmin() (see ./middleware).
  * Plain async fn (no react-start import) so it is workers-testable.
  */
-import { count, desc, asc, or, eq, sql } from 'drizzle-orm'
+import { count, desc, asc, or, and, eq, sql } from 'drizzle-orm'
 import type { DB } from '@/db/client'
 import { user } from '@/features/auth/auth.schema'
 import { subscription } from '@/features/billing/billing.schema'
@@ -27,6 +27,7 @@ export interface AdminUserRow {
   banExpires: Date | string | null
   createdAt: Date | string
   updatedAt: Date | string
+  adminNote: string | null
   customerId: string | null
   plan: string | null
   status: string | null
@@ -35,6 +36,8 @@ export interface AdminUserRow {
 
 export interface AdminUsersParams {
   q?: string
+  plan?: 'free' | 'pro'
+  role?: 'user' | 'admin'
   page: number
   pageSize: number
   sortBy: string
@@ -49,12 +52,18 @@ export async function getAdminUsers(
   params: AdminUsersParams,
 ): Promise<{ rows: AdminUserRow[]; total: number }> {
   const pattern = params.q ? `%${params.q.replace(/[%_!]/g, '!$&')}%` : null
-  const where = pattern
-    ? or(
+  const conds = []
+  if (pattern) {
+    conds.push(
+      or(
         sql`${user.email} LIKE ${pattern} ESCAPE '!'`,
         sql`${user.name} LIKE ${pattern} ESCAPE '!'`,
-      )
-    : undefined
+      ),
+    )
+  }
+  if (params.plan === 'free' || params.plan === 'pro') conds.push(eq(subscription.plan, params.plan))
+  if (params.role === 'user' || params.role === 'admin') conds.push(eq(user.role, params.role))
+  const where = conds.length ? and(...conds) : undefined
   const sortCol = SORT_COLUMNS[params.sortBy as keyof typeof SORT_COLUMNS] ?? user.createdAt
   const orderBy = params.sortDir === 'asc' ? asc(sortCol) : desc(sortCol)
 
@@ -72,6 +81,7 @@ export async function getAdminUsers(
         banExpires: user.banExpires,
         createdAt: user.createdAt,
         updatedAt: user.updatedAt,
+        adminNote: user.adminNote,
         customerId: subscription.customerId,
         plan: subscription.plan,
         status: subscription.status,
