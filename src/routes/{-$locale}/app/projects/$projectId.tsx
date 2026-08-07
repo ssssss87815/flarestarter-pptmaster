@@ -16,7 +16,6 @@ import {
   startPptMasterLivePreviewAction,
   uploadPptMasterMarkdownAction,
   uploadPptMasterSourceFileAction,
-  uploadPptMasterUserImagesAction,
 } from '@/features/pptmaster/actions'
 import { AppShell } from '@/components/app/app-shell'
 import { Badge } from '@/components/ui/badge'
@@ -50,6 +49,7 @@ function ProjectWorkbench() {
   const [rerunPage, setRerunPage] = useState('')
   const [uploading, setUploading] = useState(false)
   const [uploadingImages, setUploadingImages] = useState(false)
+  const [uploadSuccess, setUploadSuccess] = useState<string | null>(null)
   const [rerunning, setRerunning] = useState(false)
   const [resuming, setResuming] = useState(false)
   const [deleting, setDeleting] = useState(false)
@@ -99,20 +99,17 @@ function ProjectWorkbench() {
     if (!imageFiles.length) return
     setError(null); setUploadingImages(true)
     try {
-      const files = await Promise.all(imageFiles.map(async (file) => {
-        const base64 = await new Promise<string>((resolve, reject) => {
-          const reader = new FileReader()
-          reader.onload = () => resolve(String(reader.result).split(',')[1] ?? '')
-          reader.onerror = () => reject(new Error('Failed to read image'))
-          reader.readAsDataURL(file)
-        })
-        if (!base64) throw new Error('Failed to read image')
-        return { filename: file.name, base64, mime: file.type }
-      }))
-      await uploadPptMasterUserImagesAction({ data: { projectId: progress.id, files } })
+      // Direct multipart upload through the Worker proxy route — no base64,
+      // so large images stay well under the action/request body limits.
+      const form = new FormData()
+      for (const file of imageFiles) form.append('file', file)
+      const response = await fetch(`/api/pptmaster-images/${encodeURIComponent(progress.id)}`, { method: 'POST', body: form })
+      const data = await response.json().catch(() => ({}))
+      if (!response.ok) throw new Error(data.detail || `上传失败（${response.status}）`)
       setImageFiles([])
+      setUploadSuccess(`已成功上传 ${imageFiles.length} 张图片，AI 会在设计页面时参考。`)
       await refresh()
-    } catch (cause) { setError(cause instanceof Error ? cause.message : 'Image upload failed.') }
+    } catch (cause) { setError(cause instanceof Error ? cause.message : '图片上传失败') }
     finally { setUploadingImages(false) }
   }
 
@@ -206,7 +203,7 @@ function ProjectWorkbench() {
 
       <section className="mb-5 rounded-[14px] border border-border bg-card p-[18px]"><h2 className="mb-4 font-mono text-sm uppercase tracking-wide text-fg-3">演示材料（可选）</h2><p className="mb-3 text-sm text-fg-2">上传你的文档（Word、PDF、Markdown、PPT、TXT），AI 会基于这些内容制作 PPT。没有现成文档也可以，直接输入主题或粘贴内容即可。</p><div className="flex flex-wrap items-center gap-2"><input type="file" accept=".md,.pdf,.docx,.pptx,.txt,.markdown" onChange={(event) => setSourceFile(event.target.files?.[0] ?? null)} className="max-w-full flex-1 text-sm text-fg-2 file:mr-3 file:rounded-[7px] file:border file:border-input file:bg-background file:px-3 file:py-1.5 file:text-sm file:text-foreground" aria-label="选择演示材料文件" /><button type="button" onClick={uploadFile} disabled={uploading || !sourceFile} title={sourceFile ? '上传已选文件' : '请先选择文件'} className="inline-flex items-center gap-2 rounded-[7px] bg-primary px-4 py-2 text-sm font-medium text-primary-foreground disabled:opacity-50"><Upload size={16} />{uploading ? '上传中…' : '上传材料'}</button></div><p className="mt-2 text-xs text-fg-3">{sourceFile ? `已选择：${sourceFile.name}，点击「上传材料」即可上传` : '选择文件后，「上传材料」按钮会变为可用'}</p><div className="mt-4 rounded-[10px] border border-border bg-background p-3"><p className="text-xs font-medium text-fg-3">或者直接粘贴内容：</p><Input value={filename} onChange={(event) => setFilename(event.target.value)} placeholder="文件名（如：产品介绍.md）" aria-label="材料文件名" className="mt-2" /><textarea value={markdown} onChange={(event) => setMarkdown(event.target.value)} className="mt-3 min-h-40 w-full rounded-[7px] border border-input bg-background p-3 text-sm text-foreground focus-visible:outline-none focus-visible:border-primary" aria-label="材料内容" placeholder="把你要做的内容粘贴到这里，例如产品介绍、会议纪要、课程大纲…" /><button type="button" onClick={upload} disabled={uploading || !markdown.trim()} className="mt-3 inline-flex items-center gap-2 rounded-[7px] border border-input bg-background px-4 py-2 text-sm font-medium text-foreground hover:bg-accent"><Upload size={16} />{uploading ? '上传中…' : '添加材料内容'}</button></div></section>
 
-      <section className="mb-5 rounded-[14px] border border-border bg-card p-[18px]"><h2 className="mb-4 font-mono text-sm uppercase tracking-wide text-fg-3">图片素材（可选）</h2><p className="mb-3 text-sm text-fg-2">上传你喜欢的图片（PNG / JPG / WebP，单张不超过 15MB），AI 设计页面时会参考这些图片。</p><div className="flex flex-wrap items-center gap-2"><input type="file" accept=".png,.jpg,.jpeg,.webp" multiple onChange={(event) => setImageFiles(Array.from(event.target.files ?? []))} disabled={isGenerating} className="max-w-full flex-1 text-sm text-fg-2 file:mr-3 file:rounded-[7px] file:border file:border-input file:bg-background file:px-3 file:py-1.5 file:text-sm file:text-foreground disabled:opacity-50" aria-label="选择图片素材" /><button type="button" onClick={uploadImages} disabled={uploadingImages || !imageFiles.length || isGenerating} title={isGenerating ? '生成中暂不可上传' : imageFiles.length ? '上传已选图片' : '请先选择图片'} className="inline-flex items-center gap-2 rounded-[7px] bg-primary px-4 py-2 text-sm font-medium text-primary-foreground disabled:opacity-50">{uploadingImages ? '上传中…' : '上传图片'}</button></div><p className="mt-2 text-xs text-fg-3">{isGenerating ? '当前正在生成页面，暂不可上传图片；生成完成后可以再上传替换。' : imageFiles.length ? `已选择 ${imageFiles.length} 张图片，点击「上传图片」即可上传` : '选择图片后，「上传图片」按钮会变为可用'}</p></section>
+      <section className="mb-5 rounded-[14px] border border-border bg-card p-[18px]"><h2 className="mb-4 font-mono text-sm uppercase tracking-wide text-fg-3">图片素材（可选）</h2><p className="mb-3 text-sm text-fg-2">上传你喜欢的图片（PNG / JPG / WebP，单张不超过 15MB），AI 设计页面时会参考这些图片。</p><div className="flex flex-wrap items-center gap-2"><input type="file" accept=".png,.jpg,.jpeg,.webp" multiple onChange={(event) => { setImageFiles(Array.from(event.target.files ?? [])); setUploadSuccess(null) }} disabled={isGenerating} className="max-w-full flex-1 text-sm text-fg-2 file:mr-3 file:rounded-[7px] file:border file:border-input file:bg-background file:px-3 file:py-1.5 file:text-sm file:text-foreground disabled:opacity-50" aria-label="选择图片素材" /><button type="button" onClick={uploadImages} disabled={uploadingImages || !imageFiles.length || isGenerating} title={isGenerating ? '生成中暂不可上传' : imageFiles.length ? '上传已选图片' : '请先选择图片'} className="inline-flex items-center gap-2 rounded-[7px] bg-primary px-4 py-2 text-sm font-medium text-primary-foreground disabled:opacity-50">{uploadingImages ? '上传中…' : '上传图片'}</button></div><p className="mt-2 text-xs text-fg-3">{isGenerating ? '当前正在生成页面，暂不可上传图片；生成完成后可以再上传替换。' : imageFiles.length ? `已选择 ${imageFiles.length} 张图片，点击「上传图片」即可上传` : '选择图片后，「上传图片」按钮会变为可用'}</p>{uploadSuccess && <p className="mt-2 text-xs font-medium text-emerald-400">✓ {uploadSuccess}</p>}</section>
 
       <section className="mb-5 rounded-[14px] border border-border bg-card p-[18px]"><h2 className="mb-4 font-mono text-sm uppercase tracking-wide text-fg-3">重做与恢复</h2>{canRerunPage && <div className="flex flex-wrap items-center gap-2"><Input type="number" min={1} max={Math.max(pageNumbers.length, 1)} value={rerunPage} onChange={(event) => setRerunPage(event.target.value)} placeholder="页号，如 3" aria-label="要重做的页号" className="max-w-[120px]" /><span className="text-xs text-fg-3">共 {pageNumbers.length || '—'} 页，输入要重画的页号</span><button type="button" onClick={rerunPageNow} disabled={rerunning || !rerunPage.trim()} className="inline-flex items-center gap-2 rounded-[7px] border border-input bg-background px-4 py-2 text-sm font-medium text-foreground hover:bg-accent">{rerunning ? '重画中…' : '重做该页'}</button></div>}{isFailed && <div className="mt-4 flex flex-wrap items-center gap-2"><button type="button" onClick={resumeGeneration} disabled={resuming} className="inline-flex items-center gap-2 rounded-[7px] bg-primary px-4 py-2 text-sm font-medium text-primary-foreground disabled:opacity-50">{resuming ? '恢复中…' : '重新生成'}</button><span className="text-xs text-fg-3">失败的项目可以重新尝试，已有产物会保留。</span></div>}</section>
 

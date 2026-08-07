@@ -43,6 +43,8 @@ import { Route as Char123LocaleChar125authRegisterRouteImport } from './routes/{
 import { Route as Char123LocaleChar125authLoginRouteImport } from './routes/{-$locale}/(auth)/login'
 import { Route as Char123LocaleChar125authForgotPasswordRouteImport } from './routes/{-$locale}/(auth)/forgot-password'
 import { Route as ApiWebhooksStripeRouteImport } from './routes/api/webhooks/stripe'
+import { Route as ApiPptmasterLiveSplatRouteImport } from './routes/api/pptmaster-live/$'
+import { Route as ApiPptmasterImagesSplatRouteImport } from './routes/api/pptmaster-images/$'
 import { Route as ApiPptmasterConfirmUiSplatRouteImport } from './routes/api/pptmaster-confirm-ui/$'
 import { Route as ApiAvatarsSplatRouteImport } from './routes/api/avatars/$'
 import { Route as ApiAuthSplatRouteImport } from './routes/api/auth/$'
@@ -242,6 +244,16 @@ const ApiWebhooksStripeRoute = ApiWebhooksStripeRouteImport.update({
   path: '/api/webhooks/stripe',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPptmasterLiveSplatRoute = ApiPptmasterLiveSplatRouteImport.update({
+  id: '/api/pptmaster-live/$',
+  path: '/api/pptmaster-live/$',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiPptmasterImagesSplatRoute = ApiPptmasterImagesSplatRouteImport.update({
+  id: '/api/pptmaster-images/$',
+  path: '/api/pptmaster-images/$',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiPptmasterConfirmUiSplatRoute =
   ApiPptmasterConfirmUiSplatRouteImport.update({
     id: '/api/pptmaster-confirm-ui/$',
@@ -287,6 +299,8 @@ export interface FileRoutesByFullPath {
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/avatars/$': typeof ApiAvatarsSplatRoute
   '/api/pptmaster-confirm-ui/$': typeof ApiPptmasterConfirmUiSplatRoute
+  '/api/pptmaster-images/$': typeof ApiPptmasterImagesSplatRoute
+  '/api/pptmaster-live/$': typeof ApiPptmasterLiveSplatRoute
   '/api/webhooks/stripe': typeof ApiWebhooksStripeRoute
   '/{-$locale}/forgot-password': typeof Char123LocaleChar125authForgotPasswordRoute
   '/{-$locale}/login': typeof Char123LocaleChar125authLoginRoute
@@ -325,6 +339,8 @@ export interface FileRoutesByTo {
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/avatars/$': typeof ApiAvatarsSplatRoute
   '/api/pptmaster-confirm-ui/$': typeof ApiPptmasterConfirmUiSplatRoute
+  '/api/pptmaster-images/$': typeof ApiPptmasterImagesSplatRoute
+  '/api/pptmaster-live/$': typeof ApiPptmasterLiveSplatRoute
   '/api/webhooks/stripe': typeof ApiWebhooksStripeRoute
   '/{-$locale}/forgot-password': typeof Char123LocaleChar125authForgotPasswordRoute
   '/{-$locale}/login': typeof Char123LocaleChar125authLoginRoute
@@ -366,6 +382,8 @@ export interface FileRoutesById {
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/avatars/$': typeof ApiAvatarsSplatRoute
   '/api/pptmaster-confirm-ui/$': typeof ApiPptmasterConfirmUiSplatRoute
+  '/api/pptmaster-images/$': typeof ApiPptmasterImagesSplatRoute
+  '/api/pptmaster-live/$': typeof ApiPptmasterLiveSplatRoute
   '/api/webhooks/stripe': typeof ApiWebhooksStripeRoute
   '/{-$locale}/(auth)/forgot-password': typeof Char123LocaleChar125authForgotPasswordRoute
   '/{-$locale}/(auth)/login': typeof Char123LocaleChar125authLoginRoute
@@ -408,6 +426,8 @@ export interface FileRouteTypes {
     | '/api/auth/$'
     | '/api/avatars/$'
     | '/api/pptmaster-confirm-ui/$'
+    | '/api/pptmaster-images/$'
+    | '/api/pptmaster-live/$'
     | '/api/webhooks/stripe'
     | '/{-$locale}/forgot-password'
     | '/{-$locale}/login'
@@ -446,6 +466,8 @@ export interface FileRouteTypes {
     | '/api/auth/$'
     | '/api/avatars/$'
     | '/api/pptmaster-confirm-ui/$'
+    | '/api/pptmaster-images/$'
+    | '/api/pptmaster-live/$'
     | '/api/webhooks/stripe'
     | '/{-$locale}/forgot-password'
     | '/{-$locale}/login'
@@ -486,6 +508,8 @@ export interface FileRouteTypes {
     | '/api/auth/$'
     | '/api/avatars/$'
     | '/api/pptmaster-confirm-ui/$'
+    | '/api/pptmaster-images/$'
+    | '/api/pptmaster-live/$'
     | '/api/webhooks/stripe'
     | '/{-$locale}/(auth)/forgot-password'
     | '/{-$locale}/(auth)/login'
@@ -519,6 +543,8 @@ export interface RootRouteChildren {
   ApiAuthSplatRoute: typeof ApiAuthSplatRoute
   ApiAvatarsSplatRoute: typeof ApiAvatarsSplatRoute
   ApiPptmasterConfirmUiSplatRoute: typeof ApiPptmasterConfirmUiSplatRoute
+  ApiPptmasterImagesSplatRoute: typeof ApiPptmasterImagesSplatRoute
+  ApiPptmasterLiveSplatRoute: typeof ApiPptmasterLiveSplatRoute
   ApiWebhooksStripeRoute: typeof ApiWebhooksStripeRoute
 }
 
@@ -762,6 +788,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiWebhooksStripeRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/pptmaster-live/$': {
+      id: '/api/pptmaster-live/$'
+      path: '/api/pptmaster-live/$'
+      fullPath: '/api/pptmaster-live/$'
+      preLoaderRoute: typeof ApiPptmasterLiveSplatRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/pptmaster-images/$': {
+      id: '/api/pptmaster-images/$'
+      path: '/api/pptmaster-images/$'
+      fullPath: '/api/pptmaster-images/$'
+      preLoaderRoute: typeof ApiPptmasterImagesSplatRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/pptmaster-confirm-ui/$': {
       id: '/api/pptmaster-confirm-ui/$'
       path: '/api/pptmaster-confirm-ui/$'
@@ -888,6 +928,8 @@ const rootRouteChildren: RootRouteChildren = {
   ApiAuthSplatRoute: ApiAuthSplatRoute,
   ApiAvatarsSplatRoute: ApiAvatarsSplatRoute,
   ApiPptmasterConfirmUiSplatRoute: ApiPptmasterConfirmUiSplatRoute,
+  ApiPptmasterImagesSplatRoute: ApiPptmasterImagesSplatRoute,
+  ApiPptmasterLiveSplatRoute: ApiPptmasterLiveSplatRoute,
   ApiWebhooksStripeRoute: ApiWebhooksStripeRoute,
 }
 export const routeTree = rootRouteImport

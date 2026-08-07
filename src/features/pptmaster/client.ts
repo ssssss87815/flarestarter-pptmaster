@@ -197,6 +197,21 @@ function normalizeLivePreviewPath(projectId: string, path: string): string {
   return `/projects/${encodeURIComponent(projectId)}/live${normalized ? `/${segments.join('/')}` : '/'}`
 }
 
+export async function proxyPptMasterImagesUpload(user: PptMasterUser, projectId: string, bodyBytes: ArrayBuffer, contentType: string): Promise<{ status: number; detail?: string }> {
+  const target = `/api/projects/${encodeURIComponent(projectId)}/images`
+  const response = await bridgeFetch(user, target, {
+    method: 'POST',
+    headers: { 'content-type': contentType },
+    body: new Uint8Array(bodyBytes),
+  })
+  let detail = ''
+  try {
+    const data = await response.json()
+    if (data && typeof data.detail === 'string') detail = data.detail
+  } catch { /* non-JSON error body */ }
+  return { status: response.status, detail: detail || undefined }
+}
+
 export async function proxyPptMasterLiveRequest(user: PptMasterUser, projectId: string, path = '', init?: RequestInit, query = ''): Promise<{ body: string; bodyBytes?: Uint8Array; contentType: string; status: number }> {
   const normalized = path.replace(/^\/+/, '')
   const target = normalizeLivePreviewPath(projectId, path) + (query ? `?${query}` : '')
