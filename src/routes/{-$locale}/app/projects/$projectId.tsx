@@ -60,7 +60,7 @@ function ProjectWorkbench() {
 
   useEffect(() => {
     if (!PPTMASTER_RUNNING_STATUSES.includes(progress.status)) return
-    const timer = window.setInterval(() => { void router.invalidate() }, 5000)
+    const timer = window.setInterval(() => { void router.invalidate() }, 10000)
     return () => window.clearInterval(timer)
   }, [progress.status, router])
 
