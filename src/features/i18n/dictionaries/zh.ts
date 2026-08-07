@@ -132,7 +132,10 @@ export const zh: Dict = {
     adminNotePlaceholder: '可选回复，提交者可见', save: '保存', saved: '已保存。',
     systemStatus: '系统状态', pptMasterStatus: 'PPTMaster 运行状态', unavailable: '不可用', diskState: '磁盘', statusChecked: '健康接口已响应，但未返回磁盘详情。',
     sessions: '会话', viewSessions: '查看会话元数据', revokeSessions: '撤销全部会话', noSessions: '暂无会话', sessionsRevoked: '已撤销全部会话。', sessionCreated: '创建时间', sessionExpires: '过期时间', sessionIp: 'IP 地址', sessionUserAgent: '用户代理', selfSessionRevokeDisabled: '不能撤销当前管理员自己的会话。',
-  },
+    revenueTitle: '收款台', revenueSub: 'Stripe 余额、收款记录、订阅与退款。', revenueNotConfigured: '此部署未配置 Stripe。',
+    available: '可用余额', pending: '待结算', recentCharges: '最近收款', recentRefunds: '最近退款',
+    interval: '周期', periodEnd: '本期到期', stripeDashboard: '打开 Stripe 后台',
+    },
   marketing: {
     navFeatures: '功能', navPricing: '定价', navDocs: '文档', navChangelog: '更新日志',
     githubStar: '在 GitHub 收藏',

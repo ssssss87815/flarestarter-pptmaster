@@ -146,7 +146,10 @@ export const en = {
     adminNotePlaceholder: 'Optional reply shown to the submitter', save: 'Save', saved: 'Saved.',
     systemStatus: 'System status', pptMasterStatus: 'PPTMaster runtime', unavailable: 'Unavailable', diskState: 'Disk', statusChecked: 'Health endpoint responded without disk details.',
     sessions: 'Sessions', viewSessions: 'View session metadata', revokeSessions: 'Revoke all sessions', noSessions: 'No sessions found', sessionsRevoked: 'All sessions revoked.', sessionCreated: 'Created', sessionExpires: 'Expires', sessionIp: 'IP address', sessionUserAgent: 'User agent', selfSessionRevokeDisabled: 'You cannot revoke your own sessions.',
-  },
+    revenueTitle: 'Revenue', revenueSub: 'Stripe balance, charges, subscriptions and refunds.', revenueNotConfigured: 'Stripe is not configured on this deployment.',
+    available: 'Available', pending: 'Pending', recentCharges: 'Recent charges', recentRefunds: 'Recent refunds',
+    interval: 'Interval', periodEnd: 'Period end', stripeDashboard: 'Open Stripe Dashboard',
+    },
   marketing: {
     navFeatures: 'Features', navPricing: 'Pricing', navDocs: 'Docs', navChangelog: 'Changelog',
     githubStar: 'Star on GitHub',

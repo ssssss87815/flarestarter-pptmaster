@@ -12,6 +12,9 @@ import { listFeedbackForAdmin, setFeedbackStatus, type AdminFeedbackRow } from '
 import type { FeedbackStatus } from '@/features/feedback/feedback.shared'
 import { assertRevocableAdminUserSessions, getAdminUserSessions, revokeAdminUserSessions, type AdminUserSession } from './getAdminUserSessions'
 import { getPptMasterHealth } from '@/features/pptmaster/client'
+import { getAdminRevenue, type AdminRevenueResult } from '@/features/billing/admin-revenue'
+
+export type { AdminRevenueResult }
 
 export type { AdminStats }
 export type { AdminUserRow }
@@ -106,4 +109,10 @@ export const getAdminPptMasterHealthFn = createServerFn({ method: 'GET' }).handl
   } catch {
     return { status: 'unavailable' }
   }
+})
+
+/** server fn: assertAdmin → Stripe revenue console (balance, charges, subscriptions, refunds). */
+export const getAdminRevenueFn = createServerFn({ method: 'GET' }).handler(async (): Promise<AdminRevenueResult> => {
+  await assertAdmin()
+  return getAdminRevenue({ STRIPE_SECRET_KEY: env.STRIPE_SECRET_KEY ?? '' })
 })

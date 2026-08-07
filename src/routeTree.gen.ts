@@ -36,6 +36,7 @@ import { Route as Char123LocaleChar125AppAccountRouteImport } from './routes/{-$
 import { Route as Char123LocaleChar125AdminWaitlistRouteImport } from './routes/{-$locale}/admin/waitlist'
 import { Route as Char123LocaleChar125AdminUsersRouteImport } from './routes/{-$locale}/admin/users'
 import { Route as Char123LocaleChar125AdminSponsorsRouteImport } from './routes/{-$locale}/admin/sponsors'
+import { Route as Char123LocaleChar125AdminRevenueRouteImport } from './routes/{-$locale}/admin/revenue'
 import { Route as Char123LocaleChar125AdminFeedbackRouteImport } from './routes/{-$locale}/admin/feedback'
 import { Route as Char123LocaleChar125authVerifyEmailRouteImport } from './routes/{-$locale}/(auth)/verify-email'
 import { Route as Char123LocaleChar125authResetPasswordRouteImport } from './routes/{-$locale}/(auth)/reset-password'
@@ -203,6 +204,12 @@ const Char123LocaleChar125AdminSponsorsRoute =
     path: '/sponsors',
     getParentRoute: () => Char123LocaleChar125AdminRouteRoute,
   } as any)
+const Char123LocaleChar125AdminRevenueRoute =
+  Char123LocaleChar125AdminRevenueRouteImport.update({
+    id: '/revenue',
+    path: '/revenue',
+    getParentRoute: () => Char123LocaleChar125AdminRouteRoute,
+  } as any)
 const Char123LocaleChar125AdminFeedbackRoute =
   Char123LocaleChar125AdminFeedbackRouteImport.update({
     id: '/feedback',
@@ -308,6 +315,7 @@ export interface FileRoutesByFullPath {
   '/{-$locale}/reset-password': typeof Char123LocaleChar125authResetPasswordRoute
   '/{-$locale}/verify-email': typeof Char123LocaleChar125authVerifyEmailRoute
   '/{-$locale}/admin/feedback': typeof Char123LocaleChar125AdminFeedbackRoute
+  '/{-$locale}/admin/revenue': typeof Char123LocaleChar125AdminRevenueRoute
   '/{-$locale}/admin/sponsors': typeof Char123LocaleChar125AdminSponsorsRoute
   '/{-$locale}/admin/users': typeof Char123LocaleChar125AdminUsersRoute
   '/{-$locale}/admin/waitlist': typeof Char123LocaleChar125AdminWaitlistRoute
@@ -348,6 +356,7 @@ export interface FileRoutesByTo {
   '/{-$locale}/reset-password': typeof Char123LocaleChar125authResetPasswordRoute
   '/{-$locale}/verify-email': typeof Char123LocaleChar125authVerifyEmailRoute
   '/{-$locale}/admin/feedback': typeof Char123LocaleChar125AdminFeedbackRoute
+  '/{-$locale}/admin/revenue': typeof Char123LocaleChar125AdminRevenueRoute
   '/{-$locale}/admin/sponsors': typeof Char123LocaleChar125AdminSponsorsRoute
   '/{-$locale}/admin/users': typeof Char123LocaleChar125AdminUsersRoute
   '/{-$locale}/admin/waitlist': typeof Char123LocaleChar125AdminWaitlistRoute
@@ -391,6 +400,7 @@ export interface FileRoutesById {
   '/{-$locale}/(auth)/reset-password': typeof Char123LocaleChar125authResetPasswordRoute
   '/{-$locale}/(auth)/verify-email': typeof Char123LocaleChar125authVerifyEmailRoute
   '/{-$locale}/admin/feedback': typeof Char123LocaleChar125AdminFeedbackRoute
+  '/{-$locale}/admin/revenue': typeof Char123LocaleChar125AdminRevenueRoute
   '/{-$locale}/admin/sponsors': typeof Char123LocaleChar125AdminSponsorsRoute
   '/{-$locale}/admin/users': typeof Char123LocaleChar125AdminUsersRoute
   '/{-$locale}/admin/waitlist': typeof Char123LocaleChar125AdminWaitlistRoute
@@ -435,6 +445,7 @@ export interface FileRouteTypes {
     | '/{-$locale}/reset-password'
     | '/{-$locale}/verify-email'
     | '/{-$locale}/admin/feedback'
+    | '/{-$locale}/admin/revenue'
     | '/{-$locale}/admin/sponsors'
     | '/{-$locale}/admin/users'
     | '/{-$locale}/admin/waitlist'
@@ -475,6 +486,7 @@ export interface FileRouteTypes {
     | '/{-$locale}/reset-password'
     | '/{-$locale}/verify-email'
     | '/{-$locale}/admin/feedback'
+    | '/{-$locale}/admin/revenue'
     | '/{-$locale}/admin/sponsors'
     | '/{-$locale}/admin/users'
     | '/{-$locale}/admin/waitlist'
@@ -517,6 +529,7 @@ export interface FileRouteTypes {
     | '/{-$locale}/(auth)/reset-password'
     | '/{-$locale}/(auth)/verify-email'
     | '/{-$locale}/admin/feedback'
+    | '/{-$locale}/admin/revenue'
     | '/{-$locale}/admin/sponsors'
     | '/{-$locale}/admin/users'
     | '/{-$locale}/admin/waitlist'
@@ -739,6 +752,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof Char123LocaleChar125AdminSponsorsRouteImport
       parentRoute: typeof Char123LocaleChar125AdminRouteRoute
     }
+    '/{-$locale}/admin/revenue': {
+      id: '/{-$locale}/admin/revenue'
+      path: '/revenue'
+      fullPath: '/{-$locale}/admin/revenue'
+      preLoaderRoute: typeof Char123LocaleChar125AdminRevenueRouteImport
+      parentRoute: typeof Char123LocaleChar125AdminRouteRoute
+    }
     '/{-$locale}/admin/feedback': {
       id: '/{-$locale}/admin/feedback'
       path: '/feedback'
@@ -835,6 +855,7 @@ declare module '@tanstack/react-router' {
 
 interface Char123LocaleChar125AdminRouteRouteChildren {
   Char123LocaleChar125AdminFeedbackRoute: typeof Char123LocaleChar125AdminFeedbackRoute
+  Char123LocaleChar125AdminRevenueRoute: typeof Char123LocaleChar125AdminRevenueRoute
   Char123LocaleChar125AdminSponsorsRoute: typeof Char123LocaleChar125AdminSponsorsRoute
   Char123LocaleChar125AdminUsersRoute: typeof Char123LocaleChar125AdminUsersRoute
   Char123LocaleChar125AdminWaitlistRoute: typeof Char123LocaleChar125AdminWaitlistRoute
@@ -845,6 +866,8 @@ const Char123LocaleChar125AdminRouteRouteChildren: Char123LocaleChar125AdminRout
   {
     Char123LocaleChar125AdminFeedbackRoute:
       Char123LocaleChar125AdminFeedbackRoute,
+    Char123LocaleChar125AdminRevenueRoute:
+      Char123LocaleChar125AdminRevenueRoute,
     Char123LocaleChar125AdminSponsorsRoute:
       Char123LocaleChar125AdminSponsorsRoute,
     Char123LocaleChar125AdminUsersRoute: Char123LocaleChar125AdminUsersRoute,

@@ -1,6 +1,6 @@
 import { useEffect, useState, type ReactNode } from 'react'
 import { Link, getRouteApi } from '@tanstack/react-router'
-import { Home, Sparkles, Settings, Gauge, Users, Menu, ClipboardList, PanelLeftClose, PanelLeftOpen, Heart, MessageSquare, SlidersHorizontal } from 'lucide-react'
+import { Home, Sparkles, Settings, Gauge, Users, Menu, ClipboardList, PanelLeftClose, PanelLeftOpen, Heart, MessageSquare, SlidersHorizontal, Banknote } from 'lucide-react'
 import { Logo } from '@/components/brand/logo'
 import { Badge } from '@/components/ui/badge'
 import { ThemeToggle } from '@/features/theme/theme-toggle'
@@ -118,6 +118,10 @@ export function AppShell({
             <Link to="/{-$locale}/admin/feedback" activeProps={{}} className={item(active === 'admin-feedback')} title={t('admin.feedbackAdmin')}>
               <MessageSquare size={18} className="shrink-0" />
               {label(t('admin.feedbackAdmin'))}
+            </Link>
+            <Link to="/{-$locale}/admin/revenue" activeProps={{}} className={item(active === 'admin-revenue')} title={t('admin.revenueTitle')}>
+              <Banknote size={18} className="shrink-0" />
+              {label(t('admin.revenueTitle'))}
             </Link>
           </>
         )}
