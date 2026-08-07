@@ -166,9 +166,9 @@ export async function startPptMasterQuick(user: PptMasterUser, input: PptMasterQ
   }, user)
 }
 
-export async function openPptMasterConfirmUi(user: PptMasterUser, projectId: string): Promise<{ confirm_ui_url: string }> {
+export async function openPptMasterConfirmUi(user: PptMasterUser, projectId: string, seed?: Record<string, unknown>): Promise<{ confirm_ui_url: string }> {
   return request(`/api/projects/${encodeURIComponent(projectId)}/confirm-ui`, z.object({ confirm_ui_url: z.string() }), {
-    method: 'POST', headers: { 'content-type': 'application/json' }, body: '{}',
+    method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(seed ?? {}),
   }, user)
 }
 

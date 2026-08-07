@@ -134,6 +134,13 @@
       "when": 1786100327657,
       "tag": "0018_massive_norman_osborn",
       "breakpoints": true
+    },
+    {
+      "idx": 19,
+      "version": "6",
+      "when": 1786104511236,
+      "tag": "0019_huge_hellcat",
+      "breakpoints": true
     }
   ]
 }

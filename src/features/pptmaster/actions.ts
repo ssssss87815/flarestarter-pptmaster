@@ -6,7 +6,7 @@ import { requireUser } from '@/features/auth/middleware'
 import { readUser } from '@/features/auth/readUser.server'
 import { env } from '@/lib/env'
 import { createDb } from '@/db/client'
-import { user } from '@/features/auth/auth.schema'
+import { user as userTable } from '@/features/auth/auth.schema'
 import { grantBetaPro } from '@/features/billing/billing.server'
 import { createPptMasterProject, approvePptMasterExport, approvePptMasterOutline, deletePptMasterProject, downloadPptMasterArtifact, enrollPptMasterBeta, getPptMasterProgress, getPptMasterSpec, listPptMasterProjects, lockPptMasterConfirmations, openPptMasterConfirmUi, rerunPptMasterPages, startPptMasterGeneration, startPptMasterLivePreview, startPptMasterQuick, uploadPptMasterMarkdown, uploadPptMasterSourceFile, uploadPptMasterUserImages, type PptMasterUser } from './client'
 
@@ -42,7 +42,26 @@ export const openPptMasterConfirmUiAction = createServerFn({ method: 'POST' })
   .validator(z.object({ projectId: z.string().min(1) }))
   .handler(async ({ data }) => {
     const user = await requireUser()
-    return openPptMasterConfirmUi(pptUser(user), data.projectId)
+    // Carry the user's Pro default-generation prefs into the Confirm UI as
+    // seed values (page count / canvas / language / style / image policy).
+    const db = createDb(env.DB)
+    const rows = await db.select({
+      proPageCount: userTable.proPageCount,
+      proCanvas: userTable.proCanvas,
+      proLanguage: userTable.proLanguage,
+      proVisualStyle: userTable.proVisualStyle,
+      proImageUsage: userTable.proImageUsage,
+    }).from(userTable).where(eq(userTable.id, user.id))
+    const r = rows[0]
+    const seed: Record<string, string> = {}
+    if (r) {
+      if (r.proPageCount) seed.page_count = r.proPageCount
+      if (r.proCanvas) seed.canvas = r.proCanvas
+      if (r.proLanguage) seed.language = r.proLanguage
+      if (r.proVisualStyle) seed.visual_style = r.proVisualStyle
+      if (r.proImageUsage) seed.image_usage = r.proImageUsage
+    }
+    return openPptMasterConfirmUi(pptUser(user), data.projectId, seed)
   })
 
 export const uploadPptMasterMarkdownAction = createServerFn({ method: 'POST' })
