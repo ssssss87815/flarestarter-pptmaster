@@ -176,9 +176,9 @@ export const enrollPptMasterBetaAction = createServerFn({ method: 'POST' })
     }
     const db = createDb(env.DB)
     const rows = await db
-      .select({ id: user.id, email: user.email, name: user.name })
-      .from(user)
-      .where(and(eq(user.id, data.userId), eq(user.email, data.email.toLowerCase().trim())))
+      .select({ id: userTable.id, email: userTable.email, name: userTable.name })
+      .from(userTable)
+      .where(and(eq(userTable.id, data.userId), eq(userTable.email, data.email.toLowerCase().trim())))
       .limit(1)
     if (!rows[0]) {
       throw new Error('注册信息校验失败，请刷新页面后重试。')
