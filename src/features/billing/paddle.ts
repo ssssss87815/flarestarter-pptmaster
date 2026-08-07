@@ -194,5 +194,9 @@ export function createPaddleProvider(env: PaddleEnv): PaymentProvider {
       // Immediate cancel (idempotent for already-canceled/missing subs).
       await api(`/subscriptions/${encodeURIComponent(subscriptionId)}/cancel`, { method: 'POST' })
     },
+
+    async parseWebhook(rawBody, signature) {
+      return translatePaddleEvent(rawBody, signature, env)
+    },
   }
 }

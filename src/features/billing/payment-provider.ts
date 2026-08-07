@@ -11,12 +11,12 @@ export function resolvePaymentProviderKind(raw: string | undefined): PaymentProv
   return raw === 'paddle' ? 'paddle' : 'stripe'
 }
 
-export async function createPaymentProvider(env: Record<string, string | undefined>): Promise<PaymentProvider> {
+export async function createPaymentProvider(env: Record<string, any>): Promise<PaymentProvider> {
   const kind = resolvePaymentProviderKind(env.PAYMENT_PROVIDER)
   if (kind === 'paddle') {
     const { createPaddleProvider } = await import('./paddle')
     return createPaddleProvider(env)
   }
   const { createStripeProvider } = await import('./stripe')
-  return createStripeProvider(env)
+  return createStripeProvider(env as Parameters<typeof createStripeProvider>[0])
 }

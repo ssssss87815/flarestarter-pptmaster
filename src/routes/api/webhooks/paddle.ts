@@ -3,7 +3,7 @@ import { env } from '@/lib/env'
 import { createDb } from '@/db/client'
 import { applyDomainEvent, handleWebhook } from '@/features/billing/billing.server'
 import { runBillingHooks } from '@/features/billing/hooks'
-import { translatePaddleEvent } from '@/features/billing/paddle'
+import { translatePaddleEvent, type PaddleEnv } from '@/features/billing/paddle'
 import { createPaymentProvider } from '@/features/billing/payment-provider'
 
 const handler = async ({ request }: { request: Request }) => {
@@ -16,7 +16,7 @@ const handler = async ({ request }: { request: Request }) => {
   const provider = await createPaymentProvider(env)
   const status = await handleWebhook(
     db,
-    (raw, sig) => translatePaddleEvent(raw, sig, env),
+    (raw, sig) => translatePaddleEvent(raw, sig, env as PaddleEnv),
     rawBody,
     signature,
     Date.now(),
