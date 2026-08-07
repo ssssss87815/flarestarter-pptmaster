@@ -9,15 +9,15 @@ export const checkout = createServerFn({ method: 'POST' })
     const { createDb } = await import('@/db/client')
     const { readUser } = await import('@/features/auth/readUser.server')
     const { startCheckout } = await import('./billing.server')
-    const { createStripeProvider } = await import('./stripe')
+    const { createPaymentProvider } = await import('./payment-provider')
     const user = await readUser()
     if (!user) throw redirect({ to: '/{-$locale}/login' })
     const priceId = data.interval === 'monthly' ? env.STRIPE_PRICE_PRO_MONTHLY : env.STRIPE_PRICE_PRO_YEARLY
-    if (!priceId) throw new Error(`Missing Stripe price id for ${data.interval}`)
+    if (!priceId) throw new Error(`Missing price id for ${data.interval}`)
     const base = new URL(env.BETTER_AUTH_URL).origin
     return startCheckout(
       createDb(env.DB),
-      createStripeProvider(env),
+      await createPaymentProvider(env),
       user,
       priceId,
       `${base}/app?checkout=success`,
@@ -32,15 +32,15 @@ export const checkoutLifetime = createServerFn({ method: 'POST' }).handler(async
   const { createDb } = await import('@/db/client')
   const { readUser } = await import('@/features/auth/readUser.server')
   const { startCheckout } = await import('./billing.server')
-  const { createStripeProvider } = await import('./stripe')
+  const { createPaymentProvider } = await import('./payment-provider')
   const user = await readUser()
   if (!user) throw redirect({ to: '/{-$locale}/login' })
   const priceId = env.STRIPE_PRICE_PRO_LIFETIME
-  if (!priceId) throw new Error('Missing Stripe price id for lifetime')
+  if (!priceId) throw new Error('Missing price id for lifetime')
   const base = new URL(env.BETTER_AUTH_URL).origin
   return startCheckout(
     createDb(env.DB),
-    createStripeProvider(env),
+    await createPaymentProvider(env),
     user,
     priceId,
     `${base}/app?checkout=success`,
@@ -55,9 +55,9 @@ export const portal = createServerFn({ method: 'POST' }).handler(async () => {
   const { createDb } = await import('@/db/client')
   const { readUser } = await import('@/features/auth/readUser.server')
   const { openPortal } = await import('./billing.server')
-  const { createStripeProvider } = await import('./stripe')
+  const { createPaymentProvider } = await import('./payment-provider')
   const user = await readUser()
   if (!user) throw redirect({ to: '/{-$locale}/login' })
   const base = new URL(env.BETTER_AUTH_URL).origin
-  return openPortal(createDb(env.DB), createStripeProvider(env), user.id, `${base}/app/account`)
+  return openPortal(createDb(env.DB), await createPaymentProvider(env), user.id, `${base}/app/account`)
 })
