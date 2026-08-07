@@ -152,46 +152,42 @@ function AppHome() {
           </div>
         )}
 
-        {step === 2 && (
+                {step === 2 && (
           <div className="grid gap-3 sm:grid-cols-2">
             <label className="grid gap-1 text-sm text-fg-2">目标受众
-              {audience === '__custom__' ? (
+              <select className="h-[42px] rounded-[7px] border border-input bg-background px-3" value={audience} onChange={(event) => setAudience(event.target.value)}>
+                <option>老师、评委</option><option>公司领导</option><option>客户</option><option>同学</option><option>其他观众</option>
+                <option value="__custom__">其他（自己填）</option>
+              </select>
+              {audience === '__custom__' && (
                 <Input value={custom.audience ?? ''} onChange={(e) => setCustom({ ...custom, audience: e.target.value })} placeholder="自定义受众（必填）" />
-              ) : (
-                <select className="h-[42px] rounded-[7px] border border-input bg-background px-3" value={audience} onChange={(event) => setAudience(event.target.value)}>
-                  <option>老师、评委</option><option>公司领导</option><option>客户</option><option>同学</option><option>其他观众</option>
-                  <option value="__custom__">其他（自己填）</option>
-                </select>
               )}
             </label>
             <label className="grid gap-1 text-sm text-fg-2">演示目标
-              {goal === '__custom__' ? (
+              <select className="h-[42px] rounded-[7px] border border-input bg-background px-3" value={goal} onChange={(event) => setGoal(event.target.value)}>
+                <option>汇报工作进展</option><option>讲解方案内容</option><option>答辩说明</option><option>产品路演</option><option>教学讲解</option>
+                <option value="__custom__">其他（自己填）</option>
+              </select>
+              {goal === '__custom__' && (
                 <Input value={custom.goal ?? ''} onChange={(e) => setCustom({ ...custom, goal: e.target.value })} placeholder="自定义目标（必填）" />
-              ) : (
-                <select className="h-[42px] rounded-[7px] border border-input bg-background px-3" value={goal} onChange={(event) => setGoal(event.target.value)}>
-                  <option>汇报工作进展</option><option>讲解方案内容</option><option>答辩说明</option><option>产品路演</option><option>教学讲解</option>
-                  <option value="__custom__">其他（自己填）</option>
-                </select>
               )}
             </label>
             <label className="grid gap-1 text-sm text-fg-2">语言
-              {language === '__custom__' ? (
+              <select className="h-[42px] rounded-[7px] border border-input bg-background px-3" value={language} onChange={(event) => setLanguage(event.target.value)}>
+                <option>中文</option><option>English</option>
+                <option value="__custom__">其他（自己填）</option>
+              </select>
+              {language === '__custom__' && (
                 <Input value={custom.language ?? ''} onChange={(e) => setCustom({ ...custom, language: e.target.value })} placeholder="自定义语言（必填）" />
-              ) : (
-                <select className="h-[42px] rounded-[7px] border border-input bg-background px-3" value={language} onChange={(event) => setLanguage(event.target.value)}>
-                  <option>中文</option><option>English</option>
-                  <option value="__custom__">其他（自己填）</option>
-                </select>
               )}
             </label>
             <label className="grid gap-1 text-sm text-fg-2">语气
-              {tone === '__custom__' ? (
+              <select className="h-[42px] rounded-[7px] border border-input bg-background px-3" value={tone} onChange={(event) => setTone(event.target.value)}>
+                <option>清晰、可信</option><option>正式、权威</option><option>亲切、轻松</option><option>激情、有感染力</option>
+                <option value="__custom__">其他（自己填）</option>
+              </select>
+              {tone === '__custom__' && (
                 <Input value={custom.tone ?? ''} onChange={(e) => setCustom({ ...custom, tone: e.target.value })} placeholder="自定义语气（必填）" />
-              ) : (
-                <select className="h-[42px] rounded-[7px] border border-input bg-background px-3" value={tone} onChange={(event) => setTone(event.target.value)}>
-                  <option>清晰、可信</option><option>正式、权威</option><option>亲切、轻松</option><option>激情、有感染力</option>
-                  <option value="__custom__">其他（自己填）</option>
-                </select>
               )}
             </label>
           </div>
@@ -200,23 +196,21 @@ function AppHome() {
         {step === 3 && (
           <div className="grid gap-3 sm:grid-cols-2">
             <label className="grid gap-1 text-sm text-fg-2">视觉风格
-              {visualStyle === '__custom__' ? (
+              <select className="h-[42px] rounded-[7px] border border-input bg-background px-3" value={visualStyle} onChange={(event) => setVisualStyle(event.target.value)}>
+                <option>现代专业</option><option>学术严谨</option><option>创意活泼</option>
+                <option value="__custom__">其他（自己填）</option>
+              </select>
+              {visualStyle === '__custom__' && (
                 <Input value={custom.visualStyle ?? ''} onChange={(e) => setCustom({ ...custom, visualStyle: e.target.value })} placeholder="自定义风格（必填）" />
-              ) : (
-                <select className="h-[42px] rounded-[7px] border border-input bg-background px-3" value={visualStyle} onChange={(event) => setVisualStyle(event.target.value)}>
-                  <option>现代专业</option><option>学术严谨</option><option>创意活泼</option>
-                  <option value="__custom__">其他（自己填）</option>
-                </select>
               )}
             </label>
             <label className="grid gap-1 text-sm text-fg-2">页数
-              {pageCount === '__custom__' ? (
+              <select className="h-[42px] rounded-[7px] border border-input bg-background px-3" value={pageCount} onChange={(event) => setPageCount(event.target.value)}>
+                <option value="8">8 页</option><option value="12">12 页</option><option value="16">16 页</option><option value="24">24 页</option>
+                <option value="__custom__">其他（自己填）</option>
+              </select>
+              {pageCount === '__custom__' && (
                 <Input type="number" min={3} max={30} value={custom.pageCount ?? ''} onChange={(e) => setCustom({ ...custom, pageCount: e.target.value })} placeholder="3-30 页" />
-              ) : (
-                <select className="h-[42px] rounded-[7px] border border-input bg-background px-3" value={pageCount} onChange={(event) => setPageCount(event.target.value)}>
-                  <option value="8">8 页</option><option value="12">12 页</option><option value="16">16 页</option><option value="24">24 页</option>
-                  <option value="__custom__">其他（自己填）</option>
-                </select>
               )}
             </label>
             <label className="grid gap-1 text-sm text-fg-2">画布

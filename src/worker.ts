@@ -32,6 +32,30 @@ function isNonLocalePath(pathname: string): boolean {
   )
 }
 
+/**
+ * Preferred language from an Accept-Language header, respecting q-values.
+ * Returns the highest-q concrete language tag (lowercased) or null when the
+ * header is empty / only wildcards. q=0 means "explicitly not accepted".
+ * (A naive `includes('zh')` check wrongly redirects English-first browsers
+ * whose list merely contains zh, e.g. "en-US,en;q=0.9,zh-CN;q=0.8".)
+ */
+function preferredLanguage(accept: string): string | null {
+  let best: { tag: string; q: number } | null = null
+  for (const part of accept.split(',')) {
+    const [rawTag, ...params] = part.trim().split(';')
+    const tag = (rawTag ?? '').trim().toLowerCase()
+    if (!tag || tag === '*') continue
+    let q = 1
+    for (const param of params) {
+      const m = param.trim().match(/^q=([0-9.]+)$/i)
+      if (m) q = parseFloat(m[1])
+    }
+    if (q <= 0) continue
+    if (!best || q > best.q) best = { tag, q }
+  }
+  return best?.tag ?? null
+}
+
 const handler = {
   async fetch(request: Request, env: Cloudflare.Env, ctx: ExecutionContext): Promise<Response> {
     await assertEnvOnce()
@@ -46,7 +70,7 @@ const handler = {
       const hasLocaleCookie = cookie.split(';').some((c) => c.trim().startsWith('locale='))
       if (!hasLocaleCookie) {
         const accept = request.headers.get('accept-language') ?? ''
-        if (accept.toLowerCase().includes('zh')) {
+        if (preferredLanguage(accept)?.startsWith('zh')) {
           const target = `/zh${url.pathname === '/' ? '' : url.pathname}${url.search}`
           return withSecurityHeaders(new Response(null, { status: 302, headers: { location: target } }))
         }
