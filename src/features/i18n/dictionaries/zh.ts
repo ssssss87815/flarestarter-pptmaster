@@ -35,7 +35,7 @@ export const zh: Dict = {
     passwordChanged: '密码已成功修改。',
     proDemo: 'Pro 控制项',
     navWorkspace: '工作区',
-    advancedWorkbench: '高级工作台', advancedWorkbenchSub: '逐步控制材料、确认、大纲、预览和导出，不会自动开跑。',
+    advancedWorkbench: '高级工作台',
     advancedCreateTitle: '开始一个高级 PPTMaster 项目', advancedCreateBody: '先创建项目壳，再在工作台上传材料并完成确认门禁；不会自动开始生成。',
     advancedTopicLabel: '主题', advancedTopicPlaceholder: '这份演示文稿要讲清什么？', advancedNameLabel: '项目名称', advancedNamePlaceholder: '可选；不填时由主题生成',
     advancedCreateButton: '创建高级项目', advancedCreating: '创建中…', advancedTopicRequired: '请填写主题。', advancedCreateFailed: '创建高级项目失败。', backToWorkspace: '返回工作区',

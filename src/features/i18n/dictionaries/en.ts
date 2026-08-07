@@ -48,7 +48,7 @@ export const en = {
     passwordChanged: 'Password changed successfully.',
     proDemo: 'Pro controls',
     navWorkspace: 'Workspace',
-    advancedWorkbench: 'Advanced workbench', advancedWorkbenchSub: 'Control source material, confirmations, preview and export step by step.',
+    advancedWorkbench: 'Advanced workbench',
     advancedCreateTitle: 'Start an advanced PPTMaster project', advancedCreateBody: 'Create a project shell first. Upload materials and complete the confirmation gates inside the workbench; generation will not start automatically.',
     advancedTopicLabel: 'Topic', advancedTopicPlaceholder: 'What should this presentation explain?', advancedNameLabel: 'Project name', advancedNamePlaceholder: 'Optional project name',
     advancedCreateButton: 'Create advanced project', advancedCreating: 'Creating…', advancedTopicRequired: 'Topic is required.', advancedCreateFailed: 'Could not create the advanced project.', backToWorkspace: 'Back to workspace',
