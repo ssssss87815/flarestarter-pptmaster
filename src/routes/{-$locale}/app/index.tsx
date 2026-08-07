@@ -44,6 +44,7 @@ function AppHome() {
   const [canvas, setCanvas] = useState<'ppt169' | 'ppt43'>('ppt169')
   const [imageUsage, setImageUsage] = useState<'optional' | 'none' | 'ai' | 'web'>('optional')
   const [step, setStep] = useState(1)
+  const [custom, setCustom] = useState<Record<string, string>>({})
   const [creating, setCreating] = useState(false)
   const [deletingId, setDeletingId] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
@@ -62,12 +63,36 @@ function AppHome() {
     setStep(step + 1)
   }
 
+  /** '__custom__' selections resolve to the user-typed value; empty → fallback. */
+  function resolveField(key: string, value: string, fallback: string) {
+    return value === '__custom__' ? (custom[key]?.trim() || fallback) : value
+  }
+
   async function createProject() {
     setError(null)
     if (!name.trim() || !topic.trim()) { setError('请填写作品名称和主题。'); return }
+    // 选了「其他」但没填内容 → 提示，不让用户带着空自定义值生成
+    const customChecks: Array<[string, string, string]> = [
+      ['audience', audience, '目标受众'], ['goal', goal, '演示目标'], ['language', language, '语言'],
+      ['tone', tone, '语气'], ['visualStyle', visualStyle, '视觉风格'], ['pageCount', pageCount, '页数'],
+    ]
+    for (const [key, value, label] of customChecks) {
+      if (value === '__custom__' && !custom[key]?.trim()) { setError(`已选择「其他」，请填写${label}。`); return }
+    }
     setCreating(true)
     try {
-      const project = await startPptMasterQuickAction({ data: { name: name.trim(), topic: topic.trim(), audience, goal, language, tone, visual_style: visualStyle, page_count: Math.max(3, Math.min(30, Number(pageCount) || 8)), canvas, image_usage: imageUsage } })
+      const project = await startPptMasterQuickAction({ data: {
+        name: name.trim(),
+        topic: topic.trim(),
+        audience: resolveField('audience', audience, '专业观众'),
+        goal: resolveField('goal', goal, '说明方案并推动决策'),
+        language: resolveField('language', language, '中文'),
+        tone: resolveField('tone', tone, '清晰、可信'),
+        visual_style: resolveField('visualStyle', visualStyle, '现代专业'),
+        page_count: Math.max(3, Math.min(30, Number(resolveField('pageCount', pageCount, '8')) || 8)),
+        canvas,
+        image_usage: imageUsage,
+      } })
       await router.navigate({ to: '/{-$locale}/app/projects/$projectId', params: { projectId: project.id } })
     } catch (cause) {
       setError(cause instanceof Error ? cause.message : 'Could not create project.')
@@ -92,22 +117,20 @@ function AppHome() {
         <h2 className="mb-2 text-base font-semibold">一键生成</h2>
         <p className="mb-4 text-sm text-fg-2">跟着引导完成设置，选项可以直接选，不用自己琢磨。</p>
 
-        {/* Step indicator */}
+        {/* Step indicator — display only; steps must be completed in order */}
         <div className="mb-5 flex items-center gap-2">
           {['基本信息', '内容设置', '视觉设置'].map((label, i) => {
             const n = i + 1
             const done = step > n
             const active = step === n
             return (
-              <button
+              <span
                 key={label}
-                type="button"
-                onClick={() => setStep(n)}
-                className={`flex items-center gap-1.5 rounded-full px-3 py-1 text-[12.5px] transition-colors ${active ? 'bg-primary text-primary-foreground' : done ? 'bg-primary/10 text-primary' : 'bg-muted text-fg-3'}`}
+                className={`flex items-center gap-1.5 rounded-full px-3 py-1 text-[12.5px] ${active ? 'bg-primary text-primary-foreground' : done ? 'bg-primary/10 text-primary' : 'bg-muted text-fg-3'}`}
               >
                 <span>{done ? '✓' : n}</span>
                 {label}
-              </button>
+              </span>
             )
           })}
         </div>
@@ -122,24 +145,44 @@ function AppHome() {
         {step === 2 && (
           <div className="grid gap-3 sm:grid-cols-2">
             <label className="grid gap-1 text-sm text-fg-2">目标受众
-              <select className="h-[42px] rounded-[7px] border border-input bg-background px-3" value={audience} onChange={(event) => setAudience(event.target.value)}>
-                <option>老师、评委</option><option>公司领导</option><option>客户</option><option>同学</option><option>其他观众</option>
-              </select>
+              {audience === '__custom__' ? (
+                <Input value={custom.audience ?? ''} onChange={(e) => setCustom({ ...custom, audience: e.target.value })} placeholder="自定义受众（必填）" />
+              ) : (
+                <select className="h-[42px] rounded-[7px] border border-input bg-background px-3" value={audience} onChange={(event) => setAudience(event.target.value)}>
+                  <option>老师、评委</option><option>公司领导</option><option>客户</option><option>同学</option><option>其他观众</option>
+                  <option value="__custom__">其他（自己填）</option>
+                </select>
+              )}
             </label>
             <label className="grid gap-1 text-sm text-fg-2">演示目标
-              <select className="h-[42px] rounded-[7px] border border-input bg-background px-3" value={goal} onChange={(event) => setGoal(event.target.value)}>
-                <option>汇报工作进展</option><option>讲解方案内容</option><option>答辩说明</option><option>产品路演</option><option>教学讲解</option>
-              </select>
+              {goal === '__custom__' ? (
+                <Input value={custom.goal ?? ''} onChange={(e) => setCustom({ ...custom, goal: e.target.value })} placeholder="自定义目标（必填）" />
+              ) : (
+                <select className="h-[42px] rounded-[7px] border border-input bg-background px-3" value={goal} onChange={(event) => setGoal(event.target.value)}>
+                  <option>汇报工作进展</option><option>讲解方案内容</option><option>答辩说明</option><option>产品路演</option><option>教学讲解</option>
+                  <option value="__custom__">其他（自己填）</option>
+                </select>
+              )}
             </label>
             <label className="grid gap-1 text-sm text-fg-2">语言
-              <select className="h-[42px] rounded-[7px] border border-input bg-background px-3" value={language} onChange={(event) => setLanguage(event.target.value)}>
-                <option>中文</option><option>English</option>
-              </select>
+              {language === '__custom__' ? (
+                <Input value={custom.language ?? ''} onChange={(e) => setCustom({ ...custom, language: e.target.value })} placeholder="自定义语言（必填）" />
+              ) : (
+                <select className="h-[42px] rounded-[7px] border border-input bg-background px-3" value={language} onChange={(event) => setLanguage(event.target.value)}>
+                  <option>中文</option><option>English</option>
+                  <option value="__custom__">其他（自己填）</option>
+                </select>
+              )}
             </label>
             <label className="grid gap-1 text-sm text-fg-2">语气
-              <select className="h-[42px] rounded-[7px] border border-input bg-background px-3" value={tone} onChange={(event) => setTone(event.target.value)}>
-                <option>清晰、可信</option><option>正式、权威</option><option>亲切、轻松</option><option>激情、有感染力</option>
-              </select>
+              {tone === '__custom__' ? (
+                <Input value={custom.tone ?? ''} onChange={(e) => setCustom({ ...custom, tone: e.target.value })} placeholder="自定义语气（必填）" />
+              ) : (
+                <select className="h-[42px] rounded-[7px] border border-input bg-background px-3" value={tone} onChange={(event) => setTone(event.target.value)}>
+                  <option>清晰、可信</option><option>正式、权威</option><option>亲切、轻松</option><option>激情、有感染力</option>
+                  <option value="__custom__">其他（自己填）</option>
+                </select>
+              )}
             </label>
           </div>
         )}
@@ -147,14 +190,24 @@ function AppHome() {
         {step === 3 && (
           <div className="grid gap-3 sm:grid-cols-2">
             <label className="grid gap-1 text-sm text-fg-2">视觉风格
-              <select className="h-[42px] rounded-[7px] border border-input bg-background px-3" value={visualStyle} onChange={(event) => setVisualStyle(event.target.value)}>
-                <option>现代专业</option><option>学术严谨</option><option>创意活泼</option>
-              </select>
+              {visualStyle === '__custom__' ? (
+                <Input value={custom.visualStyle ?? ''} onChange={(e) => setCustom({ ...custom, visualStyle: e.target.value })} placeholder="自定义风格（必填）" />
+              ) : (
+                <select className="h-[42px] rounded-[7px] border border-input bg-background px-3" value={visualStyle} onChange={(event) => setVisualStyle(event.target.value)}>
+                  <option>现代专业</option><option>学术严谨</option><option>创意活泼</option>
+                  <option value="__custom__">其他（自己填）</option>
+                </select>
+              )}
             </label>
             <label className="grid gap-1 text-sm text-fg-2">页数
-              <select className="h-[42px] rounded-[7px] border border-input bg-background px-3" value={pageCount} onChange={(event) => setPageCount(event.target.value)}>
-                <option value="8">8 页</option><option value="12">12 页</option><option value="16">16 页</option><option value="24">24 页</option>
-              </select>
+              {pageCount === '__custom__' ? (
+                <Input type="number" min={3} max={30} value={custom.pageCount ?? ''} onChange={(e) => setCustom({ ...custom, pageCount: e.target.value })} placeholder="3-30 页" />
+              ) : (
+                <select className="h-[42px] rounded-[7px] border border-input bg-background px-3" value={pageCount} onChange={(event) => setPageCount(event.target.value)}>
+                  <option value="8">8 页</option><option value="12">12 页</option><option value="16">16 页</option><option value="24">24 页</option>
+                  <option value="__custom__">其他（自己填）</option>
+                </select>
+              )}
             </label>
             <label className="grid gap-1 text-sm text-fg-2">画布
               <select className="h-[42px] rounded-[7px] border border-input bg-background px-3" value={canvas} onChange={(event) => setCanvas(event.target.value as 'ppt169' | 'ppt43')}>
