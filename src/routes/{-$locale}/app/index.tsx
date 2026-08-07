@@ -45,6 +45,7 @@ function AppHome() {
   const [imageUsage, setImageUsage] = useState<'optional' | 'none' | 'ai' | 'web'>('optional')
   const [step, setStep] = useState(1)
   const [custom, setCustom] = useState<Record<string, string>>({})
+  const [missing, setMissing] = useState<{ name?: boolean; topic?: boolean }>({})
   const [creating, setCreating] = useState(false)
   const [deletingId, setDeletingId] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
@@ -59,7 +60,16 @@ function AppHome() {
 
   function nextStep() {
     setError(null)
-    if (step === 1 && (!name.trim() || !topic.trim())) { setError('请先填写作品名称和主题。'); return }
+    if (step === 1) {
+      const m: { name?: boolean; topic?: boolean } = {}
+      if (!name.trim()) m.name = true
+      if (!topic.trim()) m.topic = true
+      setMissing(m)
+      if (m.name || m.topic) {
+        setError(m.name && m.topic ? '请先填写作品名称和主题。' : m.name ? '请填写作品名称。' : '请填写主题。')
+        return
+      }
+    }
     setStep(step + 1)
   }
 
@@ -137,8 +147,8 @@ function AppHome() {
 
         {step === 1 && (
           <div className="grid gap-3 sm:grid-cols-2">
-            <Input value={name} onChange={(event) => setName(event.target.value)} placeholder="作品名称（必填）" aria-label="作品名称" />
-            <Input value={topic} onChange={(event) => setTopic(event.target.value)} placeholder="主题（必填）" aria-label="主题" />
+            <Input value={name} onChange={(event) => { setName(event.target.value); if (missing.name) setMissing({ ...missing, name: false }) }} className={missing.name ? 'border-red-400' : undefined} placeholder="作品名称（必填）" aria-label="作品名称" onKeyDown={(e) => { if (e.key === 'Enter') nextStep() }} />
+            <Input value={topic} onChange={(event) => { setTopic(event.target.value); if (missing.topic) setMissing({ ...missing, topic: false }) }} className={missing.topic ? 'border-red-400' : undefined} placeholder="主题（必填）" aria-label="主题" onKeyDown={(e) => { if (e.key === 'Enter') nextStep() }} />
           </div>
         )}
 
@@ -222,6 +232,13 @@ function AppHome() {
           </div>
         )}
 
+        {error && (
+          <div role="alert" className="mb-3 flex items-center gap-2 rounded-[8px] border border-red-400/40 bg-red-400/10 px-3 py-2 text-[13.5px] font-medium text-red-400">
+            <span aria-hidden>⚠</span>
+            {error}
+          </div>
+        )}
+
         <div className="mt-4 flex items-center justify-between gap-3">
           <div>
             {step > 1 && (
@@ -234,7 +251,6 @@ function AppHome() {
             ) : (
               <button type="button" onClick={createProject} disabled={creating} className="rounded-[7px] bg-primary px-5 py-2 text-sm font-medium text-primary-foreground disabled:opacity-50">{creating ? '生成中…' : '开始生成'}</button>
             )}
-            {error && <span role="alert" className="text-sm text-red-400">{error}</span>}
           </div>
         </div>
       </section>
