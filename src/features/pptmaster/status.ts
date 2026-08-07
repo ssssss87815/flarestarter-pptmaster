@@ -17,6 +17,7 @@ export const PPTMASTER_STATUS_LABELS: Record<string, string> = {
   preview_ready: '预览就绪',
   export_ready: '导出就绪',
   delivery_verified: '已交付',
+  revision_requested: '修复中',
   failed: '失败',
   failed_recoverable: '失败（可重试）',
 }
@@ -29,6 +30,7 @@ export const PPTMASTER_RUNNING_STATUSES = [
   'chart_fixing',
   'quality_checking',
   'post_processing',
+  'revision_requested',
 ]
 
 /** Statuses in which the user can act on the generated preview/export. */
@@ -61,6 +63,7 @@ export function pptmasterProgressPercent(status: string | undefined, svgCount?: 
   if (!status) return null
   if (status === 'failed' || status === 'failed_recoverable') return null
   if (status === 'delivery_verified' || status === 'export_ready') return 100
+  if (status === 'revision_requested') return 92
   if (status === 'preview_ready' || status === 'post_processing') return 95
   if (status === 'quality_checking') return 90
   if (status === 'chart_fixing') return 85

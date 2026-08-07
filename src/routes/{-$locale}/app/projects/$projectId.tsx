@@ -12,6 +12,7 @@ import {
   getPptMasterSpecAction,
   openPptMasterConfirmUiAction,
   rerunPptMasterPagesAction,
+  requestPptMasterRevisionAction,
   startPptMasterGenerationAction,
   startPptMasterLivePreviewAction,
   uploadPptMasterMarkdownAction,
@@ -55,6 +56,7 @@ function ProjectWorkbench() {
   const [deleting, setDeleting] = useState(false)
   const [openingConfirm, setOpeningConfirm] = useState(false)
   const [exporting, setExporting] = useState(false)
+  const [submittingRevision, setSubmittingRevision] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const isPro = ent.plan === 'pro'
 
@@ -157,6 +159,19 @@ function ProjectWorkbench() {
     finally { setExporting(false) }
   }
 
+  async function submitRevision() {
+    setError(null)
+    setSubmittingRevision(true)
+    try {
+      await requestPptMasterRevisionAction({ data: { projectId: progress.id } })
+      await refresh()
+    } catch (cause) {
+      setError(cause instanceof Error ? cause.message : '提交失败，请稍后重试')
+    } finally {
+      setSubmittingRevision(false)
+    }
+  }
+
   async function openLivePreview() {
     setError(null)
     try {
@@ -233,7 +248,13 @@ function ProjectWorkbench() {
             )}
           </div>
         )
-      })()}<div className="mb-4 rounded-[10px] border border-primary/30 bg-primary/5 px-4 py-3"><p className="text-sm font-medium text-foreground">下一步：{nextStep.title}</p><p className="mt-1 text-[13px] text-fg-2">{nextStep.desc}</p></div><div className="grid gap-3 text-sm text-fg-2 sm:grid-cols-3"><div>状态: <strong className="text-foreground">{pptmasterStatusLabel(progress.status)}</strong></div><div>材料: <strong className="text-foreground">{progress.sources?.length ?? 0}</strong></div><div>已生成页: <strong className="text-foreground">{progress.svg_count ?? 0}/{progress.expected_pages ?? '—'}</strong></div><div>导出: <strong className="text-foreground">{progress.export_count ?? 0}</strong></div></div>{progress.sources?.length ? <ul className="mt-3 flex flex-wrap gap-1.5 text-xs text-fg-3">{progress.sources.map((source) => <li key={source} className="rounded-full border border-border bg-background px-2.5 py-1">{source}</li>)}</ul> : null}{progress.exports?.length ? <button type="button" onClick={download} disabled={!isFinished} className={`mt-4 inline-flex items-center gap-2 rounded-[7px] px-4 py-2 text-sm font-medium disabled:opacity-50 ${isFinished ? 'bg-primary text-primary-foreground' : 'border border-input bg-background text-fg-3'}`}>{isFinished ? `下载 ${progress.exports.join(', ').replace(/^\\./, '')}` : '已导出（完成后可下载）'}</button> : null}{isFinished && <p className="mt-3 text-xs text-fg-3">🛡️ 文件已转存云端存档，保留 5 天；请及时下载，逾期存档自动清理。</p>}</section>
+      })()}{PPTMASTER_REVIEWABLE_STATUSES.includes(progress.status) && (progress.pending_annotations ?? 0) > 0 && (
+          <div className="mb-4 rounded-[10px] border border-amber-400/40 bg-amber-400/10 px-4 py-3">
+            <p className="text-sm font-medium text-foreground">你有 {progress.pending_annotations} 条预览标注待 AI 处理（如"加背景图""换图"等说明性修改）</p>
+            <button type="button" onClick={submitRevision} disabled={submittingRevision} className="mt-2.5 inline-flex items-center gap-2 rounded-[7px] bg-primary px-4 py-2 text-sm font-medium text-primary-foreground disabled:opacity-50">{submittingRevision ? '提交中…' : '让 AI 处理标注'}</button>
+          </div>
+        )}
+        <div className="mb-4 rounded-[10px] border border-primary/30 bg-primary/5 px-4 py-3"><p className="text-sm font-medium text-foreground">下一步：{nextStep.title}</p><p className="mt-1 text-[13px] text-fg-2">{nextStep.desc}</p></div><div className="grid gap-3 text-sm text-fg-2 sm:grid-cols-3"><div>状态: <strong className="text-foreground">{pptmasterStatusLabel(progress.status)}</strong></div><div>材料: <strong className="text-foreground">{progress.sources?.length ?? 0}</strong></div><div>已生成页: <strong className="text-foreground">{progress.svg_count ?? 0}/{progress.expected_pages ?? '—'}</strong></div><div>导出: <strong className="text-foreground">{progress.export_count ?? 0}</strong></div></div>{progress.sources?.length ? <ul className="mt-3 flex flex-wrap gap-1.5 text-xs text-fg-3">{progress.sources.map((source) => <li key={source} className="rounded-full border border-border bg-background px-2.5 py-1">{source}</li>)}</ul> : null}{progress.exports?.length ? <button type="button" onClick={download} disabled={!isFinished} className={`mt-4 inline-flex items-center gap-2 rounded-[7px] px-4 py-2 text-sm font-medium disabled:opacity-50 ${isFinished ? 'bg-primary text-primary-foreground' : 'border border-input bg-background text-fg-3'}`}>{isFinished ? `下载 ${progress.exports.join(', ').replace(/^\\./, '')}` : '已导出（完成后可下载）'}</button> : null}{isFinished && <p className="mt-3 text-xs text-fg-3">🛡️ 文件已转存云端存档，保留 5 天；请及时下载，逾期存档自动清理。</p>}</section>
 
       <section className="mb-5 rounded-[14px] border border-border bg-card p-[18px]"><h2 className="mb-4 font-mono text-sm uppercase tracking-wide text-fg-3">演示材料（可选）</h2><p className="mb-3 text-sm text-fg-2">上传你的文档（Word、PDF、Markdown、PPT、TXT，单个文件最大 10MB），AI 会基于这些内容制作 PPT。没有现成文档也可以，直接输入主题或粘贴内容即可。</p><div className="flex flex-wrap items-center gap-2"><input type="file" accept=".md,.pdf,.docx,.pptx,.txt,.markdown" onChange={(event) => { const file = event.target.files?.[0] ?? null; if (file && file.size > 10 * 1024 * 1024) { setError(`「${file.name}」超过 10MB 限制，请压缩后重试`); setSourceFile(null); event.target.value = ''; return } setError(null); setSourceFile(file) }} className="max-w-full flex-1 text-sm text-fg-2 file:mr-3 file:rounded-[7px] file:border file:border-input file:bg-background file:px-3 file:py-1.5 file:text-sm file:text-foreground" aria-label="选择演示材料文件" /><button type="button" onClick={uploadFile} disabled={uploading || !sourceFile} title={sourceFile ? '上传已选文件' : '请先选择文件'} className="inline-flex items-center gap-2 rounded-[7px] bg-primary px-4 py-2 text-sm font-medium text-primary-foreground disabled:opacity-50"><Upload size={16} />{uploading ? '上传中…' : '上传材料'}</button></div><p className="mt-2 text-xs text-fg-3">{sourceFile ? `已选择：${sourceFile.name}，点击「上传材料」即可上传` : '选择文件后，「上传材料」按钮会变为可用'}</p><div className="mt-4 rounded-[10px] border border-border bg-background p-3"><p className="text-xs font-medium text-fg-3">或者直接粘贴内容：</p><Input value={filename} onChange={(event) => setFilename(event.target.value)} placeholder="文件名（如：产品介绍.md）" aria-label="材料文件名" className="mt-2" /><textarea value={markdown} onChange={(event) => setMarkdown(event.target.value)} className="mt-3 min-h-40 w-full rounded-[7px] border border-input bg-background p-3 text-sm text-foreground focus-visible:outline-none focus-visible:border-primary" aria-label="材料内容" placeholder="把你要做的内容粘贴到这里，例如产品介绍、会议纪要、课程大纲…" /><button type="button" onClick={upload} disabled={uploading || !markdown.trim()} className="mt-3 inline-flex items-center gap-2 rounded-[7px] border border-input bg-background px-4 py-2 text-sm font-medium text-foreground hover:bg-accent"><Upload size={16} />{uploading ? '上传中…' : '添加材料内容'}</button></div></section>
 

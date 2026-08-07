@@ -28,6 +28,7 @@ const progressSchema = projectSchema.extend({
   waiting_agent_exit: z.boolean().optional(),
   force_finalize_imminent: z.boolean().optional(),
   force_finalize_done: z.boolean().optional(),
+  pending_annotations: z.number().optional(),
 })
 
 const specSchema = z.object({
@@ -340,6 +341,13 @@ export async function approvePptMasterOutline(user: PptMasterUser, projectId: st
 
 export async function approvePptMasterExport(user: PptMasterUser, projectId: string): Promise<PptMasterProgress> {
   return request(`/api/projects/${encodeURIComponent(projectId)}/approve-export`, progressSchema, {
+    method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({}),
+  }, user)
+}
+
+export async function requestPptMasterRevision(user: PptMasterUser, projectId: string): Promise<PptMasterProgress> {
+  // No note: the control plane fills it from the preview annotation brief.
+  return request(`/api/projects/${encodeURIComponent(projectId)}/request-revision`, progressSchema, {
     method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({}),
   }, user)
 }
