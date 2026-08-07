@@ -12,6 +12,8 @@ import { listFeedbackForAdmin, setFeedbackStatus, type AdminFeedbackRow } from '
 import type { FeedbackStatus } from '@/features/feedback/feedback.shared'
 import { assertRevocableAdminUserSessions, getAdminUserSessions, revokeAdminUserSessions, type AdminUserSession } from './getAdminUserSessions'
 import { getPptMasterHealth } from '@/features/pptmaster/client'
+import { eq } from 'drizzle-orm'
+import { subscription } from '@/features/billing/billing.schema'
 import { getAdminRevenue, type AdminRevenueResult } from '@/features/billing/admin-revenue'
 
 export type { AdminRevenueResult }
@@ -116,3 +118,52 @@ export const getAdminRevenueFn = createServerFn({ method: 'GET' }).handler(async
   await assertAdmin()
   return getAdminRevenue({ STRIPE_SECRET_KEY: env.STRIPE_SECRET_KEY ?? '' })
 })
+
+export type ManualGrantAction = 'grant-30d' | 'grant-lifetime' | 'revoke'
+
+/**
+ * server fn: assertAdmin → grant/revoke Pro manually (provider='manual').
+ * Writes the subscription row directly; isActivePro picks it up immediately
+ * (plan=pro + active, or lifetime). Webhook events for real gateways match by
+ * their own customerId, so manual rows are never clobbered by Stripe/Paddle.
+ */
+export const setManualSubscriptionFn = createServerFn({ method: 'POST' })
+  .validator((d: { userId: string; action: ManualGrantAction }) => d)
+  .handler(async ({ data }) => {
+    const admin = await assertAdmin()
+    if (admin.id === data.userId) throw new Error('Cannot change your own subscription via admin')
+    const db = createDb(env.DB)
+    const now = Date.now()
+    const existing = await db.select().from(subscription).where(eq(subscription.userId, data.userId))
+    const row = existing[0]
+    const base = {
+      userId: data.userId,
+      provider: 'manual',
+      customerId: `manual:${data.userId}`,
+      subscriptionId: null,
+      priceId: null,
+      cancelAtPeriodEnd: false,
+      paymentFailedAt: null,
+      lastEventAt: now,
+      updatedAt: new Date(now),
+    }
+    let patch: Record<string, unknown>
+    if (data.action === 'grant-30d') {
+      patch = { plan: 'pro', status: 'active', currentPeriodEnd: now + 30 * 24 * 3600 * 1000, lifetime: false }
+    } else if (data.action === 'grant-lifetime') {
+      patch = { plan: 'pro', status: 'active', currentPeriodEnd: null, lifetime: true }
+    } else {
+      patch = { plan: 'free', status: 'none', currentPeriodEnd: null, lifetime: false }
+    }
+    if (row) {
+      await db.update(subscription).set({ ...base, ...patch }).where(eq(subscription.userId, data.userId))
+    } else {
+      await db.insert(subscription).values({
+        id: crypto.randomUUID(),
+        ...base,
+        ...patch,
+        createdAt: new Date(now),
+      } as any)
+    }
+    return { ok: true, action: data.action }
+  })

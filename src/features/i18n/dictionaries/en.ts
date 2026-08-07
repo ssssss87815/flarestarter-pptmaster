@@ -149,6 +149,8 @@ export const en = {
     revenueTitle: 'Revenue', revenueSub: 'Stripe balance, charges, subscriptions and refunds.', revenueNotConfigured: 'Stripe is not configured on this deployment.',
     available: 'Available', pending: 'Pending', recentCharges: 'Recent charges', recentRefunds: 'Recent refunds',
     interval: 'Interval', periodEnd: 'Period end', stripeDashboard: 'Open Stripe Dashboard',
+    manualSubscription: 'Manual subscription', grant30d: 'Grant Pro 30d', grantLifetime: 'Grant lifetime Pro', revokePro: 'Revoke Pro',
+    adminHint: 'Admins are controlled by the ADMIN_EMAILS environment variable — add this email to production config to promote.',
     },
   marketing: {
     navFeatures: 'Features', navPricing: 'Pricing', navDocs: 'Docs', navChangelog: 'Changelog',

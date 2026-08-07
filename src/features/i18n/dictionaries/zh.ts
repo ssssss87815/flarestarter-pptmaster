@@ -135,6 +135,8 @@ export const zh: Dict = {
     revenueTitle: '收款台', revenueSub: 'Stripe 余额、收款记录、订阅与退款。', revenueNotConfigured: '此部署未配置 Stripe。',
     available: '可用余额', pending: '待结算', recentCharges: '最近收款', recentRefunds: '最近退款',
     interval: '周期', periodEnd: '本期到期', stripeDashboard: '打开 Stripe 后台',
+    manualSubscription: '手动订阅', grant30d: '开通 Pro 30 天', grantLifetime: '开通永久 Pro', revokePro: '取消 Pro',
+    adminHint: '管理员由 ADMIN_EMAILS 环境变量控制——如需设为管理员，请将该邮箱加入生产配置。',
     },
   marketing: {
     navFeatures: '功能', navPricing: '定价', navDocs: '文档', navChangelog: '更新日志',

@@ -17,7 +17,7 @@ import { initials } from '@/features/admin/components/user-table'
 import { fmtDate } from '@/lib/format-date'
 import type { AdminUserRow } from '@/features/admin/getAdminUsers'
 import { Label } from '@/components/ui/label'
-import { getAdminUserSessionsFn, revokeAdminUserSessionsFn, type AdminUserSession } from '@/features/admin/middleware'
+import { getAdminUserSessionsFn, revokeAdminUserSessionsFn, setManualSubscriptionFn, type AdminUserSession, type ManualGrantAction } from '@/features/admin/middleware'
 
 interface Props {
   row: AdminUserRow | null
@@ -36,6 +36,7 @@ export function UserDetailDrawer({ row, open, onOpenChange, currentUserId, onCha
   const [expiry, setExpiry] = useState<Date | undefined>(undefined)
   const [calOpen, setCalOpen] = useState(false)
   const [busy, setBusy] = useState(false)
+  const [subBusy, setSubBusy] = useState(false)
   const [sessions, setSessions] = useState<AdminUserSession[] | null>(null)
   const [sessionsBusy, setSessionsBusy] = useState(false)
 
@@ -58,6 +59,20 @@ export function UserDetailDrawer({ row, open, onOpenChange, currentUserId, onCha
       toast.error(e instanceof Error ? e.message : 'Error')
     } finally {
       setSessionsBusy(false)
+    }
+  }
+
+  async function grantSub(action: ManualGrantAction) {
+    if (!row) return
+    setSubBusy(true)
+    try {
+      await setManualSubscriptionFn({ data: { userId: row.id, action } })
+      toast.success(t('admin.saved'))
+      onChanged()
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : 'Error')
+    } finally {
+      setSubBusy(false)
     }
   }
 
@@ -148,6 +163,16 @@ export function UserDetailDrawer({ row, open, onOpenChange, currentUserId, onCha
               <span>{row.plan === 'pro' ? <Badge variant="pro">{t('admin.pro')}</Badge> : row.plan ? t('admin.free') : '—'}</span>
             </div>
             <div className="grid gap-1"><span className="text-fg-3 text-xs">{t('admin.status')}</span><span>{row.status ?? '—'}</span></div>
+          </div>
+
+          <div className="grid gap-2">
+            <span className="text-fg-3 text-xs">{t('admin.manualSubscription')}</span>
+            <div className="flex flex-wrap gap-1.5">
+              <Button variant="outline" size="sm" disabled={subBusy} onClick={() => void grantSub('grant-30d')}>{t('admin.grant30d')}</Button>
+              <Button variant="outline" size="sm" disabled={subBusy} onClick={() => void grantSub('grant-lifetime')}>{t('admin.grantLifetime')}</Button>
+              <Button variant="ghost" size="sm" disabled={subBusy} onClick={() => void grantSub('revoke')}>{t('admin.revokePro')}</Button>
+            </div>
+            {row.role !== 'admin' && <p className="text-xs text-fg-3">{t('admin.adminHint')}</p>}
           </div>
 
           <hr className="border-border" />
