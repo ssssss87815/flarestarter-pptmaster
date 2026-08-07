@@ -19,9 +19,39 @@ const fetchHandler = (
   entry as { fetch: (request: Request, env: Cloudflare.Env, ctx: ExecutionContext) => Promise<Response> }
 ).fetch
 
+/** Paths that must never be language-redirected (APIs, assets, sitemap…). */
+function isNonLocalePath(pathname: string): boolean {
+  return (
+    pathname.startsWith('/api') ||
+    pathname.startsWith('/assets') ||
+    pathname.startsWith('/docs') ||
+    pathname.startsWith('/llms') ||
+    pathname === '/robots.txt' ||
+    pathname === '/sitemap.xml' ||
+    pathname === '/favicon.ico'
+  )
+}
+
 const handler = {
   async fetch(request: Request, env: Cloudflare.Env, ctx: ExecutionContext): Promise<Response> {
     await assertEnvOnce()
+    // Browser-language negotiation: unprefixed page paths redirect to /zh when
+    // the visitor prefers Chinese and has not pinned a `locale` cookie (the
+    // language switcher sets it). Done at the worker edge — request headers
+    // are complete here, and client-side navigations (which never hit this
+    // layer) keep the current locale.
+    const url = new URL(request.url)
+    if (!url.pathname.startsWith('/zh') && !url.pathname.startsWith('/en') && !isNonLocalePath(url.pathname)) {
+      const cookie = request.headers.get('cookie') ?? ''
+      const hasLocaleCookie = cookie.split(';').some((c) => c.trim().startsWith('locale='))
+      if (!hasLocaleCookie) {
+        const accept = request.headers.get('accept-language') ?? ''
+        if (accept.toLowerCase().includes('zh')) {
+          const target = `/zh${url.pathname === '/' ? '' : url.pathname}${url.search}`
+          return withSecurityHeaders(new Response(null, { status: 302, headers: { location: target } }))
+        }
+      }
+    }
     const response = await fetchHandler(request, env, ctx)
     return withSecurityHeaders(response)
   },
