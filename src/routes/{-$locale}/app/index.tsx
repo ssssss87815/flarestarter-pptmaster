@@ -43,6 +43,7 @@ function AppHome() {
   const [pageCount, setPageCount] = useState('8')
   const [canvas, setCanvas] = useState<'ppt169' | 'ppt43'>('ppt169')
   const [imageUsage, setImageUsage] = useState<'optional' | 'none' | 'ai' | 'web'>('optional')
+  const [step, setStep] = useState(1)
   const [creating, setCreating] = useState(false)
   const [deletingId, setDeletingId] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
@@ -53,6 +54,12 @@ function AppHome() {
     try { await deletePptMasterProjectAction({ data: { projectId: id } }); await router.invalidate() }
     catch (cause) { setError(cause instanceof Error ? cause.message : '删除失败。') }
     finally { setDeletingId(null) }
+  }
+
+  function nextStep() {
+    setError(null)
+    if (step === 1 && (!name.trim() || !topic.trim())) { setError('请先填写作品名称和主题。'); return }
+    setStep(step + 1)
   }
 
   async function createProject() {
@@ -83,22 +90,99 @@ function AppHome() {
 
       <section className="mb-7 rounded-[14px] border border-border bg-card p-[18px]">
         <h2 className="mb-2 text-base font-semibold">一键生成</h2>
-        <p className="mb-4 text-sm text-fg-2">确认八项基础配置后，直接进入 PPTMaster 一键生成流程。</p>
-        <div className="grid gap-3 sm:grid-cols-2">
-          <Input value={name} onChange={(event) => setName(event.target.value)} placeholder="作品名称" aria-label="作品名称" />
-          <Input value={topic} onChange={(event) => setTopic(event.target.value)} placeholder="主题" aria-label="主题" />
-          <Input value={audience} onChange={(event) => setAudience(event.target.value)} placeholder="目标受众" aria-label="目标受众" />
-          <Input value={goal} onChange={(event) => setGoal(event.target.value)} placeholder="演示目标" aria-label="演示目标" />
-          <Input value={language} onChange={(event) => setLanguage(event.target.value)} placeholder="语言" aria-label="语言" />
-          <Input value={tone} onChange={(event) => setTone(event.target.value)} placeholder="语气" aria-label="语气" />
-          <Input value={visualStyle} onChange={(event) => setVisualStyle(event.target.value)} placeholder="视觉风格" aria-label="视觉风格" />
-          <Input type="number" min={3} max={30} value={pageCount} onChange={(event) => setPageCount(event.target.value)} placeholder="页数" aria-label="页数" />
-          <label className="grid gap-1 text-sm text-fg-2">画布<select className="h-[42px] rounded-[7px] border border-input bg-background px-3" value={canvas} onChange={(event) => setCanvas(event.target.value as 'ppt169' | 'ppt43')}><option value="ppt169">16:9</option><option value="ppt43">4:3</option></select></label>
-          <label className="grid gap-1 text-sm text-fg-2">图片<select className="h-[42px] rounded-[7px] border border-input bg-background px-3" value={imageUsage} onChange={(event) => setImageUsage(event.target.value as typeof imageUsage)}><option value="optional">按需</option><option value="none">不使用</option><option value="ai">AI 图片</option><option value="web">网络图片</option></select></label>
+        <p className="mb-4 text-sm text-fg-2">跟着引导完成设置，选项可以直接选，不用自己琢磨。</p>
+
+        {/* Step indicator */}
+        <div className="mb-5 flex items-center gap-2">
+          {['基本信息', '内容设置', '视觉设置'].map((label, i) => {
+            const n = i + 1
+            const done = step > n
+            const active = step === n
+            return (
+              <button
+                key={label}
+                type="button"
+                onClick={() => setStep(n)}
+                className={`flex items-center gap-1.5 rounded-full px-3 py-1 text-[12.5px] transition-colors ${active ? 'bg-primary text-primary-foreground' : done ? 'bg-primary/10 text-primary' : 'bg-muted text-fg-3'}`}
+              >
+                <span>{done ? '✓' : n}</span>
+                {label}
+              </button>
+            )
+          })}
         </div>
-        <div className="mt-3 flex items-center gap-3">
-          <button type="button" onClick={createProject} disabled={creating} className="rounded-[7px] bg-primary px-4 py-2 text-sm font-medium text-primary-foreground disabled:opacity-50">{creating ? '生成中…' : '开始一键生成'}</button>
-          {error && <span role="alert" className="text-sm text-red-400">{error}</span>}
+
+        {step === 1 && (
+          <div className="grid gap-3 sm:grid-cols-2">
+            <Input value={name} onChange={(event) => setName(event.target.value)} placeholder="作品名称（必填）" aria-label="作品名称" />
+            <Input value={topic} onChange={(event) => setTopic(event.target.value)} placeholder="主题（必填）" aria-label="主题" />
+          </div>
+        )}
+
+        {step === 2 && (
+          <div className="grid gap-3 sm:grid-cols-2">
+            <label className="grid gap-1 text-sm text-fg-2">目标受众
+              <select className="h-[42px] rounded-[7px] border border-input bg-background px-3" value={audience} onChange={(event) => setAudience(event.target.value)}>
+                <option>老师、评委</option><option>公司领导</option><option>客户</option><option>同学</option><option>其他观众</option>
+              </select>
+            </label>
+            <label className="grid gap-1 text-sm text-fg-2">演示目标
+              <select className="h-[42px] rounded-[7px] border border-input bg-background px-3" value={goal} onChange={(event) => setGoal(event.target.value)}>
+                <option>汇报工作进展</option><option>讲解方案内容</option><option>答辩说明</option><option>产品路演</option><option>教学讲解</option>
+              </select>
+            </label>
+            <label className="grid gap-1 text-sm text-fg-2">语言
+              <select className="h-[42px] rounded-[7px] border border-input bg-background px-3" value={language} onChange={(event) => setLanguage(event.target.value)}>
+                <option>中文</option><option>English</option>
+              </select>
+            </label>
+            <label className="grid gap-1 text-sm text-fg-2">语气
+              <select className="h-[42px] rounded-[7px] border border-input bg-background px-3" value={tone} onChange={(event) => setTone(event.target.value)}>
+                <option>清晰、可信</option><option>正式、权威</option><option>亲切、轻松</option><option>激情、有感染力</option>
+              </select>
+            </label>
+          </div>
+        )}
+
+        {step === 3 && (
+          <div className="grid gap-3 sm:grid-cols-2">
+            <label className="grid gap-1 text-sm text-fg-2">视觉风格
+              <select className="h-[42px] rounded-[7px] border border-input bg-background px-3" value={visualStyle} onChange={(event) => setVisualStyle(event.target.value)}>
+                <option>现代专业</option><option>学术严谨</option><option>创意活泼</option>
+              </select>
+            </label>
+            <label className="grid gap-1 text-sm text-fg-2">页数
+              <select className="h-[42px] rounded-[7px] border border-input bg-background px-3" value={pageCount} onChange={(event) => setPageCount(event.target.value)}>
+                <option value="8">8 页</option><option value="12">12 页</option><option value="16">16 页</option><option value="24">24 页</option>
+              </select>
+            </label>
+            <label className="grid gap-1 text-sm text-fg-2">画布
+              <select className="h-[42px] rounded-[7px] border border-input bg-background px-3" value={canvas} onChange={(event) => setCanvas(event.target.value as 'ppt169' | 'ppt43')}>
+                <option value="ppt169">16:9 宽屏</option><option value="ppt43">4:3 标准</option>
+              </select>
+            </label>
+            <label className="grid gap-1 text-sm text-fg-2">图片
+              <select className="h-[42px] rounded-[7px] border border-input bg-background px-3" value={imageUsage} onChange={(event) => setImageUsage(event.target.value as typeof imageUsage)}>
+                <option value="optional">按需</option><option value="none">不使用</option><option value="ai">AI 图片</option><option value="web">网络图片</option>
+              </select>
+            </label>
+          </div>
+        )}
+
+        <div className="mt-4 flex items-center justify-between gap-3">
+          <div>
+            {step > 1 && (
+              <button type="button" onClick={() => setStep(step - 1)} className="rounded-[7px] border border-input px-4 py-2 text-sm text-fg-2 hover:text-foreground">上一步</button>
+            )}
+          </div>
+          <div className="flex items-center gap-3">
+            {step < 3 ? (
+              <button type="button" onClick={nextStep} className="rounded-[7px] bg-primary px-5 py-2 text-sm font-medium text-primary-foreground">下一步</button>
+            ) : (
+              <button type="button" onClick={createProject} disabled={creating} className="rounded-[7px] bg-primary px-5 py-2 text-sm font-medium text-primary-foreground disabled:opacity-50">{creating ? '生成中…' : '开始生成'}</button>
+            )}
+            {error && <span role="alert" className="text-sm text-red-400">{error}</span>}
+          </div>
         </div>
       </section>
 
