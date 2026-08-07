@@ -20,6 +20,14 @@ const progressSchema = projectSchema.extend({
   export_count: z.number().optional(),
   exports: z.array(z.string()).optional(),
   sources: z.array(z.string()).optional(),
+  active_role: z.string().optional(),
+  svg_idle_seconds: z.number().optional(),
+  executor_stall_limit_sec: z.number().optional(),
+  pages_complete: z.boolean().optional(),
+  busy: z.boolean().optional(),
+  waiting_agent_exit: z.boolean().optional(),
+  force_finalize_imminent: z.boolean().optional(),
+  force_finalize_done: z.boolean().optional(),
 })
 
 const specSchema = z.object({
