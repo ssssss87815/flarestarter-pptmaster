@@ -45,7 +45,7 @@ export function SiteNav({ theme, loggedIn }: { theme: 'light' | 'dark'; loggedIn
         {t('auth.login')}
       </Link>
       <Link to="/{-$locale}/register" className={buttonVariants({ size: 'sm' })}>
-        {t('marketing.heroCtaPrimary')}
+        {t('auth.register')}
       </Link>
     </div>
   )
