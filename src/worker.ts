@@ -26,6 +26,10 @@ function isNonLocalePath(pathname: string): boolean {
     pathname.startsWith('/assets') ||
     pathname.startsWith('/docs') ||
     pathname.startsWith('/llms') ||
+    // TanStack Start server-function RPC endpoints (GET loaders on client-side
+    // navigation hit these). Redirecting them breaks SPA loader calls: the
+    // follow-up GET /zh/_serverFn/<id> has no route → 500 on first visit.
+    pathname.startsWith('/_serverFn') ||
     pathname === '/robots.txt' ||
     pathname === '/sitemap.xml' ||
     pathname === '/favicon.ico'
