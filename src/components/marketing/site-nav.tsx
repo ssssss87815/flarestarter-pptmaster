@@ -37,9 +37,17 @@ export function SiteNav({ theme, loggedIn }: { theme: 'light' | 'dark'; loggedIn
       {t('marketing.heroCtaPrimary')}
     </Link>
   ) : (
-    <Link to="/{-$locale}/register" className={buttonVariants({ size: 'sm' })}>
-      {t('marketing.heroCtaPrimary')}
-    </Link>
+    <div className="flex items-center gap-2">
+      <Link
+        to="/{-$locale}/login"
+        className="rounded-md px-3 py-2 text-sm font-semibold text-fg-2 transition-colors hover:bg-bg-alt hover:text-foreground"
+      >
+        {t('auth.login')}
+      </Link>
+      <Link to="/{-$locale}/register" className={buttonVariants({ size: 'sm' })}>
+        {t('marketing.heroCtaPrimary')}
+      </Link>
+    </div>
   )
 
   return (
