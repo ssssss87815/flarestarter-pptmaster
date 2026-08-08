@@ -113,7 +113,7 @@ export const en = {
   },
   billing: {
     currentPlan: 'Current plan', upgrade: 'Upgrade',
-    manageSubscription: 'Manage subscription', proArea: 'Pro area',
+    manageSubscription: 'Manage subscription', betaGrantNote: 'Pro granted via Beta — no subscription to manage.', proArea: 'Pro area',
     proOnly: 'Advanced PPTMaster controls are available on Pro.', proPeekBody: 'Upgrade to unlock higher limits and advanced generation controls.',
     proFeatures: {
       f1t: 'Advanced workbench', f1d: 'Audience, tone, style, page count, canvas and image controls before generation.',

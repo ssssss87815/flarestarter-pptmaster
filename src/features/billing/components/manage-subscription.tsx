@@ -10,11 +10,13 @@ export function ManageSubscription({
   status,
   currentPeriodEnd,
   lifetime,
+  provider,
 }: {
   plan: 'free' | 'pro'
   status: string
   currentPeriodEnd?: number | null
   lifetime?: boolean
+  provider?: 'stripe' | 'paddle' | 'beta' | 'none'
 }) {
   const { t } = useTranslation()
   const isPro = plan === 'pro'
@@ -51,11 +53,15 @@ export function ManageSubscription({
         </p>
       )}
       {isPro ? (
-        <div>
-          <Button variant="outline" onClick={manage}>
-            {t('billing.manageSubscription')}
-          </Button>
-        </div>
+        provider === 'beta' ? (
+          <p className="m-0 text-[13px] text-fg-3">{t('billing.betaGrantNote')}</p>
+        ) : (
+          <div>
+            <Button variant="outline" onClick={manage}>
+              {t('billing.manageSubscription')}
+            </Button>
+          </div>
+        )
       ) : (
         <Link to="/{-$locale}/pricing" className={buttonVariants()}>
           {t('billing.upgrade')}

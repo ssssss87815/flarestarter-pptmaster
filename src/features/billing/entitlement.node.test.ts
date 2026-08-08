@@ -2,10 +2,10 @@ import { test, expect } from 'vitest'
 import { resolveEntitlement, translateStripeEvent, isActivePro, hasProAccess } from '@/features/billing/entitlement'
 
 test('无订阅行 → free', () => {
-  expect(resolveEntitlement(null)).toEqual({ plan: 'free', status: 'none', isActive: false, currentPeriodEnd: null, lifetime: false, paymentFailed: false })
+  expect(resolveEntitlement(null)).toEqual({ plan: 'free', status: 'none', isActive: false, currentPeriodEnd: null, lifetime: false, paymentFailed: false, provider: 'none' })
 })
 test('active pro → Pro', () => {
-  expect(resolveEntitlement({ status: 'active', plan: 'pro', currentPeriodEnd: 123, lifetime: false })).toEqual({ plan: 'pro', status: 'active', isActive: true, currentPeriodEnd: 123, lifetime: false, paymentFailed: false })
+  expect(resolveEntitlement({ status: 'active', plan: 'pro', currentPeriodEnd: 123, lifetime: false })).toEqual({ plan: 'pro', status: 'active', isActive: true, currentPeriodEnd: 123, lifetime: false, paymentFailed: false, provider: 'stripe' })
 })
 test('past_due → 降回 free 门控', () => {
   const e = resolveEntitlement({ status: 'past_due', plan: 'pro', currentPeriodEnd: 123 })
@@ -13,7 +13,13 @@ test('past_due → 降回 free 门控', () => {
 })
 
 test('lifetime 行 → 永久 Pro（currentPeriodEnd=null, isActive）', () => {
-  expect(resolveEntitlement({ status: 'active', plan: 'pro', currentPeriodEnd: null, lifetime: true })).toEqual({ plan: 'pro', status: 'active', isActive: true, currentPeriodEnd: null, lifetime: true, paymentFailed: false })
+  expect(resolveEntitlement({ status: 'active', plan: 'pro', currentPeriodEnd: null, lifetime: true })).toEqual({ plan: 'pro', status: 'active', isActive: true, currentPeriodEnd: null, lifetime: true, paymentFailed: false, provider: 'stripe' })
+})
+test('beta provider 行 → provider=beta（前端据此隐藏"管理订阅"）', () => {
+  const e = resolveEntitlement({ status: 'active', plan: 'pro', currentPeriodEnd: null, provider: 'beta' })
+  expect(e.plan).toBe('pro')
+  expect(e.provider).toBe('beta')
+  expect(e.isActive).toBe(true)
 })
 test('lifetime 优先于 status：即使 status=canceled 仍 Pro', () => {
   const e = resolveEntitlement({ status: 'canceled', plan: 'free', currentPeriodEnd: null, lifetime: true })

@@ -9,7 +9,7 @@ import type { PaymentProvider } from './payment'
 export async function getEntitlementFor(db: DB, userId: string): Promise<Entitlement> {
   const rows = await db.select().from(subscription).where(ownedBy(subscription, scopeFromUser(userId)))
   const row = rows[0]
-  return resolveEntitlement(row ? { status: row.status, plan: row.plan, currentPeriodEnd: row.currentPeriodEnd, lifetime: row.lifetime, paymentFailedAt: row.paymentFailedAt } : null)
+  return resolveEntitlement(row ? { status: row.status, plan: row.plan, currentPeriodEnd: row.currentPeriodEnd, lifetime: row.lifetime, paymentFailedAt: row.paymentFailedAt, provider: row.provider } : null)
 }
 
 /** Beta 邀请激活：给壳侧 entitlement 授 Pro（provider='beta'）。幂等 upsert（按 userId）。

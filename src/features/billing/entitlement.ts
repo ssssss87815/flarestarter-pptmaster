@@ -1,7 +1,16 @@
 import type Stripe from 'stripe'
 
 export type Plan = 'free' | 'pro'
-export interface Entitlement { plan: Plan; status: string; isActive: boolean; currentPeriodEnd: number | null; lifetime: boolean; paymentFailed: boolean }
+export type EntitlementProvider = 'stripe' | 'paddle' | 'beta' | 'none'
+export interface Entitlement {
+  plan: Plan
+  status: string
+  isActive: boolean
+  currentPeriodEnd: number | null
+  lifetime: boolean
+  paymentFailed: boolean
+  provider: EntitlementProvider
+}
 
 // occurredAt（Stripe event.created，epoch ms）：订阅流事件参与乱序守卫——Stripe 不保证
 // 投递顺序，apply 时丢弃比行上 lastEventAt 更旧的事件。购买类事件是绝对事实，不参与此序。
@@ -13,13 +22,13 @@ export type DomainEvent =
   | { type: 'payment.failed'; eventId: string; customerId: string; occurredAt?: number }
   | { type: 'ignored'; eventId: string }
 
-export function resolveEntitlement(row: { status: string; plan: string; currentPeriodEnd: number | null; lifetime?: boolean; paymentFailedAt?: number | null } | null): Entitlement {
-  if (!row) return { plan: 'free', status: 'none', isActive: false, currentPeriodEnd: null, lifetime: false, paymentFailed: false }
+export function resolveEntitlement(row: { status: string; plan: string; currentPeriodEnd: number | null; lifetime?: boolean; paymentFailedAt?: number | null; provider?: string | null } | null): Entitlement {
+  if (!row) return { plan: 'free', status: 'none', isActive: false, currentPeriodEnd: null, lifetime: false, paymentFailed: false, provider: 'none' }
   // 终身买断无续费扣款概念，永不显示"扣款失败"。
-  if (row.lifetime) return { plan: 'pro', status: 'active', isActive: true, currentPeriodEnd: null, lifetime: true, paymentFailed: false }
+  if (row.lifetime) return { plan: 'pro', status: 'active', isActive: true, currentPeriodEnd: null, lifetime: true, paymentFailed: false, provider: (row.provider as EntitlementProvider) ?? 'stripe' }
   const isActive = row.status === 'active' || row.status === 'trialing'
   const plan: Plan = isActive && row.plan === 'pro' ? 'pro' : 'free'
-  return { plan, status: row.status, isActive, currentPeriodEnd: row.currentPeriodEnd, lifetime: false, paymentFailed: row.paymentFailedAt != null }
+  return { plan, status: row.status, isActive, currentPeriodEnd: row.currentPeriodEnd, lifetime: false, paymentFailed: row.paymentFailedAt != null, provider: (row.provider as EntitlementProvider) ?? 'stripe' }
 }
 
 /** True when the row grants active Pro access (lifetime, or an active/trialing pro subscription). */

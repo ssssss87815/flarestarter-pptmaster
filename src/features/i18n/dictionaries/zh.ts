@@ -99,7 +99,7 @@ export const zh: Dict = {
   },
   billing: {
     currentPlan: '当前套餐', upgrade: '升级',
-    manageSubscription: '管理订阅', proArea: 'Pro 专区',
+    manageSubscription: '管理订阅', betaGrantNote: 'Beta 授权 Pro，无需管理订阅。', proArea: 'Pro 专区',
     proOnly: '高级 PPTMaster 控制项仅限 Pro。', proPeekBody: '升级后解锁更高额度与高级生成控制。',
     proFeatures: {
       f1t: '高级工作台', f1d: '生成前可配置受众、语气、风格、页数、画布与图片策略。',
