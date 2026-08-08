@@ -86,6 +86,7 @@ export const en = {
     haveAccount: 'Already have an account?', noAccount: "Don't have an account?",
     continueWith: 'Continue with {provider}',
     verifySent: 'Verification email sent. Check your inbox.',
+    registerVerifySent: 'A verification email has been sent to {email}. Click the link in the email to verify your address, then sign in.',
     resendVerification: 'Resend verification email',
     checkEmailReset: 'If that email exists, a reset link has been sent.',
     deleteAccount: 'Delete account', deleteConfirm: 'This permanently deletes your account and data. Continue?',

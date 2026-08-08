@@ -34,6 +34,7 @@ function Register() {
   const [inviteCode, setInviteCode] = useState('')
   const [error, setError] = useState<string | null>(null)
   const [busy, setBusy] = useState(false)
+  const [verifyPending, setVerifyPending] = useState(false)
 
   async function submit(e: React.FormEvent) {
     e.preventDefault()
@@ -49,17 +50,45 @@ function Register() {
     try {
       // better-auth 客户端返回 { data: { token, user }, error }；其类型对 user 的
       // 推断不完整（Omit 掉了 user），这里做一次窄化断言取 data.user.id。
-      const created = res as unknown as { data?: { user?: { id?: string } } }
+      const created = res as unknown as { data?: { user?: { id?: string; emailVerified?: boolean } } }
       await enrollPptMasterBetaAction({ data: { inviteCode, userId: created.data?.user?.id, email } })
     } catch (cause) {
       setError(cause instanceof Error ? cause.message : 'Beta invite enrollment failed.')
       return
     }
+    // 强制邮箱验证开启时（REQUIRE_EMAIL_VERIFICATION=true），better-auth 注册
+    // 后不建立 session（user.emailVerified=false），直接跳 /app 会被弹回登录页；
+    // 此时引导用户去收件箱点验证链接，验证完成后自动落 /zh/app。
+    if (verifyPendingAfterSignUp(res)) {
+      setVerifyPending(true)
+      return
+    }
     window.location.assign('/app')
+  }
+
+  /** 注册响应里 user.emailVerified===false 说明验证邮件已发出、等待用户点链接。 */
+  function verifyPendingAfterSignUp(res: unknown): boolean {
+    const data = (res as { data?: { user?: { emailVerified?: boolean } } })?.data
+    return data?.user?.emailVerified === false
   }
 
   return (
     <AuthCard title={t('auth.registerTitle')} subtitle={t('auth.registerSub')}>
+      {verifyPending ? (
+        <div className="grid gap-4">
+          <p className="text-sm text-fg-2">{t('auth.registerVerifySent', { email })}</p>
+          <Link to="/{-$locale}/verify-email" className="text-sm font-semibold text-primary">
+            {t('auth.resendVerification')}
+          </Link>
+          <p className="text-sm text-fg-2">
+            {t('auth.haveAccount')}{' '}
+            <Link to="/{-$locale}/login" className="font-semibold text-primary">
+              {t('auth.login')}
+            </Link>
+          </p>
+        </div>
+      ) : (
+      <>
       <form onSubmit={submit} className="grid gap-[15px]">
         <Field id="inviteCode" label={t('auth.inviteCode')} icon={Lock} value={inviteCode}
           onChange={(e) => setInviteCode(e.target.value)} required autoComplete="off" placeholder="PPTB-..."
@@ -84,6 +113,8 @@ function Register() {
           {t('auth.login')}
         </Link>
       </p>
+      </>
+      )}
     </AuthCard>
   )
 }

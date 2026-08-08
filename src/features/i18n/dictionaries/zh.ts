@@ -72,6 +72,7 @@ export const zh: Dict = {
     haveAccount: '已有账号？', noAccount: '没有账号？',
     continueWith: '使用 {provider} 继续',
     verifySent: '验证邮件已发送，请查收邮箱。',
+    registerVerifySent: '验证邮件已发送至 {email}。请点击邮件中的链接完成验证，验证通过后即可登录。',
     resendVerification: '重新发送验证邮件',
     checkEmailReset: '如果该邮箱存在，重置链接已发送。',
     deleteAccount: '删除账号', deleteConfirm: '此操作将永久删除您的账号和数据，是否继续？',
